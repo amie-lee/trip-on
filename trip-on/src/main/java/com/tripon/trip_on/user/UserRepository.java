@@ -1,4 +1,4 @@
-package com.tripon.user;
+package com.tripon.trip_on.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;

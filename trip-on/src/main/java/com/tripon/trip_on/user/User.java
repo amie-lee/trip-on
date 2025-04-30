@@ -1,4 +1,4 @@
-package com.tripon.user;
+package com.tripon.trip_on.user;
 
 
 import jakarta.persistence.*;

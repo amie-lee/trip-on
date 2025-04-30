@@ -1,4 +1,4 @@
-package com.tripon.user;
+package com.tripon.trip_on.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +24,8 @@ public class UserController {
     public String signup(@ModelAttribute User user) {
         userService.register(user);
         return "redirect:/user/login";
+        // return "login";
+
     }
 
     // 로그인 폼
