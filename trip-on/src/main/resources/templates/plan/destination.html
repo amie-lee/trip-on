@@ -1,0 +1,17 @@
+/* destination.html */
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>여행 등록 - 여행지</title>
+</head>
+<body>
+    <h2>여행지를 입력하세요</h2>
+    <form th:action="@{/plan/register/destination}" th:object="${trip}" method="post">
+        <input type="text" th:field="*{destination}" placeholder="여행지 입력" />
+        <button type="submit">다음</button>
+    </form>
+    <button onclick="location.href='/logout'">로그아웃</button>
+    <button onclick="location.href='/mypage'">마이페이지</button>
+</body>
+</html>

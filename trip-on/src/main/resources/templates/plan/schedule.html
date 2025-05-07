@@ -1,0 +1,19 @@
+/* schedule.html */
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>여행 등록 - 일정</title>
+</head>
+<body>
+    <h2>여행 일정을 입력하세요</h2>
+    <form th:action="@{/plan/register/schedule}" th:object="${trip}" method="post">
+        <label>부터: <input type="date" th:field="*{startDate}" /></label>
+        <label>까지: <input type="date" th:field="*{endDate}" /></label>
+        <button type="submit">다음</button>
+    </form>
+    <button onclick="location.href='/plan/register/destination'">이전</button>
+    <button onclick="location.href='/logout'">로그아웃</button>
+    <button onclick="location.href='/mypage'">마이페이지</button>
+</body>
+</html>

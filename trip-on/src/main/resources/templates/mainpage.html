@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메인페이지 - 여행 있음</title>
+    <style>
+        .trip-box {
+            border: 1px solid #ccc;        /* 테두리 회색 */
+            padding: 10px;                 /* 내부 여백 */
+            margin: 10px 0;                /* 위아래 간격 */
+            border-radius: 8px;            /* 모서리 둥글게 */
+        }
+    </style>
+</head>
+<body>
+    <h2>환영합니다!</h2>
+
+    <!-- 공통 버튼들 -->
+    <button onclick="location.href='/logout'">로그아웃</button>
+    <button onclick="location.href='/mypage'">마이페이지</button>
+    <button onclick="location.href='/plan/register/destination'">새 여행 시작하기</button>
+
+    <!-- 예정된 여행 목록 -->
+    <h3>예정된 여행</h3>
+    <div th:each="trip : ${upcomingTrips}" class="trip-box">
+        <p th:text="'여행지: ' + ${trip.title}"></p> <!-- 여행 제목 -->
+        <p th:text="'가는 날: ' + ${trip.startDate} + ' / 오는 날: ' + ${trip.endDate}"></p> <!-- 일정 -->
+        <p th:text="'태그: ' + ${trip.tags}"></p> <!-- 태그 리스트 -->
+    </div>
+
+    <!-- 지난 여행 목록 -->
+    <h3>지난 여행</h3>
+    <div th:each="trip : ${pastTrips}" class="trip-box">
+        <p th:text="'여행지: ' + ${trip.title}"></p>
+        <p th:text="'가는 날: ' + ${trip.startDate} + ' / 오는 날: ' + ${trip.endDate}"></p>
+        <p th:text="'태그: ' + ${trip.tags}"></p>
+    </div>
+</body>
+</html>
