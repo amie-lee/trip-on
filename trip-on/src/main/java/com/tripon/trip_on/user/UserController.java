@@ -34,18 +34,25 @@ public class UserController {
         return "login";
     }
 
-    // 로그인 처리
+
+    //if 문으로 메인페이지(등록된 여행 있음, 없음) 가는 용 로그인 처리 코드
     @PostMapping("/login")
-    public String login(@RequestParam String email,@RequestParam String password,
-                        HttpSession session,Model model) {
+    public String login(@RequestParam String email,
+        @RequestParam String password,
+        HttpSession session,
+        Model model) {
         var userOptional = userService.login(email, password);
+        System.out.println("[DEBUG] login attempt: " + email + " / result: " + userOptional.isPresent());
         if (userOptional.isPresent()) {
-            session.setAttribute("user", userOptional.get());
-            return "redirect:/";
-        } else {
-            model.addAttribute("error", "Invalid email or password");
-            return "login";
-        }
+            var user = userOptional.get();
+            session.setAttribute("userId", user.getId());
+            boolean hasTrip = userService.hasTrips(user.getId());
+            System.out.println("[DEBUG] hasTrip = " + hasTrip);
+            return hasTrip ? "redirect:/mainpage" : "redirect:/mainpage-new";
+        }else {
+        model.addAttribute("error", "Invalid email or password");
+        return "login";
+    }
     }
 
     // 비밀번호 찾기 폼
