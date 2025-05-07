@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 성공 테스트 페이지 </title>
+</head>
+<body>
+    <h1>로그인 성공 축하합니다</h1>
+
+    <a href="/user/login">로그아웃</a>  <!-- 나중에 홈 화면으로 redirect 하게 바꾸기 -->
+
+
+    <div th:if="${username}">
+        <p>어서오세요, <b th:text="${username}">사용자</b>님!</p>
+    </div>
+
+    <div th:unless="${username}">
+        <a href="/user/login">로그인</a> | <a href="/user/signup">회원가입</a>
+    </div>
+    
+</body>
+</html>
