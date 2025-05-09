@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * PlanController
@@ -67,43 +68,56 @@ public class PlanController {
         return "plan/accommodation";
     }
 
-    // 3단계: 숙소/교통 입력 처리
     @PostMapping("/register/accommodation")
-    public String processAccommodation(@ModelAttribute("trip") TripRegisterDto dto,
-                                       @RequestParam(required = false) String skip,
-                                       HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-
-        // "건너뛰기" 버튼 클릭 시 숙소/교통 정보 null 처리
+    public String processAccommodation(
+            @ModelAttribute("trip") TripRegisterDto dto,
+            @RequestParam(required = false) String skip) {
+    
+        // 건너뛰기 눌렀다면 null 처리
         if (skip != null) {
             dto.setAccommodation(null);
             dto.setTransportationDeparture(null);
             dto.setTransportationReturn(null);
         }
-
-        // Trip 엔티티로 변환 및 저장
-        Trip savedTrip = planService.saveTrip(userId, dto);
-        session.setAttribute("tripEntity", savedTrip); // 이후 태그 저장용
+        // Trip 저장하지 않고 바로 태그 단계로 이동
         return "redirect:/plan/register/tags";
     }
 
     // 4단계: 태그 선택 폼
     @GetMapping("/register/tags")
     public String tagForm(Model model) {
-        model.addAttribute("allTags", Arrays.asList("#1", "#2", "#3", "#4", "#5", "#6"));
+        model.addAttribute("allTags", List.of(
+            "#혼자서", "#친구랑", "#가족여행",
+            "#연인과", "#휴식",   "#관광"
+        ));
         return "plan/tags";
     }
 
-    // 4단계: 태그 입력 처리 및 최종 저장
     @PostMapping("/register/tags")
-    public String submit(@RequestParam(required = false, name = "selectedTags") String[] selectedTags,
-                         HttpSession session) {
-        if (selectedTags == null || selectedTags.length == 0) {
-            return "plan/tags"; // 태그 미선택 시 다시 태그 폼
+    public String submitTags(
+            @RequestParam(required = false, name = "selectedTags") String[] selectedTags,
+            @ModelAttribute("trip") TripRegisterDto dto,
+            HttpSession session) {
+
+        // 1) 로그인 사용자 ID
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
         }
 
-        Trip trip = (Trip) session.getAttribute("tripEntity"); // 저장된 Trip 엔티티
-        planService.saveTags(trip, Arrays.asList(selectedTags)); // 태그 DB 저장
-        return "redirect:/plan/detail"; // 여행 상세 페이지로 이동 (추후 구현)
+        // 2) Trip 엔티티 저장 (여기서 ID 생성)
+        Trip savedTrip = planService.saveTrip(userId, dto);
+
+        // 3) 선택된 태그가 있으면 TripTag 저장
+        if (selectedTags != null) {
+            planService.saveTags(savedTrip, Arrays.asList(selectedTags));
+        }
+
+        // 4) 세션에 남은 임시 DTO 정리 (선택)
+        session.removeAttribute("trip");
+
+        // 5) 저장 후 상세 페이지로 이동
+        return "redirect:/plan/detail";
     }
 }
+
