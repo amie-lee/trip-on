@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>로그인 | TRIP ON</title>
+
+  <!-- 폰트 -->
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #ffffff;
+      font-family: 'Noto Sans KR', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .logo {
+      font-family: 'Bagel Fat One', cursive;
+      font-size: 40px;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #000;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .form-wrapper {
+      padding: 0 40px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: 1px solid #000;
+      border-radius: 8px;
+      background-color: #ffffff;
+    }
+
+    .error-message {
+      height: 14px;
+      margin-top: 4px;
+      font-size: 12px;
+      color: red;
+      visibility: hidden;
+    }
+
+    .error-message.visible {
+      visibility: visible;
+    }
+
+    .bottom-links {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 14px;
+      color: #333;
+      margin-top: 8px;
+      margin-bottom: 20px;
+    }
+
+    .submit-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background-color: #dbdbdb;
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background: #000;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">TRIP ON</div>
+    <div class="subtitle">로그인</div>
+
+    <div class="form-wrapper">
+      <div class="input-group">
+        <input type="email" placeholder="이메일" />
+        <div class="error-message visible">*에러메시지 (이메일/비밀번호가 일치하지 않습니다.)</div>
+      </div>
+
+      <div class="input-group">
+        <input type="password" placeholder="비밀번호" />
+        <div class="error-message">&nbsp;</div>
+      </div>
+
+      <div class="bottom-links">
+        <a href="#">비밀번호 찾기</a>
+      </div>
+
+      <button class="submit-btn">완료</button>
+    </div>
+  </div>
+</body>
+</html>
