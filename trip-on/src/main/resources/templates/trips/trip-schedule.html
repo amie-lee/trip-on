@@ -1,17 +1,14 @@
+<!-- 3-2 -->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>여행 등록 | TRIP ON</title>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* 3-2.html의 스타일 그대로 복붙됨 (필요시 줄일 수 있음) */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             background-color: #fff;
             font-family: 'Noto Sans KR', sans-serif;
@@ -22,42 +19,34 @@
             display: flex;
             flex-direction: column;
         }
-
-        /* 헤더 영역 */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .logo {
             font-family: 'Bagel Fat One', cursive;
             font-size: 40px;
             color: #000;
             text-decoration: none;
         }
-
         .logout-group {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
         .logout-text {
             font-size: 15px;
             color: #000;
             text-decoration: none;
         }
-
         .avatar-small {
             width: 30px;
             height: 30px;
             background-color: #d9d9d9;
             border-radius: 50%;
         }
-
-        /* 진행 상태 표시 */
         .progress-container {
             display: flex;
             justify-content: center;
@@ -65,13 +54,11 @@
             margin-top: 80px;
             position: relative;
         }
-
         .progress-dots {
             display: flex;
             align-items: center;
             gap: 80px;
         }
-
         .dot {
             width: 30px;
             height: 30px;
@@ -80,18 +67,8 @@
             border: 1px solid #000;
             z-index: 2;
         }
-
-        .dot.active {
-            background-color: #CBE1ED;
-            border: none;
-        }
-
-        .dot.completed {
-            background-color: #CACACA;
-            border: none;
-        }
-
-        /* 진행 상태 선 */
+        .dot.active { background-color: #CBE1ED; border: none; }
+        .dot.completed { background-color: #CACACA; border: none; }
         .progress-line {
             position: absolute;
             top: 50%;
@@ -102,8 +79,6 @@
             background-color: #000;
             z-index: 1;
         }
-
-        /* 메인 콘텐츠 */
         .content-wrapper {
             display: flex;
             flex-direction: column;
@@ -112,7 +87,6 @@
             flex: 1;
             margin-top: -80px;
         }
-
         .main-question {
             font-family: 'Inter', sans-serif;
             font-weight: 800;
@@ -121,13 +95,11 @@
             margin-bottom: 30px;
             margin-top: -180px;
         }
-
         .date-inputs {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-
         .input-field {
             width: 250px;
             height: 60px;
@@ -139,14 +111,11 @@
             outline: none;
             text-align: center;
         }
-
         .date-separator {
             font-size: 24px;
             color: #000;
             font-weight: 500;
         }
-
-        /* 버튼 스타일 */
         .button-group {
             position: absolute;
             bottom: 40px;
@@ -154,7 +123,6 @@
             display: flex;
             justify-content: space-between;
         }
-
         .btn {
             width: 150px;
             height: 40px;
@@ -166,7 +134,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
         .btn:hover {
             background-color: #000;
             color: #fff;
@@ -177,7 +144,8 @@
     <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
+            <a class="logout-text" href="/logout">로그아웃</a>
+            <a class="logout-text" href="/mypage">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
     </div>
@@ -194,17 +162,16 @@
 
     <div class="content-wrapper">
         <div class="main-question">언제 떠나시나요?</div>
-        <div class="date-inputs">
-            <input type="date" class="input-field" placeholder="시작일">
+        <form th:action="@{/trips/register/trip-schedule}" th:object="${tripRegisterDto}" method="post" class="date-inputs">
+            <input type="date" class="input-field" th:field="*{startDate}" />
             <span class="date-separator">부터</span>
-            <input type="date" class="input-field" placeholder="종료일">
+            <input type="date" class="input-field" th:field="*{endDate}" />
             <span class="date-separator">까지</span>
-        </div>
-    </div>
-    
-    <div class="button-group">
-        <button class="btn">이전</button>
-        <button class="btn">다음</button>
+            <div class="button-group">
+                <button type="button" class="btn" onclick="location.href='/trips/register/trip-place'">이전</button>
+                <button type="submit" class="btn">다음</button>
+            </div>
+        </form>
     </div>
 </body>
 </html>

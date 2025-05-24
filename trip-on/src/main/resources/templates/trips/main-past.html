@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,6 +11,23 @@
             margin: 0;
             padding: 0;
         }
+        /* 클릭 가능하다는 시각적 힌트를 위해 포인터 커서 */
+.trip-card {
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 호버 시 배경·글자색 반전 */
+.trip-card:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+/* 지난 여행 카드 호버 시 약간 다른 색을 원한다면 */
+.trip-card.past:hover {
+    background-color: #444;
+    color: #fff;
+}
 
         body {
             background-color: #fff;
@@ -139,32 +156,69 @@
         .content {
             padding-top: 60px;
         }
-    </style>
+   </style>
 </head>
 <body>
     <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
+            <a th:href="@{/user/logout}" class="logout-text">로그아웃</a>
             <div class="avatar-small"></div>
         </div>
     </div>
 
-    <button class="new-trip-btn">새 여행 시작하기</button>
+    <!-- 새 여행 시작하기 -->
+    <button class="new-trip-btn"
+            th:onclick="'location.href=\'/trips/register/trip-place\''">
+        새 여행 시작하기
+    </button>
 
     <div class="content">
+        <!-- 예정된 여행 -->
         <div class="upcoming-trips">
             <div class="section-title">예정된 여행</div>
-            
+            <div class="trip-grid">
+                <div class="trip-card"
+                     th:each="trip : ${upcomingTrips}"
+                     th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan\''">
+                    <div class="trip-location" th:text="${trip.title}">여행 제목</div>
+                    <div class="trip-date"
+                         th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+                        2025.04.01 - 2025.04.05
+                    </div>
+                    <div class="trip-tags">
+                        <span th:each="tag : ${trip.tags}"
+                              th:text="'#' + ${tag}">#태그</span>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(upcomingTrips)}" class="empty-message">
+                    예정된 여행이 없습니다.
+                </div>
             </div>
         </div>
 
         <div class="divider"></div>
 
+        <!-- 지난 여행 -->
         <div class="past-trips">
             <div class="section-title">지난 여행</div>
             <div class="trip-grid">
-
+                <div class="trip-card past"
+                     th:each="trip : ${pastTrips}"
+                     th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan\''">
+                    <div class="trip-location" th:text="${trip.title}">여행 제목</div>
+                    <div class="trip-date"
+                         th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+                        2025.03.20 - 2025.03.25
+                    </div>
+                    <div class="trip-tags">
+                        <span th:each="tag : ${trip.tags}"
+                              th:text="'#' + ${tag}">#태그</span>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(pastTrips)}" class="empty-message">
+                    지난 여행이 없습니다.
+                </div>
             </div>
         </div>
     </div>

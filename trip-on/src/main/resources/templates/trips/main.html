@@ -1,5 +1,6 @@
+<!--2-1-->
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -33,6 +34,7 @@
             font-family: 'Bagel Fat One', cursive;
             font-size: 40px;
             color: #000;
+            text-decoration: none;
         }
 
         .logout-group {
@@ -44,6 +46,7 @@
         .logout-text {
             font-size: 15px;
             color: #000;
+            text-decoration: none;
         }
 
         .avatar-small {
@@ -60,7 +63,6 @@
             align-items: center;
             justify-content: center;
             flex: 1;
-            margin-top: -80px;
         }
 
         .empty-message {
@@ -84,9 +86,30 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            margin-bottom: 20px;
         }
 
         .start-trip-btn:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sub-btn {
+            height: 36px;
+            padding: 0 16px;
+            background-color: #eee;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sub-btn:hover {
             background-color: #000;
             color: #fff;
         }
@@ -96,14 +119,19 @@
     <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
+            <a href="/user/logout" class="logout-text">로그아웃</a>
+            <a href="/user/mypage" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
     </div>
 
     <div class="content-wrapper">
         <div class="empty-message">아직 등록된 여행이 없어요.</div>
-        <button class="start-trip-btn">새 여행 시작하기</button>
+        <button class="start-trip-btn" onclick="location.href='/plan/register/destination'">새 여행 시작하기</button>
+        <div class="btn-row">
+            <button class="sub-btn" onclick="location.href='/user/logout'">로그아웃</button>
+            <button class="sub-btn" onclick="location.href='/user/mypage'">마이페이지</button>
+        </div>
     </div>
 </body>
 </html>

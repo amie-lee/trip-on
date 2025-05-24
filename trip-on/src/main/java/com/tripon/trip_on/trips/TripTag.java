@@ -1,4 +1,4 @@
-package com.tripon.trip_on.plan;
+package com.tripon.trip_on.trips;
 
 import jakarta.persistence.*;
 import lombok.Getter;

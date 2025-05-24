@@ -8,7 +8,8 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import com.tripon.trip_on.plan.TripRepository;
+
+import com.tripon.trip_on.trips.TripRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -148,5 +149,5 @@ public class UserService {
     // 회원 탈퇴
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
-    }    
+    }
 }
