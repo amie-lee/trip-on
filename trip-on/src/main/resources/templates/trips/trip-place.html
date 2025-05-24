@@ -1,10 +1,12 @@
+<!--3-1-->
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>여행 등록 | TRIP ON</title>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+    <!-- ✅ 스타일은 3-1.html의 <style> 그대로 사용하므로 여기 생략 가능 -->
     <style>
         * {
             box-sizing: border-box;
@@ -159,12 +161,13 @@
             color: #fff;
         }
     </style>
-</head>
+    </head>
 <body>
     <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
+            <a class="logout-text" href="/logout">로그아웃</a>
+            <a class="logout-text" href="/mypage">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
     </div>
@@ -181,12 +184,13 @@
 
     <div class="content-wrapper">
         <div class="main-question">어디로 떠나시나요?</div>
-        <input type="text" class="input-field" placeholder="여행지를 입력하세요">
-    </div>
-    
-    <div class="button-group">
-        <div></div>
-        <button class="btn">다음</button>
+        <form th:action="@{/trips/register/trip-place}" th:object="${tripRegisterDto}" method="post">
+            <input type="text" class="input-field" th:field="*{title}" placeholder="여행지를 입력하세요" />
+            <div class="button-group">
+                <div></div>
+                <button type="submit" class="btn">다음</button>
+            </div>
+        </form>
     </div>
 </body>
 </html>

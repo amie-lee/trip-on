@@ -83,7 +83,7 @@ public class UserController {
 
             boolean hasTrip = userService.hasTrips(user.getId());
             System.out.println("[DEBUG] hasTrip = " + hasTrip);
-            return hasTrip ? "redirect:/mainpage" : "redirect:/mainpage-new";
+            return hasTrip ? "redirect:/trips/main-past" : "redirect:/trips/main";
         } else {
             model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
             return "login";

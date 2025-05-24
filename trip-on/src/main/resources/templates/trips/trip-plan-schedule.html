@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>여행 상세 | TRIP ON</title>
+    <title th:text="${trip.title} + ' | TRIP ON'">여행 상세 | TRIP ON</title>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
         * {
@@ -505,228 +505,228 @@
             cursor: pointer;
             margin-left: auto;
         }
+        /* 1. 태그 스타일 */
+        .tag-list .tag {
+            margin-right: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
+        .scroll-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
+
+        .empty-message {
+            color: #666;
+            text-align: center;
+            font-size: 14px;
+        }
+
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="logo">TRIP ON</div>
-        <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
-            <div class="avatar-small"></div>
+  <!-- 상단 바 -->
+  <div class="top-bar">
+    <div class="logo">TRIP ON</div>
+    <div class="logout-group">
+      <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
+      <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
+      <div class="avatar-small"></div>
+    </div>
+  </div>
+
+  <!-- 뒤로가기 -->
+  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+
+  <div class="container">
+    <!-- LEFT INFO -->
+    <div class="left-info">
+      <div class="trip-title-row">
+        <div class="trip-title" th:text="${trip.title}">여행 제목</div>
+        <button class="menu-dot" id="menuDotBtn">···</button>
+        <div class="menu-popup" id="menuPopup" style="display:none;">
+          <button class="menu-btn"
+                 th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
+            편집
+          </button>
+          <button class="menu-btn"
+                  th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
+            삭제
+          </button>
+        </div>
+      </div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-label">일정</div>
+          <div class="info-value"
+               th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+            2025.05.24 - 2025.05.30
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">숙소</div>
+          <div class="info-value">
+        <!-- 숙소 텍스트 -->
+        <span th:text="${trip.accommodation}">숙소 이름</span>
+        <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
+        <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
+       class="info-link">
+      (지도)
+        </a>
         </div>
     </div>
-
-    <a href="#" class="back-link">&larr; 이전</a>
-
-    <div class="container">
-        <div class="left-info">
-            <div class="trip-title-row">
-                <div class="trip-title">제주도</div>
-                <div class="trip-menu-box" style="position: relative;">
-                    <button class="menu-dot" id="menuDotBtn">···</button>
-                    <div class="menu-popup" id="menuPopup" style="display:none;">
-                        <button class="menu-btn" id="editInfoBtn">편집</button>
-                        <button class="menu-btn">삭제</button>
-                    </div>
-                </div>
-            </div>
-            <div class="info-table">
-                <div class="info-row">
-                    <div class="info-label">일정</div>
-                    <div class="info-value">2025.04.01 - 2025.04.03</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">숙소</div>
-                    <div class="info-value">00호텔 <span class="info-link">(지도)</span></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">교통편</div>
-                    <div class="info-value">00항공 4/1 11:00, 4/3 19:00</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">태그</div>
-                    <div class="info-value tag-list">
-                        <span class="tag selected">#혼자서</span>
-                        <span class="tag selected">#휴식</span>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">경비</div>
-                    <div class="info-value">326,000원 <span class="info-link">더보기</span></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">동행</div>
-                    <div class="info-value"><span class="info-invite">초대</span></div>
-                </div>
-                <button id="saveInfoBtn">저장</button>
-            </div>
-            <div class="side-btns">
-                <button class="side-btn selected">계획</button>
-                <button class="side-btn">후기</button>
-            </div>
+        <div class="info-row">
+          <div class="info-label">교통편</div>
+          <div class="info-value" th:text="${trip.transportation}"></div>
         </div>
-
-        <div class="right-content">
-            <div class="days-row">
-                <div class="day-col">
-                    <div class="day-title"><a href="#" class="edit-day-link">편집</a>4/1 (1일차)</div>
-                    <div class="schedule-list">
-                        <div class="schedule-item">
-                          <span class="schedule-time">09:00</span>
-                          <span class="schedule-content">공항 도착</span>
-                        </div>
-                        <div class="schedule-item">
-                          <span class="schedule-time">11:00</span>
-                          <span class="schedule-content">비행기</span>
-                        </div>
-                        <div class="schedule-item">
-                          <span class="schedule-time">12:30</span>
-                          <span class="schedule-content">점심식사<br>@00식당</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="day-col">
-                    <div class="day-title">4/2 (2일차)</div>
-                </div>
-                <div class="day-col">
-                    <div class="day-title">4/3 (3일차)</div>
-                </div>
-            </div>
+        <div class="info-row">
+          <div class="info-label">태그</div>
+          <div class="info-value tag-list">
+            <span th:each="tripTag : ${tags}"
+                  class="tag"
+                  th:text="${tripTag.tagName}">
+              #태그이름
+            </span>
+          </div>
         </div>
+        <div class="info-row">
+          <div class="info-label">경비</div>
+          <div class="info-value">300원</div>
+          <span class="info-link">더보기</span>
+        </div>
+        <div class="info-row">
+          <div class="info-label">동행</div>
+          <div class="info-value"><span class="info-invite">초대</span></div>
+        </div>
+      </div>
+
+      <div class="side-btns">
+        <button class="side-btn selected">계획</button>
+        <button class="side-btn">후기</button>
+      </div>
     </div>
 
-    <!-- 이메일 초대 모달 -->
-    <div id="inviteModal" class="invite-modal" style="display:none;">
-        <div class="invite-modal-content">
-            <div class="invite-title">초대할 사용자의 이메일을 입력해주세요</div>
-            <div class="invite-form-row">
-                <input type="email" class="invite-input" placeholder="" />
-                <button class="invite-send-btn">전송</button>
+     <!-- RIGHT: 일정 편집 -->
+    <div class="right-content">
+      <form th:action="@{/trips/{tripId}/trip-plan-schedule(tripId=${trip.id})}" method="post">
+        <div class="scroll-container">
+          <div class="days-row">
+            <!-- 날짜 레이블 반복 -->
+            <div th:each="label,stat : ${dateLabels}"
+                 th:id="|day-${stat.count}|"
+                 class="day-col">
+
+              <!-- 일차 제목 -->
+              <div class="day-title">
+                <span th:text="${label}">5/1 (1일차)</span>
+              </div>
+
+              <!-- 스케줄 목록 -->
+              <div class="schedule-list">
+                <!-- 기존 DTO로부터 뿌려진 일정 -->
+                <div th:each="dto,idx : ${scheduleDtos}"
+                     th:if="${dto.dayNumber} == ${stat.count}"
+                     class="schedule-item">
+                  <!-- 숨겨진 필드 -->
+                  <input type="hidden" th:name="|scheduleDtos[${idx}].id|"          th:value="${dto.id}" />
+                  <input type="hidden" th:name="|scheduleDtos[${idx}].dayNumber|"   th:value="${dto.dayNumber}" />
+                  <input type="hidden" th:name="|scheduleDtos[${idx}].time|"        th:value="${#temporals.format(dto.time,'HH:mm')}" />
+                  <input type="hidden" th:name="|scheduleDtos[${idx}].content|"     th:value="${dto.content}" />
+                  <input type="hidden" th:id="|toDel${idx}|" th:name="|scheduleDtos[${idx}].toDelete|" value="false" />
+
+                  <!-- 화면용 표시 -->
+                  <span class="schedule-time" th:text="${#temporals.format(dto.time,'HH:mm')}">00:00</span>
+                  <span class="schedule-content" th:text="${dto.content}">내용</span>
+                  <button type="button"
+                          th:onclick="|removeRow(this, ${idx})|">×</button>
+                </div>
+
+                <!-- 일정이 없을 때 안내 -->
+                <div th:if="${#lists.isEmpty(scheduleDtos.?[dayNumber == stat.count])}"
+                     class="empty-message">
+                  등록된 일정이 없습니다.
+                </div>
+              </div>
+
+              <!-- 신규 입력 & 추가 버튼 -->
+              <div class="schedule-input-row">
+                <input type="time" id="newTime_[[${stat.count}]]" />
+                <input type="text" id="newContent_[[${stat.count}]]"
+                       placeholder="내용을 입력하세요" />
+                <button type="button"
+                        th:onclick="|addTemp(${stat.count})|">＋</button>
+              </div>
             </div>
-            <div class="invite-message invite-error">*에러메시지 (가입된 회원의 이메일인지 확인)</div>
-            <div class="invite-message invite-success">전송 완료 메시지</div>
-            <button class="invite-close-btn">닫기</button>
+          </div>
         </div>
+
+        <!-- 저장 버튼 -->
+        <button type="submit" class="plan-save-btn">저장</button>
+      </form>
     </div>
+  </div>
 
-    <script>
-    document.getElementById('menuDotBtn').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const popup = document.getElementById('menuPopup');
-        popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
-    });
-    document.addEventListener('click', function() {
-        document.getElementById('menuPopup').style.display = 'none';
-    });
-    document.querySelectorAll('.side-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.side-btn').forEach(function(b) {
-                b.classList.remove('selected');
-            });
-            btn.classList.add('selected');
-        });
-    });
-    document.querySelector('.info-invite').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('inviteModal').style.display = 'flex';
-    });
-    document.querySelector('.invite-close-btn').addEventListener('click', function() {
-        document.getElementById('inviteModal').style.display = 'none';
-    });
+  <!-- SCRIPT: 동적 추가/삭제 -->
+  <script>
+    // 기존 서버에서 내려온 scheduleDtos 크기만큼 시작
+    let nextIdx = /*[[${scheduleDtos.size()}]]*/ 0;
 
-    // info-value 편집/저장 기능
-    const infoTable = document.querySelector('.info-table');
-    const editBtn = document.getElementById('editInfoBtn');
-    const saveBtn = document.getElementById('saveInfoBtn');
-    let editing = false;
+    // 새 일정 추가
+    function addTemp(day) {
+      const timeInput    = document.getElementById('newTime_' + day);
+      const contentInput = document.getElementById('newContent_' + day);
+      const time    = timeInput.value.trim();
+      const content = contentInput.value.trim();
+      if (!time && !content) return;
 
-    editBtn.addEventListener('click', function() {
-        if (editing) return;
-        editing = true;
-        saveBtn.style.display = 'block';
-        // 제주도(trip-title) 편집
-        const tripTitle = document.querySelector('.trip-title');
-        if (tripTitle) {
-            const text = tripTitle.textContent.trim();
-            tripTitle.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:32px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-        }
-        infoTable.querySelectorAll('.info-row').forEach(function(row) {
-            const label = row.querySelector('.info-label')?.textContent.trim();
-            const val = row.querySelector('.info-value');
-            if (!val) return;
-            // 태그/링크/초대 등은 편집 제외 (단, 태그/숙소/경비는 편집 가능)
-            if (label === '일정') {
-                // 일정은 시작일과 종료일로 변경
-                const text = val.textContent.trim();
-                const dates = text.split(' - ');
-                const startDate = dates[0] || '';
-                const endDate = dates[1] || '';
-                val.innerHTML = `<input type="date" value="${startDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;"> - <input type="date" value="${endDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-            } else if (label === '태그') {
-                // 태그는 쉼표로 구분된 텍스트로 변환
-                const tags = Array.from(val.querySelectorAll('.tag')).map(t => t.textContent.trim().replace(/^#/, ''));
-                val.innerHTML = `<input type="text" value="${tags.join(', ')}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-            } else if (label === '숙소') {
-                // 숙소명만 input으로, (지도) 링크는 그대로
-                const text = val.childNodes[0]?.textContent.trim() || '';
-                const link = val.querySelector('.info-link');
-                val.innerHTML = `<input type="text" value="${text}" style="width:70%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-                if (link) val.appendChild(link);
-            } else if (label === '경비') {
-                // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
-                return;
-            } else if (val.classList.contains('tag-list') || val.querySelector('.info-link') || val.querySelector('.info-invite')) {
-                // 태그/링크/초대 등은 편집 제외 (위에서 처리함)
-                return;
-            } else {
-                // 기본: 텍스트 input
-                const text = val.textContent.trim();
-                val.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-            }
-        });
-    });
+      const list = document.querySelector('#day-' + day + ' .schedule-list');
+      const idx  = nextIdx++;
+      const container = document.createElement('div');
+      container.className = 'schedule-item';
+      container.innerHTML = `
+        <input type="hidden" name="scheduleDtos[${idx}].dayNumber" value="${day}" />
+        <input type="hidden" name="scheduleDtos[${idx}].time"       value="${time}" />
+        <input type="hidden" name="scheduleDtos[${idx}].content"    value="${content}" />
+        <input type="hidden" id="toDel${idx}" name="scheduleDtos[${idx}].toDelete" value="false" />
 
-    saveBtn.addEventListener('click', function() {
-        editing = false;
-        saveBtn.style.display = 'none';
-        // 제주도(trip-title) 저장
-        const tripTitle = document.querySelector('.trip-title');
-        if (tripTitle) {
-            const input = tripTitle.querySelector('input');
-            if (input) {
-                tripTitle.textContent = input.value;
-            }
-        }
-        infoTable.querySelectorAll('.info-row').forEach(function(row) {
-            const label = row.querySelector('.info-label')?.textContent.trim();
-            const val = row.querySelector('.info-value');
-            if (!val) return;
-            const input = val.querySelector('input');
-            if (input) {
-                if (label === '일정') {
-                    // 시작일과 종료일 저장
-                    const inputs = val.querySelectorAll('input');
-                    const startDate = inputs[0]?.value || '';
-                    const endDate = inputs[1]?.value || '';
-                    val.textContent = `${startDate} - ${endDate}`;
-                } else if (label === '태그') {
-                    // 쉼표로 분리해서 각각 태그로 렌더링
-                    const tags = input.value.split(',').map(t => t.trim()).filter(Boolean);
-                    val.innerHTML = tags.map(tag => `<span class="tag selected">#${tag}</span>`).join(' ');
-                } else if (label === '숙소') {
-                    // 숙소명 input + (지도) 링크
-                    const link = val.querySelector('.info-link') || row.querySelector('.info-link');
-                    val.innerHTML = input.value;
-                    if (link) val.appendChild(link);
-                } else if (label === '경비') {
-                    // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
-                    return;
-                } else {
-                    val.textContent = input.value;
-                }
-            }
-        });
-    });
-    </script>
+        <span class="schedule-time">${time}</span>
+        <span class="schedule-content">${content}</span>
+        <button type="button" onclick="removeRow(this, ${idx});">×</button>
+      `;
+      list.appendChild(container);
+
+      // 입력란 초기화
+      timeInput.value    = '';
+      contentInput.value = '';
+
+      // '등록된 일정이 없습니다.' 메시지 제거
+      const emptyMsg = list.querySelector('.empty-message');
+      if (emptyMsg) emptyMsg.remove();
+    }
+
+    // 일정 삭제 (toDelete 플래그 설정 + 화면 제거)
+    function removeRow(btn, idx) {
+      // 서버에서 삭제 처리용 플래그
+      const delInput = document.getElementById('toDel' + idx);
+      if (delInput) delInput.value = 'true';
+
+      // 화면에서 제거
+      const item = btn.closest('.schedule-item');
+      if (item) item.remove();
+
+      // 만약 더 이상 일정이 없으면 안내 메시지 복원
+      const day = btn.closest('.day-col').id.split('-')[1];
+      const list = document.querySelector('#day-' + day + ' .schedule-list');
+      if (list && list.querySelectorAll('.schedule-item').length === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'empty-message';
+        msg.textContent = '등록된 일정이 없습니다.';
+        list.appendChild(msg);
+      }
+    }
+  </script>
 </body>
 </html>

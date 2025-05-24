@@ -1,5 +1,5 @@
 // --- Entity (Trip) ---
-package com.tripon.trip_on.plan;
+package com.tripon.trip_on.trips;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class Trip {
     private LocalDate endDate;   // 여행 종료일
 
     private String accommodation;  // 숙소 정보
-    private String transportaion;  // 교통편 정보 (오타 주의: transportation)
+    private String transportation;  // 교통편 정보 (오타 주의: transportation)
 
     private String status; // 여행 상태 (예정/완료 등)
 

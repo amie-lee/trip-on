@@ -71,8 +71,12 @@
         .trip-title {
             font-family: 'Inter', sans-serif;
             font-weight: 800;
-            font-size: 32px;
-            margin-right: 16px;
+            font-size: 20px;
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #bbb;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
         
         .trip-menu-box {
@@ -469,245 +473,107 @@
             cursor: pointer;
             margin-left: auto;
         }
+
+        /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
+        .scroll-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
+            <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
+            <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
     </div>
+
+    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+
     <div class="container">
+        <!-- LEFT INFO (편집 폼) -->
         <div class="left-info">
-            <div class="trip-title-row">
-                <div class="trip-title">제주도</div>
-                <div class="trip-menu-box" style="position: relative;">
-                    <button class="menu-dot" id="menuDotBtn">···</button>
-                    <div class="menu-popup" id="menuPopup" style="display:none;">
-                        <button class="menu-btn" id="editInfoBtn">편집</button>
-                        <button class="menu-btn">삭제</button>
+            <form th:action="@{/trips/{id}/trip-plan-trip(id=${tripId})}"
+                  th:object="${tripUpdateDto}" method="post">
+
+                <!-- 제목 입력 바 -->
+                <div class="trip-title-row">
+                    <input type="text" th:field="*{title}" class="trip-title" placeholder="여행 제목" />
+                </div>
+
+                <div class="info-table">
+                    <div class="info-row">
+                        <div class="info-label">기간</div>
+                        <div class="info-value">
+                            <input type="date" th:field="*{startDate}" /> - 
+                            <input type="date" th:field="*{endDate}" />
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">숙소</div>
+                        <div class="info-value">
+                            <input type="text" th:field="*{accommodation}" />
+                            <a th:href="@{|https://www.google.com/maps/search/${tripUpdateDto.accommodation}|}" class="info-link">(지도)</a>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">교통편</div>
+                        <div class="info-value">
+                            <input type="text" th:field="*{transportationDeparture}" placeholder="출발" />,
+                            <input type="text" th:field="*{transportationReturn}" placeholder="귀환" />
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">태그</div>
+                        <div class="info-value tag-list">
+                            <input type="text" th:field="*{tagsText}" placeholder="a,b,c" />
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">경비</div>
+                        <div class="info-value">300원</div>
+                        <span class="info-link">더보기</span>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">동행</div>
+                        <div class="info-value"><span class="info-invite">초대</span></div>
                     </div>
                 </div>
-            </div>
-            <div class="info-table">
-                <div class="info-row"><div class="info-label">일정</div><div class="info-value">2025.04.01 - 2025.04.03</div></div>
-                <div class="info-row"><div class="info-label">숙소</div><div class="info-value">00호텔 <span class="info-link">(지도)</span></div></div>
-                <div class="info-row"><div class="info-label">교통편</div><div class="info-value">00항공 4/1 11:00, 4/3 19:00</div></div>
-                <div class="info-row"><div class="info-label">태그</div><div class="info-value tag-list"><span class="tag selected">#혼자서</span><span class="tag selected">#휴식</span></div></div>
-                <div class="info-row"><div class="info-label">경비</div><div class="info-value">326,000원 <span class="info-link">더보기</span></div></div>
-                <div class="info-row"><div class="info-label">동행</div><div class="info-value"><span class="info-invite">초대</span></div></div>
-            </div>
-            <button id="saveInfoBtn">저장</button>
-            <div class="side-btns">
-                <button class="side-btn selected">계획</button>
-                <button class="side-btn">후기</button>
-            </div>
+
+                <button class="side-btn selected" type="submit">저장</button>
+                <button class="side-btn" type="button" th:onclick="|location.href='@{/trips/{id}/trip-plan(id=${tripId})}'|">취소</button>
+            </form>
         </div>
+
+        <!-- RIGHT DAYS & SCHEDULES (원본 그대로) -->
         <div class="right-content">
-            <div class="plan-box">
-                <a href="#" class="back-link">&larr; 이전</a>
+            <div class="scroll-container">
                 <div class="days-row">
-                    <div class="day-col">
-                        <div class="day-title">4/1 (1일차)</div>
+                    <div th:each="label,iterStat : ${dateLabels}" class="day-col">
+                        <div class="day-title">
+                            <a href="#" class="edit-day-link" th:if="${iterStat.first}"></a>
+                            <span th:text="${label}"></span>
+                        </div>
                         <div class="schedule-list">
+                            <div th:each="s : ${schedules.?[dayNumber == iterStat.count]}" class="schedule-item">
+                                <span class="schedule-time" th:text="${#temporals.format(s.time,'HH:mm')}">09:00</span>
+                                <span class="schedule-content" th:text="${s.content}">일정 내용</span>
+                            </div>
+                            <div th:if="${#lists.isEmpty(schedules.?[dayNumber == iterStat.count])}" class="empty-message">
+                                등록된 일정이 없습니다.
+                            </div>
                         </div>
-                        <div class="schedule-input-row">
-                            <input class="schedule-time" type="time" name="time1" placeholder="시간" />
-                            <input class="schedule-content" type="text" name="content1" placeholder="내용을 입력하세요" />
-                        </div>
-                        <button class="schedule-add-btn">+</button>
-                    </div>
-                    <div class="day-col">
-                        <div class="day-title">4/2 (2일차)</div>
-                        <div class="schedule-list"></div>
-                        <div class="schedule-input-row">
-                            <input class="schedule-time" type="time" name="time2" placeholder="시간" />
-                            <input class="schedule-content" type="text" name="content2" placeholder="내용을 입력하세요" />
-                        </div>
-                        <button class="schedule-add-btn">+</button>
-                    </div>
-                    <div class="day-col">
-                        <div class="day-title">4/3 (3일차)</div>
-                        <div class="schedule-list"></div>
-                        <div class="schedule-input-row">
-                            <input class="schedule-time" type="time" name="time3" placeholder="시간" />
-                            <input class="schedule-content" type="text" name="content3" placeholder="내용을 입력하세요" />
-                        </div>
-                        <button class="schedule-add-btn">+</button>
+                        <button class="schedule-add-btn" th:onclick="|location.href='@{/trips/{id}/schedule/add(id=${tripId})}?day=${iterStat.count}'|">
+                            + 일정 추가
+                        </button>
                     </div>
                 </div>
-                <button class="plan-save-btn">저장</button>
             </div>
         </div>
     </div>
-        <!-- 이메일 초대 모달 -->
-    <div id="inviteModal" class="invite-modal" style="display:none;">
-        <div class="invite-modal-content">
-            <div class="invite-title">초대할 사용자의 이메일을 입력해주세요</div>
-            <div class="invite-form-row">
-                <input type="email" class="invite-input" placeholder="" />
-                <button class="invite-send-btn">전송</button>
-            </div>
-            <div class="invite-message invite-error">*에러메시지 (가입된 회원의 이메일인지 확인)</div>
-            <div class="invite-message invite-success">전송 완료 메시지</div>
-            <button class="invite-close-btn">닫기</button>
-        </div>
-    </div>
-
 </body>
-<script>
-document.querySelectorAll('.days-row .day-col').forEach(function(dayCol) {
-  const addBtn = dayCol.querySelector('.schedule-add-btn');
-  const timeInput = dayCol.querySelector('.schedule-time');
-  const contentInput = dayCol.querySelector('.schedule-content');
-  const list = dayCol.querySelector('.schedule-list');
-
-  // +버튼 클릭 시 일정 추가
-  if (addBtn && timeInput && contentInput && list) {
-    addBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      const time = timeInput.value.trim();
-      const content = contentInput.value.trim();
-      if (!time && !content) return;
-      // 일정 항목 생성
-      const div = document.createElement('div');
-      div.className = 'schedule-item';
-      div.innerHTML = `${time ? time + ' ' : ''}${content} <button class="schedule-remove">×</button>`;
-      list.appendChild(div);
-      // 입력란 비우기
-      timeInput.value = '';
-      contentInput.value = '';
-    });
-  }
-
-  // x버튼(좌클릭)으로 삭제 (이벤트 위임)
-  list.addEventListener('click', function(e) {
-    if (e.target.classList.contains('schedule-remove')) {
-      e.preventDefault();
-      const item = e.target.closest('.schedule-item');
-      if (item) item.remove();
-    }
-  });
-});
-
-document.getElementById('menuDotBtn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    const popup = document.getElementById('menuPopup');
-    popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
-});
-document.addEventListener('click', function() {
-    document.getElementById('menuPopup').style.display = 'none';
-});
-document.querySelectorAll('.side-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.side-btn').forEach(function(b) {
-            b.classList.remove('selected');
-        });
-        btn.classList.add('selected');
-    });
-});
-document.querySelector('.info-invite').addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('inviteModal').style.display = 'flex';
-});
-document.querySelector('.invite-close-btn').addEventListener('click', function() {
-    document.getElementById('inviteModal').style.display = 'none';
-});
-
-// info-value 편집/저장 기능
-const infoTable = document.querySelector('.info-table');
-const editBtn = document.getElementById('editInfoBtn');
-const saveBtn = document.getElementById('saveInfoBtn');
-let editing = false;
-
-editBtn.addEventListener('click', function() {
-    if (editing) return;
-    editing = true;
-    saveBtn.style.display = 'block';
-    // 제주도(trip-title) 편집
-    const tripTitle = document.querySelector('.trip-title');
-    if (tripTitle) {
-        const text = tripTitle.textContent.trim();
-        tripTitle.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:32px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-    }
-    infoTable.querySelectorAll('.info-row').forEach(function(row) {
-        const label = row.querySelector('.info-label')?.textContent.trim();
-        const val = row.querySelector('.info-value');
-        if (!val) return;
-        // 태그/링크/초대 등은 편집 제외 (단, 태그/숙소/경비는 편집 가능)
-        if (label === '일정') {
-            // 일정은 시작일과 종료일로 변경
-            const text = val.textContent.trim();
-            const dates = text.split(' - ');
-            const startDate = dates[0] || '';
-            const endDate = dates[1] || '';
-            val.innerHTML = `<input type="date" value="${startDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;"> - <input type="date" value="${endDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-        } else if (label === '태그') {
-            // 태그는 쉼표로 구분된 텍스트로 변환
-            const tags = Array.from(val.querySelectorAll('.tag')).map(t => t.textContent.trim().replace(/^#/, ''));
-            val.innerHTML = `<input type="text" value="${tags.join(', ')}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-        } else if (label === '숙소') {
-            // 숙소명만 input으로, (지도) 링크는 그대로
-            const text = val.childNodes[0]?.textContent.trim() || '';
-            const link = val.querySelector('.info-link');
-            val.innerHTML = `<input type="text" value="${text}" style="width:70%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-            if (link) val.appendChild(link);
-
-        } else if (val.classList.contains('tag-list') || val.querySelector('.info-link') || val.querySelector('.info-invite')) {
-            // 태그/링크/초대 등은 편집 제외 (위에서 처리함)
-            return;
-        } else {
-            // 기본: 텍스트 input
-            const text = val.textContent.trim();
-            val.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-        }
-    });
-});
-
-saveBtn.addEventListener('click', function() {
-    editing = false;
-    saveBtn.style.display = 'none';
-    // 제주도(trip-title) 저장
-    const tripTitle = document.querySelector('.trip-title');
-    if (tripTitle) {
-        const input = tripTitle.querySelector('input');
-        if (input) {
-            tripTitle.textContent = input.value;
-        }
-    }
-    infoTable.querySelectorAll('.info-row').forEach(function(row) {
-        const label = row.querySelector('.info-label')?.textContent.trim();
-        const val = row.querySelector('.info-value');
-        if (!val) return;
-        const input = val.querySelector('input');
-        if (input) {
-            if (label === '일정') {
-                // 시작일과 종료일 저장
-                const inputs = val.querySelectorAll('input');
-                const startDate = inputs[0]?.value || '';
-                const endDate = inputs[1]?.value || '';
-                val.textContent = `${startDate} - ${endDate}`;
-            } else if (label === '태그') {
-                // 쉼표로 분리해서 각각 태그로 렌더링
-                const tags = input.value.split(',').map(t => t.trim()).filter(Boolean);
-                val.innerHTML = tags.map(tag => `<span class="tag selected">#${tag}</span>`).join(' ');
-            } else if (label === '숙소') {
-                // 숙소명 input + (지도) 링크
-                const link = val.querySelector('.info-link') || row.querySelector('.info-link');
-                val.innerHTML = input.value;
-                if (link) val.appendChild(link);
-            } else if (label === '경비') {
-                // 경비 input + (더보기) 링크
-                const link = val.querySelector('.info-link') || row.querySelector('.info-link');
-                val.innerHTML = input.value;
-                if (link) val.appendChild(link);
-            } else {
-                val.textContent = input.value;
-            }
-        }
-    });
-});
-</script>
 </html>
