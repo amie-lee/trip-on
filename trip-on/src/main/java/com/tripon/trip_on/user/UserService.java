@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.tripon.trip_on.trips.TripRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -46,7 +47,7 @@ public class UserService {
         }
         return userRepository.save(user);
     }
-    
+
 
     // 로그인 처리 (이메일+비밀번호 확인)
     public Optional<User> login(String email, String password) {
@@ -77,9 +78,9 @@ public class UserService {
         var user = userOpt.get();
 
         // 1) 토큰 생성·저장
-        String token = UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString(); // 랜덤
         user.setResetToken(token);
-        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1)); // 1시간 후 만료
         userRepository.save(user);
         logger.debug("→ 토큰 생성/저장 완료, token={}, expiry={}", token, user.getResetTokenExpiry());
 
@@ -135,6 +136,7 @@ public class UserService {
     }
 
     // 비밀번호 변경
+    @Transactional
     public boolean changePassword(Long userId, String newPassword) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
