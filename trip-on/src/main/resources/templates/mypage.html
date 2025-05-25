@@ -41,9 +41,11 @@
 
 <!-- 회원 탈퇴 -->
 <h3>회원 탈퇴</h3>
-<form th:action="@{/user/mypage/delete}" method="post">
+<!-- <form th:action="@{/user/mypage/delete}" method="post">
     <button type="submit" onclick="return confirm('정말로 회원 탈퇴하시겠습니까?');">회원 탈퇴</button>
-</form>
+</form> -->
+<a th:href="@{/user/mypage/delete}">회원 탈퇴</a>
+
 
 
 </body>
