@@ -50,6 +50,8 @@
     }
 
     .input-group {
+      display: flex;
+      flex-direction: column;
       margin-bottom: 16px;
     }
 
@@ -70,6 +72,8 @@
       font-size: 12px;
       color: red;
       visibility: hidden;
+      margin-left: 4px;
+
     }
 
     .error-message.visible {
@@ -112,44 +116,48 @@
 </head>
 <body>
   <div class="container">
-    <div class="logo">TRIP ON</div>
-    <div class="subtitle">회원가입</div>
+    <form th:action="@{/user/signup}" th:object="${user}" method="post">
+      <div class="logo">TRIP ON</div>
+      <div class="subtitle">회원가입</div>
 
-    <div class="form-wrapper">
-      <div class="input-group">
-        <input type="text" placeholder="이름" />
-        <div class="error-message">&nbsp;</div>
+      <div class="form-wrapper">
+        <!-- 이름 -->
+        <div class="input-group">
+          <input type="text" name="username" th:value="*{username}" placeholder="이름" required />
+          <div class="error-message" th:text="${usernameError} ?: '&nbsp;'" th:classappend="${usernameError} ? ' visible' : ''"></div>
+        </div>
+
+        <!-- 이메일 -->
+        <div class="input-group">
+          <input type="email" name="email" th:value="*{email}" placeholder="이메일" required />
+          <div class="error-message" th:text="${emailError} ?: '&nbsp;'" th:classappend="${emailError} ? ' visible' : ''"></div>
+        </div>
+
+        <!-- 비밀번호 -->
+        <div class="input-group">
+          <input type="password" name="password" placeholder="비밀번호" required />
+          <div class="error-message" th:text="${passwordError} ?: '&nbsp;'" th:classappend="${passwordError} ? ' visible' : ''"></div>
+        </div>
+
+        <!-- 비밀번호 확인 -->
+        <div class="input-group">
+          <input type="password" name="confirmPassword" placeholder="비밀번호 확인" required />
+          <div class="error-message" th:text="${confirmError} ?: '&nbsp;'" th:classappend="${confirmError} ? ' visible' : ''"></div>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="agree" required />
+          <label for="agree">
+            개인정보 수집 및 이용 동의&nbsp;&nbsp;<span>자세히&gt;</span>
+          </label>
+        </div>
+
+        <button class="submit-btn" type="submit">회원가입</button>
       </div>
-
-      <div class="input-group">
-        <input type="email" placeholder="이메일" />
-        <div class="error-message"></div>
-      </div>
-
-      <div class="input-group">
-        <input type="password" placeholder="비밀번호" />
-        <div class="error-message visible">*에러메시지</div>
-      </div>
-
-      <div class="input-group">
-        <input type="password" placeholder="비밀번호 확인" />
-        <div class="error-message visible">*에러메시지</div>
-      </div>
-
-      <div class="checkbox-group">
-        <input type="checkbox" id="agree" />
-        <label for="agree">
-          개인정보 수집 및 이용 동의&nbsp;&nbsp;
-          <span>자세히&gt;</span>
-        </label>
-      </div>
-      <div class="error-message agree-error" style="margin-bottom:8px;"></div>
-
-      <button class="submit-btn">완료</button>
-    </div>
+    </form>
   </div>
-
-  <script>
+  
+  <!-- <script>
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('.form-wrapper');
     const emailInput = form.querySelector('input[type="email"]');
@@ -182,6 +190,6 @@
       }
     });
   });
-  </script>
+  </script> -->
 </body>
 </html>

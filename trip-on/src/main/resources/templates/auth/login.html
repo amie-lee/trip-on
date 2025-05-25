@@ -77,7 +77,7 @@
 
     .bottom-links {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       font-size: 14px;
       color: #333;
       margin-top: 8px;
@@ -103,27 +103,30 @@
   </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
+  <form action="/user/login" method="post">
     <div class="logo">TRIP ON</div>
     <div class="subtitle">로그인</div>
 
     <div class="form-wrapper">
       <div class="input-group">
-        <input type="email" placeholder="이메일" />
-        <div class="error-message visible">*에러메시지 (이메일/비밀번호가 일치하지 않습니다.)</div>
+        <input type="email" name="email" placeholder="이메일" required/>
+        <div th:if="${error}" class="error-message visible" th:text="${error}"></div>
       </div>
 
       <div class="input-group">
-        <input type="password" placeholder="비밀번호" />
+        <input type="password" name="password" placeholder="비밀번호" required/>
         <div class="error-message">&nbsp;</div>
       </div>
 
       <div class="bottom-links">
-        <a href="#">비밀번호 찾기</a>
+        <a href="/user/signup">회원가입</a>
+        <a href="/user/find-password">비밀번호 찾기</a>
       </div>
 
-      <button class="submit-btn">완료</button>
+      <button type="submit" class="submit-btn">로그인</button>
     </div>
-  </div>
+  </form>
+</div>
 </body>
 </html>
