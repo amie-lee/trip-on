@@ -25,12 +25,14 @@ public class UserController {
     public String signupForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("error", null);
-        return "signup";
+        return "auth/signup";
     }
 
     // 회원가입 처리 (유효성 검사 포함)
     @PostMapping("/signup")
-    public String signup(@ModelAttribute User user, Model model) {
+    public String signup(@ModelAttribute User user,
+                     @RequestParam("confirmPassword") String confirmPassword,
+                     Model model) {
         String username = user.getUsername();
         String password = user.getPassword();
 
@@ -38,25 +40,32 @@ public class UserController {
         boolean pwValid = password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$");
 
         if (!nameValid) {
-            model.addAttribute("error", "이름에는 특수문자나 숫자를 쓸 수 없습니다.");
-            return "signup";
+            model.addAttribute("usernameError", "이름에는 특수문자나 숫자를 쓸 수 없습니다.");
+            return "auth/signup";
         }
 
         if (!pwValid) {
-            model.addAttribute("error", "비밀번호는 영문+숫자 조합 8자 이상이어야 합니다.");
-            return "signup";
+            model.addAttribute("passwordError", "비밀번호는 영문+숫자 조합 8자 이상이어야 합니다.");
+            return "auth/signup";
         }
+     
+        if (!password.equals(confirmPassword)) {
+        model.addAttribute("confirmError", "비밀번호가 일치하지 않습니다.");
+        model.addAttribute("user", user);
+        return "auth/signup";
+    }
 
         // 이메일 중복 검사
         if (userService.isEmailExists(user.getEmail())) {
-            model.addAttribute("error", "이미 사용 중인 이메일입니다.");
+            model.addAttribute("emailError", "이미 사용 중인 이메일입니다.");
             model.addAttribute("user", user);
-            return "signup";
+            return "auth/signup";
         }
 
         userService.register(user);
         return "redirect:/user/login";
     }
+
 
     // 로그인 폼 
     @GetMapping("/login")
@@ -65,7 +74,7 @@ public class UserController {
         if (session.getAttribute("userId") != null) {
             return "redirect:/user/mypage";
         }
-        return "login";
+        return "auth/login";
     }
 
     // if 문으로 메인페이지(등록된 여행 있음, 없음) 가는 용 로그인 처리 코드 / userId 저장
@@ -86,7 +95,7 @@ public class UserController {
             return hasTrip ? "redirect:/mainpage" : "redirect:/mainpage-new";
         } else {
             model.addAttribute("error", "이메일 또는 비밀번호가 올바르지 않습니다.");
-            return "login";
+            return "auth/login";
         }
     }
 
@@ -100,7 +109,7 @@ public class UserController {
  // 1) 비밀번호 재설정 요청 폼
   @GetMapping("/find-password")
   public String showForgotPasswordForm() {
-    return "find-password";
+    return "auth/find-password";
   }
 
   // 2) 이메일로 재설정 링크 발송
@@ -116,7 +125,7 @@ public class UserController {
     userService.initiatePasswordReset(email, appUrl);
     model.addAttribute("message",
       "이메일로 비밀번호 재설정 링크를 발송했습니다. 메일이 보이지 않으면 스팸함도 확인해주세요.");
-    return "find-password";
+    return "auth/find-password";
   }
 
   // 3) 링크 클릭 → 새 비밀번호 폼
@@ -127,10 +136,10 @@ public class UserController {
 
     if (!userService.isPasswordResetTokenValid(token)) {
       model.addAttribute("error", "유효하지 않거나 만료된 링크입니다.");
-      return "reset-password";
+      return "auth/reset-password";
     }
     model.addAttribute("token", token);
-    return "reset-password";
+    return "auth/reset-password";
   }
 
   // 4) 비밀번호 변경 처리
@@ -144,42 +153,70 @@ public class UserController {
     if (!newPassword.equals(confirmPassword)) {
       model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
       model.addAttribute("token", token);
-      return "reset-password";
+      return "auth/reset-password";
     }
     if (!userService.resetPassword(token, newPassword)) {
       model.addAttribute("error", "유효하지 않거나 만료된 링크입니다.");
-      return "reset-password";
+      return "auth/reset-password";
     }
     model.addAttribute("message", "비밀번호가 정상적으로 변경되었습니다.");
-    return "reset-password";
+    return "auth/reset-password";
   }
 
 
-    // 마이페이지
+    // // 마이페이지
+    // @GetMapping("/mypage")
+    // public String myPage(HttpSession session, Model model) {
+    //     Long userId = (Long) session.getAttribute("userId");
+
+    //     // 로그인 안 된 사용자 처리
+    //     if (userId == null) {
+    //         return "redirect:/user/login"; 
+    //     }
+        
+    //     Optional<User> userOpt = userService.getUserById(userId);
+
+    //     if (userOpt.isPresent()) {
+    //         model.addAttribute("user", userOpt.get());
+    //         return "users/mypage";
+    //     }
+    //     return "redirect:/user/login";
+    // }
+        // 1) 마이페이지
     @GetMapping("/mypage")
     public String myPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
-
-        // 로그인 안 된 사용자 처리
         if (userId == null) {
-            return "redirect:/user/login"; 
+            return "redirect:/user/login";
         }
-
-        
-        Optional<User> userOpt = userService.getUserById(userId);
-
-        if (userOpt.isPresent()) {
-            model.addAttribute("user", userOpt.get());
-            return "mypage";
+        Optional<User> opt = userService.getUserById(userId);
+        if (opt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/user/login";
         }
-        return "redirect:/user/login";
+        model.addAttribute("user", opt.get());
+        // 아래 뷰 경로와 정확히 일치해야 함
+        return "users/mypage";
     }
 
 
+    // // 비밀번호 변경 폼 (GET)
+    // @GetMapping("/mypage/password")
+    // public String changePasswordForm() {
+    //     return "change-password";
+    // }
+
     // 비밀번호 변경 폼 (GET)
     @GetMapping("/mypage/password")
-    public String changePasswordForm() {
-        return "change-password";
+    public String changePasswordForm(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        // 로그인 안 된 경우 로그인 페이지로 리다이렉트
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+
+        return "users/change-password";
     }
 
     // 비밀번호 변경 처리 (POST)
@@ -202,39 +239,84 @@ public class UserController {
         // 2) 현재 비밀번호 확인
         if (!user.getPassword().equals(currentPassword)) {
             model.addAttribute("error", "현재 비밀번호가 일치하지 않습니다.");
-            return "change-password";
+            return "users/change-password";
         }
 
         // 3) 현재 비밀번호와 새 비밀번호가 같으면 안 됨
         if (currentPassword.equals(newPassword)) {
             model.addAttribute("error", "새 비밀번호는 현재 비밀번호와 다르게 설정해야 합니다.");
-            return "change-password";
+            return "users/change-password";
         }
         
         // 4) 새 비밀번호 유효성 검사
         if (!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")) {
             model.addAttribute("error", "새 비밀번호는 영문+숫자 포함 8자 이상이어야 합니다.");
-            return "change-password";
+            return "users/change-password";
         }
 
         // 5) 새 비밀번호와 확인 비밀번호 일치 검사
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
-            return "change-password";
+            return "users/change-password";
         }
 
         // 6) 비밀번호 변경 성공
-        userService.changePassword(userId, newPassword);
+        boolean changed = userService.changePassword(userId, newPassword);
+        if (!changed) {
+            model.addAttribute("error", "비밀번호 변경 중 오류가 발생했습니다.");
+            return "users/change-password";
+        }
+
         model.addAttribute("message", "비밀번호가 성공적으로 변경되었습니다.");
-        return "change-password";
+        return "users/change-password";
     }
 
-    // 회원 탈퇴 처리
+
+    // // 탈퇴 폼 보여주기기
+    // @GetMapping("/mypage/delete")
+    // public String showDeleteForm(HttpSession session) {
+    //     if (session.getAttribute("userId") == null) {
+    //         return "redirect:/user/login";
+    //     }
+    //     return "users/delete";  
+    // }    
+
+    // // 회원 탈퇴 처리
+    // @PostMapping("/mypage/delete")
+    // public String deleteAccount(HttpSession session) {
+    //     Long userId = (Long) session.getAttribute("userId");
+    //     userService.deleteUser(userId);
+    //     session.invalidate();
+    //     return "redirect:/user/login";
+    // }
+        // 4) 실제 탈퇴 처리
+    // @PostMapping("/mypage/delete")
+    // public String deleteAccount(HttpSession session) {
+    //     Long userId = (Long) session.getAttribute("userId");
+    //     if (userId != null) {
+    //         userService.deleteUser(userId);
+    //         session.invalidate();
+    //     }
+    //     return "redirect:/user/login";
+    // }
+
+        // 1) 회원 탈퇴 폼 보여주기 (GET /user/mypage/delete)
+        @GetMapping("/mypage/delete")
+    public String showDeleteForm(HttpSession session) {
+        if (session.getAttribute("userId") == null) {
+            return "redirect:/user/login";
+        }
+        return "users/delete";  // → /templates/users/delete.html
+    }
+
+    // 2) 회원 탈퇴 처리(POST) 
     @PostMapping("/mypage/delete")
     public String deleteAccount(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-        userService.deleteUser(userId);
-        session.invalidate();
+        if (userId != null) {
+            userService.deleteUser(userId);
+            session.invalidate();
+        }
         return "redirect:/user/login";
     }
 
