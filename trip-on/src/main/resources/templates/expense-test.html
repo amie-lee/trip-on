@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>TripOn - 지출 입력</title>
+  <style>
+    table, th, td {
+      border: 1px solid #aaa;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+    }
+    .add-row {
+      margin-top: 10px;
+      cursor: pointer;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <h2 th:text="'TripOn - ' + ${tripTitle} + ' 경비 입력'">TripOn - 경비 입력</h2>
+
+  <table id="expenseTable">
+    <thead>
+      <tr>
+        <th>결제한 사람</th>
+        <th>정산할 사람</th>
+        <th>항목</th>
+        <th>금액 (원)</th>
+        <th>결제일자</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <select name="payerId">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">강○○</option>
+          </select>
+        </td>
+        <td>
+          <select name="participantIds" multiple>
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">강○○</option>
+          </select>
+        </td>
+        <td><input type="text" name="description" placeholder="항목 입력"></td>
+        <td><input type="number" name="amount" placeholder="0"></td>
+        <td><input type="text" name="date" placeholder="예: 2025-05-01"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="add-row" onclick="addRow()">+ 항목 추가</div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const users = /*[[${users}]]*/ [];
+    /*]]>*/
+    
+    function addRow() {
+      const table = document.getElementById('expenseTable').getElementsByTagName('tbody')[0];
+      const newRow = table.insertRow();
+
+      for (let i = 0; i < 5; i++) {
+        const cell = newRow.insertCell();
+        if (i === 0 || i === 1) {
+          const select = document.createElement("select");
+          if (i === 1) select.multiple = true;
+          users.forEach(user => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.text = user.username;
+            select.appendChild(option);
+          });
+          select.name = i === 0 ? "payerId" : "participantIds";
+          cell.appendChild(select);
+        } else {
+          const input = document.createElement("input");
+          input.type = i === 3 ? "number" : "text";
+          input.placeholder = i === 2 ? "항목 입력" : i === 3 ? "0" : "예: 2025-05-01";
+          input.name = ["description", "amount", "date"][i - 2];
+          cell.appendChild(input);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
