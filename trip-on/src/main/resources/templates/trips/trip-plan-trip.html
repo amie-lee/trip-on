@@ -201,7 +201,7 @@
             color: #fff;
         }
 
-        .plan-box {
+         .plan-box {
             width: 100%;
             max-width: 900px;
             min-width: 320px;
@@ -232,23 +232,41 @@
             text-align: center;
             margin-bottom: 20px;
         }
+
         .schedule-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             margin-bottom: 12px;
             width: 100%;
-            max-height: 360px;
+            max-height: 250px;
             overflow-y: auto;
         }
+
         .schedule-item {
-            background: #d9d9d9;
-            border-radius: 12px; 
-            padding: 12px 44px 12px 16px;
-            font-size: 17px; color: #222; 
-            position: relative; display: flex; 
+            display: flex;
             align-items: center;
+            background: #DBDBDB;
+            border-radius: 8px;
+            padding: 6px 18px;
+            font-size: 16px;
+            color: #000;
+            gap: 12px;
         }
+
+        .schedule-time {
+            font-weight: 700;
+            min-width: 54px;
+            color: #555;
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+
+        .schedule-content {
+            flex: 1;
+            color: #222;
+            word-break: break-all;
+        }
+
         .schedule-remove {
             position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
             background: none; border: none; color: #666; font-size: 20px; cursor: pointer;
@@ -262,27 +280,7 @@
             gap: 0;
             margin-bottom: 8px;
         }
-        .schedule-time {
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 8px 12px;
-            font-size: 15px;
-            color: #888;
-            width: 60px;
-            flex: 0 0 60px;
-        }
-        .schedule-content {
-            border: none;
-            outline: none;
-            background: transparent;
-            padding: 8px 12px;
-            font-size: 15px;
-            color: #888;
-            flex: 1 1 0;
-            min-width: 0;
-            text-align: left;
-        }
+        
         .schedule-add-btn {
             background: #fff;
             border: 1.5px solid #bbb;
@@ -551,29 +549,50 @@
 
         <!-- RIGHT DAYS & SCHEDULES (원본 그대로) -->
         <div class="right-content">
-            <div class="scroll-container">
-                <div class="days-row">
-                    <div th:each="label,iterStat : ${dateLabels}" class="day-col">
-                        <div class="day-title">
-                            <a href="#" class="edit-day-link" th:if="${iterStat.first}"></a>
-                            <span th:text="${label}"></span>
-                        </div>
-                        <div class="schedule-list">
-                            <div th:each="s : ${schedules.?[dayNumber == iterStat.count]}" class="schedule-item">
-                                <span class="schedule-time" th:text="${#temporals.format(s.time,'HH:mm')}">09:00</span>
-                                <span class="schedule-content" th:text="${s.content}">일정 내용</span>
-                            </div>
-                            <div th:if="${#lists.isEmpty(schedules.?[dayNumber == iterStat.count])}" class="empty-message">
-                                등록된 일정이 없습니다.
-                            </div>
-                        </div>
-                        <button class="schedule-add-btn" th:onclick="|location.href='@{/trips/{id}/schedule/add(id=${tripId})}?day=${iterStat.count}'|">
-                            + 일정 추가
-                        </button>
-                    </div>
-                </div>
+  <!-- 편집 링크 -->
+  <div class="plan-box">
+    <div class="scroll-container">
+      <div class="days-row">
+
+        <!-- 날짜별 컬럼 반복 -->
+        <div th:each="label, stat : ${dateLabels}"
+             th:id="|day-${stat.count}|"
+             class="day-col">
+
+          <!-- 날짜 제목 -->
+          <div class="day-title" th:text="${label}">날짜</div>
+
+          <!-- 해당 날짜 일정 리스트 -->
+          <div class="schedule-list"
+               th:with="dayList=${scheduleMap[stat.count]}">
+
+            <!-- 1) 일정이 없으면 -->
+            <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
+                 class="empty-message">
+              등록된 일정이 없습니다.
             </div>
-        </div>
-    </div>
+
+            <!-- 2) 일정이 있으면 반복 출력 -->
+            <div th:each="s : ${dayList}"
+                 class="schedule-item">
+              <span class="schedule-time"
+                    th:text="${#temporals.format(s.time,'HH:mm')}">
+                --:--
+              </span>
+              <span class="schedule-content"
+                    th:text="${s.content}">
+                내용
+              </span>
+            </div>
+
+          </div> <!-- /.schedule-list -->
+
+        </div> <!-- /.day-col -->
+
+      </div> <!-- /.days-row -->
+    </div> <!-- /.scroll-container -->
+  </div> <!-- /.plan-box -->
+</div> <!-- /.right-content -->
+</div>
 </body>
 </html>

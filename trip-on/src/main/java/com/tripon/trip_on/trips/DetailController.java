@@ -84,40 +84,43 @@ public String showTripPlan(@PathVariable Long tripId, Model model) {
     return "trips/trip-plan";
 }
 
-    /** 편집 폼 조회 */
     @GetMapping("/trips/{tripId}/trip-plan-trip")
-    public String showEditForm(@PathVariable Long tripId,
-                               @ModelAttribute("tripUpdateDto") TripUpdateDto dto,
-                               Model model) {
-        // --- 기존 상세 데이터 모델에 담기 ---
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
-            );
-        List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
-        List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
+public String showEditForm(@PathVariable Long tripId,
+                           @ModelAttribute("tripUpdateDto") TripUpdateDto dto,
+                           Model model) {
+    Trip trip = tripRepository.findById(tripId)
+        .orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
+        );
+    List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+    List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
+    List<String> dateLabels = tripsService.generateDateLabels(trip);
 
-        model.addAttribute("trip", trip);
-        model.addAttribute("schedules", schedules);
-        model.addAttribute("tags", tags);
-        model.addAttribute("dateLabels", dateLabels);
+    // --- 모델에 기본 데이터 ---
+    model.addAttribute("trip", trip);
+    model.addAttribute("schedules", schedules);
+    model.addAttribute("tags", tags);
+    model.addAttribute("dateLabels", dateLabels);
+    model.addAttribute("tripId", tripId);
+    model.addAttribute("allTags", tripsService.getAllTagNames());
 
-        // --- 편집 DTO 채우기 ---
-        TripUpdateDto filled = tripsService.getTripUpdateDto(tripId);
-        dto.setTitle(filled.getTitle());
-        dto.setStartDate(filled.getStartDate());
-        dto.setEndDate(filled.getEndDate());
-        dto.setAccommodation(filled.getAccommodation());
-        dto.setTransportationDeparture(filled.getTransportationDeparture());
-        dto.setTransportationReturn(filled.getTransportationReturn());
-        dto.setTagsText(filled.getTagsText());
+    // 🔥 여기서 scheduleMap 추가
+    Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
+        .collect(Collectors.groupingBy(Schedule::getDayNumber));
+    model.addAttribute("scheduleMap", scheduleMap);
 
-        model.addAttribute("tripId", tripId);
-        model.addAttribute("allTags", tripsService.getAllTagNames());
+    // --- DTO 채우기 ---
+    TripUpdateDto filled = tripsService.getTripUpdateDto(tripId);
+    dto.setTitle(filled.getTitle());
+    dto.setStartDate(filled.getStartDate());
+    dto.setEndDate(filled.getEndDate());
+    dto.setAccommodation(filled.getAccommodation());
+    dto.setTransportationDeparture(filled.getTransportationDeparture());
+    dto.setTransportationReturn(filled.getTransportationReturn());
+    dto.setTagsText(filled.getTagsText());
 
-        return "trips/trip-plan-trip";
-    }
+    return "trips/trip-plan-trip";
+}
 
     /** 편집 내용 저장 */
     @PostMapping("/trips/{tripId}/trip-plan-trip")
