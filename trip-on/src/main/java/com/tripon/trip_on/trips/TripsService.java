@@ -150,9 +150,9 @@ public class TripsService {
         }
     }
 
-    /** 특정 여행의 기존 일정 DTO 리스트 로드 */
+   /** 특정 여행의 기존 일정 DTO 리스트 로드 (day/time으로 정렬) */
     public List<ScheduleUpdateDto> loadSchedules(Long tripId) {
-        return scheduleRepository.findAllByTripId(tripId).stream()
+        return scheduleRepository.findAllByTripIdOrderByDayNumberAscTimeAsc(tripId).stream()
             .map(s -> ScheduleUpdateDto.builder()
                 .id(s.getId())
                 .tripId(tripId)
@@ -169,26 +169,32 @@ public class TripsService {
     public void saveSchedules(List<ScheduleUpdateDto> dtos) {
         for (ScheduleUpdateDto dto : dtos) {
             if (dto.getId() != null) {
-                // 기존 일정
+                // ── 기존 일정 ──
                 if (dto.isToDelete()) {
+                    // 삭제 플래그가 세팅된 항목 삭제
                     scheduleRepository.deleteById(dto.getId());
                 } else {
-                    Schedule s = scheduleRepository.findById(dto.getId()).orElseThrow();
+                    // 수정: 엔티티 로드 후 필드 업데이트
+                    Schedule existing = scheduleRepository.findById(dto.getId())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                             "Schedule not found: " + dto.getId()));
+                    existing.setDayNumber(dto.getDayNumber());
+                    existing.setTime(dto.getTime());
+                    existing.setContent(dto.getContent());
+                    // 별도 save() 호출 없이, 트랜잭션 커밋 시 변경 반영됨
+                }
+            } else {
+                // ── 신규 일정 ──
+                if (!dto.isToDelete()) {
+                    Schedule s = new Schedule();
+                    // 프록시 참조로 Trip 세팅
+                    Trip t = tripRepository.getReferenceById(dto.getTripId());
+                    s.setTrip(t);
                     s.setDayNumber(dto.getDayNumber());
                     s.setTime(dto.getTime());
                     s.setContent(dto.getContent());
+                    scheduleRepository.save(s);
                 }
-            } else if (!dto.isToDelete()) {
-                // 신규 일정
-                Schedule s = new Schedule();
-                // Trip.builder() 대신 new Trip() 사용
-                Trip t = new Trip();
-                t.setId(dto.getTripId());
-                s.setTrip(t);
-                s.setDayNumber(dto.getDayNumber());
-                s.setTime(dto.getTime());
-                s.setContent(dto.getContent());
-                scheduleRepository.save(s);
             }
         }
     }

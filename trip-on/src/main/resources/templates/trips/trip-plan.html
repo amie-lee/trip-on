@@ -29,6 +29,20 @@
             margin-bottom: 20px;
         }
 
+        .plan-box {
+            width: 100%;
+            max-width: 900px;
+            min-width: 320px;
+            border: 2px solid #bbb;
+            border-radius: 20px;
+            padding: 40px 32px 32px 32px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
+        
         .logo {
             font-family: 'Bagel Fat One', cursive;
             font-size: 40px;
@@ -603,47 +617,49 @@
         <button class="side-btn">후기</button>
       </div>
     </div>
-
-    <!-- RIGHT DAYS & SCHEDULES -->
-    <div class="right-content">
-        <!-- 최상단·좌측에 tripid를 보낸 schedule 편집 링크 -->
+<div class="right-content">
     <a th:href="@{/trips/{id}/trip-plan-schedule(id=${trip.id})}"
     style="color: #000; text-decoration: underline; cursor: pointer;">
     편집
     </a>
-      <div class="scroll-container">
-        <div class="days-row">
-          <div th:each="label, iterStat : ${dateLabels}" class="day-col">
-            <div class="day-title">
-              <a href="#" class="edit-day-link" th:if="${iterStat.first}">편집</a>
-              <span th:text="${label}">5/24 (1일차)</span>
+  <div class="plan-box">
+    <div class="scroll-container">
+      <div class="days-row">
+        <div th:each="label, stat : ${dateLabels}"
+             th:id="|day-${stat.count}|"
+             class="day-col">
+
+          <div class="day-title" th:text="${label}">날짜</div>
+
+          <div class="schedule-list" 
+               th:with="dayList=${scheduleMap[stat.count]}">
+
+            <!-- 1) 해당 날짜에 일정이 없으면 -->
+            <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
+                 class="empty-message">
+              등록된 일정이 없습니다.
             </div>
 
-            <div class="schedule-list">
-              <div th:each="s : ${schedules.?[dayNumber == iterStat.count]}"
-                   class="schedule-item">
-                <span class="schedule-time"
-                      th:text="${#temporals.format(s.time,'HH:mm')}">09:00</span>
-                <span class="schedule-content"
-                      th:text="${s.content}">일정 내용</span>
-              </div>
-              <div th:if="${#lists.isEmpty(schedules.?[dayNumber == iterStat.count])}"
-                   class="empty-message">
-                등록된 일정이 없습니다.
-              </div>
+            <!-- 2) 있으면 쭉 나열 -->
+            <div th:each="s : ${dayList}"
+                 class="schedule-item">
+              <span class="schedule-time"
+                    th:text="${#temporals.format(s.time,'HH:mm')}">
+                --:--
+              </span>
+              <span class="schedule-content"
+                    th:text="${s.content}">
+                내용
+              </span>
             </div>
 
-            <button class="schedule-add-btn"
-                    th:onclick="|location.href='@{/trips/{id}/schedule/add(id=${trip.id})}?day=${iterStat.count}'|">
-              + 일정 추가
-            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <script>
+</div>
+ <script>
     document.getElementById('menuDotBtn').addEventListener('click', function() {
       const pop = document.getElementById('menuPopup');
       pop.style.display = pop.style.display === 'none' ? 'block' : 'none';

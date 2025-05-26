@@ -6,21 +6,13 @@
     <title th:text="${trip.title} + ' | TRIP ON'">여행 상세 | TRIP ON</title>
     <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+       * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #fff;
+            background: #fff;
             font-family: 'Noto Sans KR', sans-serif;
-            padding: 20px 60px;
             min-height: 100vh;
-            position: relative;
+            padding: 20px 60px;
         }
-
-        /* 헤더 영역 */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -53,15 +45,14 @@
             background-color: #d9d9d9;
             border-radius: 50%;
         }
-
         /* 메인 콘텐츠 */
+
         .container {
             display: flex;
             gap: 60px;
             margin-top: 40px;
             position: relative;
         }
-
         .left-info {
             width: 370px;
             min-width: 320px;
@@ -83,7 +74,7 @@
             font-size: 32px;
             margin-right: 16px;
         }
-
+        
         .trip-menu-box {
             display: flex;
             gap: 8px;
@@ -106,15 +97,13 @@
         }
 
         .info-table {
-            margin-bottom: 32px;
+            margin-bottom: 16px;
         }
-
         .info-row {
             display: flex;
             margin-bottom: 16px;
             font-size: 18px;
         }
-
         .info-label {
             width: 70px;
             color: #000;
@@ -131,7 +120,7 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-
+        
         .tag {
             display: inline-block; border: 1.5px solid #888; border-radius: 30px;
             padding: 4px 16px; font-size: 16px; color: #222; 
@@ -144,20 +133,20 @@
             cursor: pointer;
             margin-left: 8px;
         }
-
+        
         .info-invite {
             color: #000;
             text-decoration: underline;
             cursor: pointer;
         }
-
+        
         .side-btns {
             margin-top: 40px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-
+        
         .side-btn {
             width: 100%;
             border-radius: 8px;
@@ -171,7 +160,6 @@
             text-align: center;
             transition: background 0.2s, color 0.2s;
         }
-
         .side-btn.selected {
             background: #000;
             color: #fff;
@@ -182,7 +170,7 @@
             background: #000;
             color: #fff;
         }
-
+        
         .right-content {
             flex: 1;
             min-width: 0;
@@ -194,7 +182,6 @@
             justify-content: flex-end;
             margin-bottom: 20px;
         }
-
         .edit-label {
             background: #DBDBDB;
             border-radius: 30px;
@@ -210,6 +197,19 @@
             color: #fff;
         }
 
+        .plan-box {
+            width: 100%;
+            max-width: 900px;
+            min-width: 320px;
+            border: 2px solid #bbb;
+            border-radius: 20px;
+            padding: 40px 32px 32px 32px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
         .days-row {
             display: flex;
             gap: 40px;
@@ -228,133 +228,115 @@
             text-align: center;
             margin-bottom: 20px;
         }
-
         .schedule-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 12px;
             width: 100%;
-            max-height: 250px;
+            max-height: 360px;
             overflow-y: auto;
         }
-
         .schedule-item {
-            display: flex;
+            background: #d9d9d9;
+            border-radius: 12px; 
+            padding: 12px 44px 12px 16px;
+            font-size: 17px; color: #222; 
+            position: relative; display: flex; 
             align-items: center;
-            background: #DBDBDB;
+        }
+        .schedule-remove {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #666; font-size: 20px; cursor: pointer;
+        }
+        .schedule-input-row {
+            display: flex;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f5f5f5;
+            width: 100%;
+            gap: 0;
+            margin-bottom: 8px;
+        }
+        .schedule-time {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 8px 12px;
+            font-size: 15px;
+            color: #888;
+            width: 60px;
+            flex: 0 0 60px;
+        }
+        .schedule-content {
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 8px 12px;
+            font-size: 15px;
+            color: #888;
+            flex: 1 1 0;
+            min-width: 0;
+            text-align: left;
+        }
+        .schedule-add-btn {
+            background: #fff;
+            border: 1.5px solid #bbb;
             border-radius: 8px;
             padding: 6px 18px;
-            font-size: 16px;
-            color: #000;
-            gap: 12px;
-        }
-
-        .schedule-time {
-            font-weight: 700;
-            min-width: 54px;
-            color: #555;
-            font-family: 'Inter', 'Noto Sans KR', sans-serif;
-        }
-
-        .schedule-content {
-            flex: 1;
+            font-size: 18px;
             color: #222;
-            word-break: break-all;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            width: 100%;
         }
-
+        .schedule-add-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+        .plan-save-btn {
+            position: absolute;
+            right: 32px;
+            bottom: 10px;
+            background: none;
+            border: none;
+            color: #222;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 16px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .back-link {
             position: absolute;
-            top: 80px;
-            right: 80px;
-            font-size: 16px;
-            color: #000;
+            right: 18PX; top: -40px; 
+            font-size: 16Px; color: #222; 
             text-decoration: none;
-            transition: all 0.3s ease;
         }
-
-        .back-link:hover {
-            color: #666;
-        }
-
-        .edit-day-link {
-            position: absolute;
-            top: 8px;
-            left: -30px;
-            font-size: 13px;
-            color: #000;
-            font-weight: 400;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .edit-day-link:hover {
-            color: #666;
-        }
-
         @media (max-width: 1100px) {
-            .container {
-                flex-direction: column;
-                gap: 40px;
-            }
-            .left-info {
-                width: 100%;
-                min-width: 0;
-                border-right: none;
-                padding-right: 0;
-            }
-            .days-row {
-                gap: 20px;
-            }
+            .container { flex-direction: column; gap: 40px; }
+            .left-info { width: 100%; min-width: 0; border-right: none; padding-right: 0; }
+            .plan-box { min-width: 0; }
+            .days-row { gap: 20px; flex-direction: column; }
+            .day-col { gap: 8px; }
+            
         }
-
         @media (max-width: 700px) {
-            body {
-                padding: 20px;
-            }
-            .top-bar {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .logo {
-                font-size: 28px;
-            }
-            .container {
-                gap: 30px;
-            }
-            .trip-title {
-                font-size: 24px;
-            }
-            .trip-menu-box {
-                font-size: 14px;
-                padding: 6px 12px;
-            }
-            .info-row {
-                font-size: 16px;
-            }
-            .side-btn {
-                width: 100%;
-                height: 40px;
-                font-size: 14px;
-            }
-            .days-row {
-                flex-direction: column;
-                gap: 20px;
-            }
-            .day-col {
-                min-width: 0;
-            }
-            .back-link {
-                top: 20px;
-                right: 20px;
-                font-size: 14px;
-            }
+            body { padding: 20px; }
+            .logo { font-size: 32px; left: 20px; top: 20px; }
+            .top-bar { margin-bottom: 16px; }
+            .container { gap: 20px; }
+            .trip-title { font-size: 22px; }
+            .info-row { font-size: 15px; }
+            .side-btn { width: 100%; height: 40px; font-size: 15px; }
+            .plan-box { padding: 20px 8px 16px 8px; }
+            .days-row { flex-direction: column; gap: 16px; }
+            .day-col { gap: 6px; }
+            .day-title { font-size: 16px; }
         }
-
-        .trip-info-box {
-            margin-left: 30px;
-        }
-
         .menu-dot {
             background: none;
             border: none;
@@ -394,24 +376,6 @@
             display: inline-block;
             color: #222;
             text-align: center;
-        }
-        .schedule-add-btn {
-            background: #fff;
-            border: 1.5px solid #bbb;
-            border-radius: 8px;
-            padding: 6px 18px;
-            font-size: 16px;
-            color: #222;
-            cursor: pointer;
-            transition: all 0.2s;
-            align-self: stretch;
-            margin-bottom: 8px;
-            width: 100%;
-            text-align: center;
-        }
-        .schedule-add-btn:hover {
-            background: #eee;
-            color: #222;
         }
         .invite-modal {
             position: fixed;
@@ -494,7 +458,7 @@
         }
         #saveInfoBtn {
             display: none;
-            margin-top: 8px;
+            margin-top: 0px;
             width: auto;
             border-radius: 6px;
             padding: 4px 16px;
@@ -505,13 +469,8 @@
             cursor: pointer;
             margin-left: auto;
         }
-        /* 1. 태그 스타일 */
-        .tag-list .tag {
-            margin-right: 8px;
-            font-size: 14px;
-            color: #555;
-        }
-        /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
+
+          /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
         .scroll-container {
             overflow-x: auto;
             overflow-y: auto;
@@ -544,7 +503,7 @@
     <!-- LEFT INFO -->
     <div class="left-info">
       <div class="trip-title-row">
-        <div class="trip-title" th:text="${trip.title}">여행 제목</div>
+        <div class="trip-title" th:text="${trip.title}"></div>
         <button class="menu-dot" id="menuDotBtn">···</button>
         <div class="menu-popup" id="menuPopup" style="display:none;">
           <button class="menu-btn"
@@ -609,124 +568,129 @@
       </div>
     </div>
 
-     <!-- RIGHT: 일정 편집 -->
-    <div class="right-content">
-      <form th:action="@{/trips/{tripId}/trip-plan-schedule(tripId=${trip.id})}" method="post">
-        <div class="scroll-container">
-          <div class="days-row">
-            <!-- 날짜 레이블 반복 -->
-            <div th:each="label,stat : ${dateLabels}"
-                 th:id="|day-${stat.count}|"
-                 class="day-col">
+  <div class="right-content">
+  <div class="plan-box">
+    <div class="scroll-container">
+      <form th:object="${scheduleForm}"
+            th:action="@{/trips/{tripId}/trip-plan-schedule(tripId=${trip.id})}" 
+            method="post">
+        
+        <div class="days-row">
+          <div th:each="label,stat : ${dateLabels}"
+               th:id="|day-${stat.count}|"
+               class="day-col">
 
-              <!-- 일차 제목 -->
-              <div class="day-title">
-                <span th:text="${label}">5/1 (1일차)</span>
-              </div>
+            <div class="day-title">
+              <span th:text="${label}"></span>
+            </div>
 
-              <!-- 스케줄 목록 -->
-              <div class="schedule-list">
-                <!-- 기존 DTO로부터 뿌려진 일정 -->
-                <div th:each="dto,idx : ${scheduleDtos}"
-                     th:if="${dto.dayNumber} == ${stat.count}"
-                     class="schedule-item">
-                  <!-- 숨겨진 필드 -->
-                  <input type="hidden" th:name="|scheduleDtos[${idx}].id|"          th:value="${dto.id}" />
-                  <input type="hidden" th:name="|scheduleDtos[${idx}].dayNumber|"   th:value="${dto.dayNumber}" />
-                  <input type="hidden" th:name="|scheduleDtos[${idx}].time|"        th:value="${#temporals.format(dto.time,'HH:mm')}" />
-                  <input type="hidden" th:name="|scheduleDtos[${idx}].content|"     th:value="${dto.content}" />
-                  <input type="hidden" th:id="|toDel${idx}|" th:name="|scheduleDtos[${idx}].toDelete|" value="false" />
+           <div class="schedule-list">
+              <!-- 🔄 idx → stat2.index 로 변경 -->
+              <div th:each="dto,stat2 : *{scheduleDtos}"
+                   th:if="${dto.dayNumber} == ${stat.count}"
+                   class="schedule-item">
+                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].id|"        th:value="${dto.id}" />
+                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].dayNumber|" th:value="${dto.dayNumber}" />
+                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].time|"      th:value="${#temporals.format(dto.time,'HH:mm')}" />
+                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].content|"   th:value="${dto.content}" />
+                <input type="hidden" th:id="|toDel${stat2.index}|" th:name="|scheduleDtos[${stat2.index}].toDelete|" value="false" />
 
-                  <!-- 화면용 표시 -->
-                  <span class="schedule-time" th:text="${#temporals.format(dto.time,'HH:mm')}">00:00</span>
-                  <span class="schedule-content" th:text="${dto.content}">내용</span>
-                  <button type="button"
-                          th:onclick="|removeRow(this, ${idx})|">×</button>
-                </div>
+                <span class="schedule-time" th:text="${#temporals.format(dto.time,'HH:mm')}">--:--</span>
+                <span class="schedule-content" th:text="${dto.content}">내용을 입력하세요</span>
 
-                <!-- 일정이 없을 때 안내 -->
-                <div th:if="${#lists.isEmpty(scheduleDtos.?[dayNumber == stat.count])}"
-                     class="empty-message">
-                  등록된 일정이 없습니다.
-                </div>
-              </div>
-
-              <!-- 신규 입력 & 추가 버튼 -->
-              <div class="schedule-input-row">
-                <input type="time" id="newTime_[[${stat.count}]]" />
-                <input type="text" id="newContent_[[${stat.count}]]"
-                       placeholder="내용을 입력하세요" />
-                <button type="button"
-                        th:onclick="|addTemp(${stat.count})|">＋</button>
+                <button type="button" class="schedule-remove" th:attr="data-idx=${stat2.index}">×</button>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- 저장 버튼 -->
+            <div class="schedule-input-row">
+              <input class="schedule-time" type="time" th:id="'newTime_' + ${stat.count}" />
+              <input class="schedule-content" type="text" th:id="'newContent_' + ${stat.count}" placeholder="내용을 입력하세요" />
+            </div>
+
+            <button type="button" class="schedule-add-btn" th:attr="data-day=${stat.count}">＋</button>
+          </div> <!-- day-col 닫음 -->
+        </div> <!-- days-row 닫음 -->
+
         <button type="submit" class="plan-save-btn">저장</button>
-      </form>
-    </div>
-  </div>
+      </form> <!-- form 닫음 -->
+    </div> <!-- scroll-container 닫음 -->
 
-  <!-- SCRIPT: 동적 추가/삭제 -->
-  <script>
-    // 기존 서버에서 내려온 scheduleDtos 크기만큼 시작
-    let nextIdx = /*[[${scheduleDtos.size()}]]*/ 0;
+  </div> <!-- plan-box 닫음 -->
+</div> <!-- right-content 닫음 -->
 
-    // 새 일정 추가
-    function addTemp(day) {
-      const timeInput    = document.getElementById('newTime_' + day);
-      const contentInput = document.getElementById('newContent_' + day);
-      const time    = timeInput.value.trim();
-      const content = contentInput.value.trim();
-      if (!time && !content) return;
+<script th:inline="javascript">
+/*<![CDATA[*/
+  // 1) 초기 인덱스 세팅
+  let nextIdx = /*[[${scheduleForm.scheduleDtos.size()}]]*/ 0;
 
-      const list = document.querySelector('#day-' + day + ' .schedule-list');
-      const idx  = nextIdx++;
-      const container = document.createElement('div');
-      container.className = 'schedule-item';
-      container.innerHTML = `
-        <input type="hidden" name="scheduleDtos[${idx}].dayNumber" value="${day}" />
-        <input type="hidden" name="scheduleDtos[${idx}].time"       value="${time}" />
-        <input type="hidden" name="scheduleDtos[${idx}].content"    value="${content}" />
-        <input type="hidden" id="toDel${idx}" name="scheduleDtos[${idx}].toDelete" value="false" />
-
-        <span class="schedule-time">${time}</span>
-        <span class="schedule-content">${content}</span>
-        <button type="button" onclick="removeRow(this, ${idx});">×</button>
-      `;
-      list.appendChild(container);
-
-      // 입력란 초기화
-      timeInput.value    = '';
-      contentInput.value = '';
-
-      // '등록된 일정이 없습니다.' 메시지 제거
-      const emptyMsg = list.querySelector('.empty-message');
-      if (emptyMsg) emptyMsg.remove();
-    }
-
-    // 일정 삭제 (toDelete 플래그 설정 + 화면 제거)
-    function removeRow(btn, idx) {
-      // 서버에서 삭제 처리용 플래그
-      const delInput = document.getElementById('toDel' + idx);
-      if (delInput) delInput.value = 'true';
-
-      // 화면에서 제거
-      const item = btn.closest('.schedule-item');
-      if (item) item.remove();
-
-      // 만약 더 이상 일정이 없으면 안내 메시지 복원
-      const day = btn.closest('.day-col').id.split('-')[1];
-      const list = document.querySelector('#day-' + day + ' .schedule-list');
-      if (list && list.querySelectorAll('.schedule-item').length === 0) {
-        const msg = document.createElement('div');
-        msg.className = 'empty-message';
-        msg.textContent = '등록된 일정이 없습니다.';
-        list.appendChild(msg);
+  // 2) 이벤트 위임: scroll-container 내부 클릭 모두 처리
+  document.querySelector('.scroll-container')
+    .addEventListener('click', function(e) {
+      // ＋ 버튼 클릭 시
+      if (e.target.matches('.schedule-add-btn')) {
+        const dayNumber = e.target.getAttribute('data-day');
+        addTemp(dayNumber);
       }
+      // × 버튼 클릭 시
+      else if (e.target.matches('.schedule-remove')) {
+        const idx = e.target.getAttribute('data-idx');
+        removeRow(e.target, idx);
+      }
+    });
+
+  // 3) addTemp 함수
+  function addTemp(dayNumber) {
+    const timeInput    = document.getElementById('newTime_' + dayNumber);
+    const contentInput = document.getElementById('newContent_' + dayNumber);
+    const time    = timeInput.value.trim();
+    const content = contentInput.value.trim();
+    if (!content) { alert('내용을 입력해주세요.'); return; }
+
+    const list = document.querySelector('#day-' + dayNumber + ' .schedule-list');
+    const idx  = nextIdx++;
+
+    const container = document.createElement('div');
+    container.className = 'schedule-item';
+    container.innerHTML = `
+      <input type="hidden" name="scheduleDtos[${idx}].dayNumber" value="${dayNumber}" />
+      <input type="hidden" name="scheduleDtos[${idx}].time"       value="${time}" />
+      <input type="hidden" name="scheduleDtos[${idx}].content"    value="${content}" />
+      <input type="hidden" id="toDel${idx}" name="scheduleDtos[${idx}].toDelete" value="false" />
+
+      <span class="schedule-time">${time}</span>
+      <span class="schedule-content">${content}</span>
+      <button type="button" class="schedule-remove" data-idx="${idx}">×</button>
+    `;
+    list.appendChild(container);
+
+    timeInput.value    = '';
+    contentInput.value = '';
+    const emptyMsg = list.querySelector('.empty-message');
+    if (emptyMsg) emptyMsg.remove();
+  }
+
+  // 4) removeRow 함수
+  function removeRow(btn, idx) {
+    const delInput = document.getElementById('toDel' + idx);
+    if (delInput) delInput.value = 'true';
+
+     const item = btn.closest('.schedule-item');
+    if (item) {
+        // item.remove(); // 이 부분을 주석처리!
+        item.style.display = 'none'; // 화면에만 안 보이게 처리
     }
-  </script>
+
+    const dayCol = btn.closest('.day-col');
+    if (!dayCol) return;
+    const list = dayCol.querySelector('.schedule-list');
+    if (list && list.querySelectorAll('.schedule-item').length === 0) {
+      const msg = document.createElement('div');
+      msg.className = 'empty-message';
+      msg.textContent = '등록된 일정이 없습니다.';
+      list.appendChild(msg);
+    }
+  }
+/*]]>*/
+</script>
 </body>
 </html>
