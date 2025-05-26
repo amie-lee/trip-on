@@ -20,11 +20,18 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
-@SessionAttributes("tripUpdateDto")
+@SessionAttributes({"tripUpdateDto","scheduleForm"})
 public class DetailController {
+    private static final Logger log = LoggerFactory.getLogger(DetailController.class);
 
 
     private final TripRepository tripRepository;
@@ -47,31 +54,35 @@ public class DetailController {
     public TripUpdateDto tripUpdateDto() {
         return new TripUpdateDto();
     }
-
-
-    /**
-     * 여행 상세 페이지 조회
-     */
-    @GetMapping("/trips/{tripId}/trip-plan")
-    public String showTripPlan(@PathVariable Long tripId, Model model) {
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
-                );
-
-        List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
-        List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
-
-        // 서비스로 날짜 라벨 생성
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
-
-        model.addAttribute("trip", trip);
-        model.addAttribute("schedules", schedules);
-        model.addAttribute("tags", tags);
-        model.addAttribute("dateLabels", dateLabels);
-
-        return "trips/trip-plan";
+    @ModelAttribute("scheduleForm")
+    public ScheduleForm scheduleForm() {
+        return new ScheduleForm();
     }
+
+    @GetMapping("/trips/{tripId}/trip-plan")
+public String showTripPlan(@PathVariable Long tripId, Model model) {
+    Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
+            );
+
+    List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+    List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
+
+    // 날짜 라벨
+    List<String> dateLabels = tripsService.generateDateLabels(trip);
+
+    // ← 여기서 dayNumber 로 묶어둡니다
+    Map<Integer,List<Schedule>> scheduleMap = schedules.stream()
+        .collect(Collectors.groupingBy(Schedule::getDayNumber));
+
+    model.addAttribute("trip", trip);
+    model.addAttribute("tags", tags);
+    model.addAttribute("dateLabels", dateLabels);
+    model.addAttribute("scheduleMap", scheduleMap);  // 추가
+
+    return "trips/trip-plan";
+}
 
     /** 편집 폼 조회 */
     @GetMapping("/trips/{tripId}/trip-plan-trip")
@@ -118,33 +129,52 @@ public class DetailController {
         return "redirect:/trips/" + tripId + "/trip-plan";
     }
 
-    @GetMapping("/trips/{tripId}/trip-plan-schedule")
-    public String editSchedule(@PathVariable Long tripId, Model model) {
-        // 공통: trip, dateLabels
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
-        List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
+  @GetMapping("/trips/{tripId}/trip-plan-schedule")
+public String editSchedule(
+        @PathVariable Long tripId,
+        @ModelAttribute("scheduleForm") ScheduleForm form,
+        Model model) {
 
-        // 기존 및 바인딩용 DTO
-        List<ScheduleUpdateDto> scheduleDtos = tripsService.loadSchedules(tripId);
+    // 1) Trip 조회
+    Trip trip = tripRepository.findById(tripId)
+        .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "Trip not found: " + tripId));
 
-        model.addAttribute("trip", trip);
-         model.addAttribute("tags", tags);
-        model.addAttribute("dateLabels", dateLabels);
-        model.addAttribute("scheduleDtos", scheduleDtos);
-        return "trips/trip-plan-schedule";
-    }
+    // 2) 날짜 라벨, 태그 조회
+    List<String> dateLabels = tripsService.generateDateLabels(trip);
+    List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
 
-    @PostMapping("/trips/{tripId}/trip-plan-schedule")
+    // 3) DB에서 ScheduleUpdateDto 목록 로드 후 폼에 세팅
+    List<ScheduleUpdateDto> dtos = tripsService.loadSchedules(tripId);
+    form.setScheduleDtos(dtos);
+
+    // 4) 모델에 추가
+    model.addAttribute("trip", trip);
+    model.addAttribute("tags", tags);
+    model.addAttribute("dateLabels", dateLabels);
+    // scheduleForm은 @ModelAttribute로 자동 추가됨
+
+    return "trips/trip-plan-schedule";
+}
+
+   @PostMapping("/trips/{tripId}/trip-plan-schedule")
 public String saveSchedule(
         @PathVariable Long tripId,
-        @ModelAttribute("scheduleDtos") List<ScheduleUpdateDto> scheduleDtos
+        @ModelAttribute("scheduleForm") ScheduleForm scheduleForm,
+        SessionStatus status            // ← 여기에 추가
 ) {
-    // tripId 세팅
-    scheduleDtos.forEach(dto -> dto.setTripId(tripId));
-    tripsService.saveSchedules(scheduleDtos);
-    // 수정: 반드시 redirect:/ 로 시작
+    // 1) DTO에 tripId 세팅
+    List<ScheduleUpdateDto> dtos = scheduleForm.getScheduleDtos();
+    dtos.forEach(dto -> dto.setTripId(tripId));
+
+    // 2) 저장
+    tripsService.saveSchedules(dtos);
+
+    // 3) 세션에 보관된 scheduleForm 제거
+    status.setComplete();
+
+    // 4) 상세 페이지로 리다이렉트
     return "redirect:/trips/" + tripId + "/trip-plan";
 }
+
 }
