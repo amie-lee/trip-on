@@ -1,12 +1,13 @@
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.trips.Review;
 import java.util.List;
 
 /**
  * 후기 관련 비즈니스 로직 인터페이스
  */
 public interface ReviewService {
+
+    
 
     /**
      * 특정 여행 계획 정보 조회
@@ -21,5 +22,9 @@ public interface ReviewService {
     /**
      * 후기 저장
      */
-    void saveReview(Long tripId, String content, List<String> filePaths);
+    void saveReview(Long tripId, Long userId, String content, List<String> filePaths);
+    void updateReview(Long reviewId, Long userId, String newContent);
+    void deleteReview(Long reviewId, Long userId);
+    void likeReview(Long reviewId, Long userId);
+    void unlikeReview(Long reviewId, Long userId);
 }
