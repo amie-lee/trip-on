@@ -28,20 +28,33 @@ public class ReviewController {
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
 
-    // 웹용 후기 페이지
-    @GetMapping("/tripReview/{tripId}/review")
+    // ===================== 웹용 후기 페이지 =====================
+    /**
+     * 여행 후기 페이지(웹)
+     * @param tripId 여행 ID
+     * @param model 뷰에 데이터 전달
+     * @return 후기 페이지 뷰 이름
+     */
+    @GetMapping("/trips/{tripId}/review")
     public String showReviewPage(@PathVariable Long tripId, Model model) {
         Object trip = reviewService.getTripPlan(tripId);
         if (trip == null) {
-            return "error/404"; // 404.html 뷰를 만들어두면 됨
+            return "error/404"; // 여행이 없으면 404 페이지로 이동
         }
         model.addAttribute("trip", trip);
         model.addAttribute("reviews", reviewService.getReviews(tripId));
-        return "trips/4_trip-plan-review";
+        return "trips/trip-plan_review";
     }
 
-    // 웹용 후기 등록
-    @PostMapping("/tripReview/{tripId}/review")
+    /**
+     * 여행 후기 등록(웹)
+     * @param tripId 여행 ID
+     * @param userId 작성자 ID(비회원은 0)
+     * @param content 후기 내용
+     * @param files 첨부파일 목록
+     * @return 후기 페이지로 리다이렉트
+     */
+    @PostMapping("/trips/{tripId}/review")
     public String submitReview(
             @PathVariable Long tripId,
             @RequestParam(value = "userId", required = false) Long userId,
@@ -67,11 +80,13 @@ public class ReviewController {
 
         if (userId == null) userId = 0L;
         reviewService.saveReview(tripId, userId, content, savedPaths);
-        return "redirect:/tripReview/" + tripId + "/review";
+        return "redirect:/trips/" + tripId + "/review";
     }
 
-    // ---------------- REST API ----------------
-    // 후기 등록
+    // ===================== REST API =====================
+    /**
+     * 후기 등록(REST)
+     */
     @PostMapping("/api/trips/{tripId}/reviews")
     @ResponseBody
     public ResponseEntity<Void> createReviewApi(
@@ -85,14 +100,18 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
-    // 후기 목록 조회
+    /**
+     * 후기 목록 조회(REST)
+     */
     @GetMapping("/api/trips/{tripId}/reviews")
     @ResponseBody
     public ResponseEntity<List<Review>> getReviewsApi(@PathVariable Long tripId) {
         return ResponseEntity.ok(reviewService.getReviews(tripId));
     }
 
-    // 후기 수정
+    /**
+     * 후기 수정(REST)
+     */
     @PutMapping("/api/reviews/{reviewId}")
     @ResponseBody
     public ResponseEntity<Void> updateReviewApi(
@@ -105,7 +124,9 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
-    // 후기 삭제
+    /**
+     * 후기 삭제(REST)
+     */
     @DeleteMapping("/api/reviews/{reviewId}")
     @ResponseBody
     public ResponseEntity<Void> deleteReviewApi(
@@ -117,8 +138,11 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
-    // (아래는 좋아요 관련 API, Principal/Service 주입 필요. 미구현시 주석처리)
-    
+    // ===================== 좋아요 관련 API =====================
+    /**
+     * 후기 좋아요 등록(REST)
+     * Principal: 인증된 사용자 정보
+     */
     @PostMapping("/api/reviews/{reviewId}/likes")
     public ResponseEntity<Void> likeReviewApi(@PathVariable Long reviewId, Principal principal) {
         Long userId = Long.valueOf(principal.getName());
@@ -126,7 +150,9 @@ public class ReviewController {
         return ResponseEntity.ok().build();
     }
 
-    // 좋아요 취소
+    /**
+     * 후기 좋아요 취소(REST)
+     */
     @DeleteMapping("/api/reviews/{reviewId}/likes")
     public ResponseEntity<Void> unlikeReviewApi(@PathVariable Long reviewId, Principal principal) {
         Long userId = Long.valueOf(principal.getName());

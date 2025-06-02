@@ -804,33 +804,10 @@
             </div>
         </div>
         <div class="right-content">
-            <!-- 후기 리스트 -->
             <div class="review-list">
-              <div th:each="review : ${reviews}" class="review-card" th:attr="data-id=${review.id}">
-                <div class="review-header" style="position:relative;">
-                  <div class="review-author" th:text="${review.userId == 0 ? '비회원' : review.userId}"></div>
-                  <button class="menu-dot review" type="button">&hellip;</button>
-                  <div class="review-menu-popup" style="display:none;">
-                    <button class="review-menu-btn review-edit-btn" type="button">수정</button>
-                    <form method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review/' + ${review.id} + '/delete'}">                      
-                    <button class="review-menu-btn review-delete-btn" type="submit">삭제</button>
-                    </form>
-                  </div>
-                </div>
-                <div class="review-content" th:if="${review.id != editingReviewId}" th:text="${review.content}"></div>
-                <!-- 인라인 수정 폼 -->
-                <form th:if="${editingReviewId == review.id}" method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review/' + ${review.id} + '/edit'}">
-                  <input type="text" name="content" th:value="${review.content}" maxlength="140" style="width:70%;">
-                  <button type="submit" class="review-edit-btn2">저장</button>
-                  <button type="button" class="review-cancel-btn2" onclick="window.location.href=window.location.pathname">취소</button>
-                </form>
-                <div class="review-meta">
-                  <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
-                </div>
-              </div>
+
             </div>
-            <!-- 후기 입력 폼 -->
-            <form class="review-input-area" method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
+            <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
               <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
               <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
               <input type="file" class="review-file" accept="image/*,video/*" multiple name="reviewFile" style="display:none;">
@@ -842,18 +819,16 @@
         </div>
     </div>
     <script>
+    // 서버에서 userId를 JS 변수로 전달
+    var currentUserId = /*[[${user != null ? user.id : 0}]]*/ 0;
     document.addEventListener('DOMContentLoaded', function() {
-    var menuDotBtn = document.getElementById('menuDotBtn');
-    if (menuDotBtn) {
-        menuDotBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const popup = document.getElementById('menuPopup');
-            popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
-        });
-    }
+    document.getElementById('menuDotBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const popup = document.getElementById('menuPopup');
+        popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+    });
     document.addEventListener('click', function() {
-        var menuPopup = document.getElementById('menuPopup');
-        if (menuPopup) menuPopup.style.display = 'none';
+        document.getElementById('menuPopup').style.display = 'none';
     });
     document.querySelectorAll('.side-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -863,21 +838,13 @@
             btn.classList.add('selected');
         });
     });
-    var infoInvite = document.querySelector('.info-invite');
-    if (infoInvite) {
-        infoInvite.addEventListener('click', function(e) {
-            e.preventDefault();
-            var inviteModal = document.getElementById('inviteModal');
-            if (inviteModal) inviteModal.style.display = 'flex';
-        });
-    }
-    var inviteCloseBtn = document.querySelector('.invite-close-btn');
-    if (inviteCloseBtn) {
-        inviteCloseBtn.addEventListener('click', function() {
-            var inviteModal = document.getElementById('inviteModal');
-            if (inviteModal) inviteModal.style.display = 'none';
-        });
-    }
+    document.querySelector('.info-invite').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('inviteModal').style.display = 'flex';
+    });
+    document.querySelector('.invite-close-btn').addEventListener('click', function() {
+        document.getElementById('inviteModal').style.display = 'none';
+    });
 
     // info-value 편집/저장 기능 (trip-plan.html과 100% 동일)
     const infoTable = document.querySelector('.info-table');
@@ -1005,11 +972,10 @@
     // 후기 등록 기능
     function setupReviewForm() {
       const form = document.querySelector('.review-input-area');
-      if (!form) return; // 폼이 없으면 함수 종료
       const input = form.querySelector('.review-input');
       const reviewList = document.querySelector('.review-list');
       const fileInput = form.querySelector('.review-file');
-      const fileListDiv = form.querySelector('.review-file-list');
+      const fileListDiv = document.querySelector('.review-file-list');
       const warningDiv = document.querySelector('.review-warning');
       window.selectedFiles = [];
       // 글자수 제한 경고 + 등록 버튼 비활성화
@@ -1023,6 +989,7 @@
         }
       });
       form.addEventListener('submit', function(e) {
+        e.preventDefault();
         const text = input.value.trim();
         if (!text) return;
         if (text.length > 140) {
@@ -1051,9 +1018,11 @@
             }
           }).join('') + '</div>';
         }
+        // 작성자 표시: userId가 0이면 '비회원', 아니면 userId
+        const authorText = (Number(currentUserId) === 0) ? '비회원' : currentUserId;
         card.innerHTML = `
           <div class="review-header" style="position:relative;">
-            <div class="review-author">나</div>
+            <div class="review-author">${authorText}</div>
             <button class="menu-dot review">&hellip;</button>
           </div>
           <div class="review-content"></div>
@@ -1100,12 +1069,10 @@
         setupLikeButtons(card);
         // .../수정/삭제 메뉴 동작
         const menuDot = card.querySelector('.menu-dot');
-        if (menuDot) {
-          menuDot.onclick = function(e) {
-            e.stopPropagation();
-            menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
-          };
-        }
+        menuDot.onclick = function(e) {
+          e.stopPropagation();
+          menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
+        };
         document.addEventListener('click', function hideMenu(e) {
           if (!card.contains(e.target)) menuPopup.style.display = 'none';
         });
@@ -1135,12 +1102,12 @@
           contentDiv.parentNode.insertBefore(saveBtn, input.nextSibling);
           contentDiv.parentNode.insertBefore(cancelBtn, saveBtn.nextSibling);
           input.focus();
-          if (saveBtn) saveBtn.onclick = function() {
+          saveBtn.onclick = function() {
             contentDiv.textContent = input.value;
             contentDiv.style.display = '';
             input.remove(); saveBtn.remove(); cancelBtn.remove();
           };
-          if (cancelBtn) cancelBtn.onclick = function() {
+          cancelBtn.onclick = function() {
             contentDiv.style.display = '';
             input.remove(); saveBtn.remove(); cancelBtn.remove();
           };
@@ -1151,103 +1118,50 @@
       });
     }
 
-    if (document.querySelector('.review-like-heart')) {
-        setupLikeButtons();
-    }
-    if (document.querySelector('.review-input-area')) {
-        setupReviewForm();
-    }
+    setupLikeButtons();
+    setupReviewForm();
 
     // 파일 첨부 기능
     (function() {
-    const fileInput   = document.querySelector('.review-file');
-    const attachBtn   = document.querySelector('.review-attach');
-    const fileListDiv = document.querySelector('.review-file-list');
-    const warningDiv  = document.querySelector('.review-warning');
-
-    // 요소가 전부 존재할 때만 이벤트 바인딩
-    if (attachBtn && fileInput && fileListDiv && warningDiv) {
-      attachBtn.addEventListener('click', e => {
+      const fileInput = document.querySelector('.review-file');
+      const attachBtn = document.querySelector('.review-attach');
+      const fileListDiv = document.querySelector('.review-file-list');
+      const warningDiv = document.querySelector('.review-warning');
+      attachBtn.addEventListener('click', function(e) {
         fileInput.click();
       });
-
       fileInput.addEventListener('change', function(e) {
-        const files = Array.from(fileInput.files);
+        let files = Array.from(fileInput.files);
         window.selectedFiles = files;
-
-        // 기존에 렌더링된 리스트 비우기
-        fileListDiv.innerHTML = '';
-
-        // 선택된 파일들 렌더링
-        files.forEach((file, idx) => {
-          const coverUrl = URL.createObjectURL(file);
-          const fileItemDiv = document.createElement('div');
-          fileItemDiv.className = 'review-file-item';
-
-          const img = document.createElement('img');
-          img.src = coverUrl;
-          img.alt = file.name;
-          img.className = 'review-file-thumb';
-          fileItemDiv.appendChild(img);
-
-          const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'review-file-remove';
-          delBtn.textContent = '×';
-          fileItemDiv.appendChild(delBtn);
-
-          // 삭제 버튼 핸들러
-          delBtn.addEventListener('click', () => {
-            fileItemDiv.remove();
-            const removeIdx = window.selectedFiles.findIndex(f => f.name === file.name && f.size === file.size);
-            if (removeIdx > -1) {
-              window.selectedFiles.splice(removeIdx, 1);
-              // DataTransfer로 FileList 동기화
-              const dt = new DataTransfer();
-              window.selectedFiles.forEach(f => dt.items.add(f));
-              fileInput.files = dt.files;
-              // 다시 렌더링
-              fileInput.dispatchEvent(new Event('change'));
-            }
-          });
-
-          fileListDiv.appendChild(fileItemDiv);
+        if (files.length === 0) {
+          fileListDiv.innerHTML = '';
+          warningDiv.textContent = '';
+          return;
+        }
+        // 파일명 + 삭제(X) 버튼 렌더링
+        fileListDiv.innerHTML = files.map((f, idx) =>
+          `<span style='margin-right:8px;display:inline-flex;align-items:center;'>${f.name} <button type='button' class='file-remove-btn' data-idx='${idx}' style='margin-left:4px;font-size:13px;padding:0 6px;border:none;background:#eee;border-radius:8px;cursor:pointer;'>X</button></span>`
+        ).join('');
+        // 삭제 버튼 이벤트 바인딩
+        fileListDiv.querySelectorAll('.file-remove-btn').forEach(btn => {
+          btn.onclick = function() {
+            const removeIdx = Number(btn.dataset.idx);
+            window.selectedFiles.splice(removeIdx, 1);
+            // 파일 input 동기화 (새 FileList 생성)
+            const dt = new DataTransfer();
+            window.selectedFiles.forEach(f => dt.items.add(f));
+            fileInput.files = dt.files;
+            // 파일 리스트 다시 렌더링 (재귀)
+            fileInput.dispatchEvent(new Event('change'));
+          };
         });
-
-        // 최대 파일 수 검사
         if (files.length > 10) {
           warningDiv.textContent = '사진/동영상 첨부는 최대 10개까지 가능합니다.';
         } else {
           warningDiv.textContent = '';
         }
       });
-    }
-  })();
-
-    function setupReviewMenus() {
-        document.querySelectorAll('.review-card').forEach(function(card) {
-            const menuDot = card.querySelector('.menu-dot.review');
-            const menuPopup = card.querySelector('.review-menu-popup');
-            if (menuDot && menuPopup) {
-                menuDot.onclick = function(e) {
-                    e.stopPropagation();
-                    menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
-                };
-                document.addEventListener('click', function hideMenu(e) {
-                    if (!card.contains(e.target)) menuPopup.style.display = 'none';
-                });
-                // 수정 버튼 클릭 시 인라인 폼으로 이동 (쿼리파라미터로 editingReviewId 전달)
-                const editBtn = menuPopup.querySelector('.review-edit-btn');
-                if (editBtn) editBtn.onclick = function() {
-                    const reviewId = card.getAttribute('data-id');
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('editingReviewId', reviewId);
-                    window.location.href = url.toString();
-                };
-            }
-        });
-    }
-    document.addEventListener('DOMContentLoaded', setupReviewMenus);
+    })();
     });
     </script>
 

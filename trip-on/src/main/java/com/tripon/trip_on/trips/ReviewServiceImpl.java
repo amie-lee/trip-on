@@ -3,19 +3,18 @@ package com.tripon.trip_on.trips;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import com.tripon.trip_on.plan.TripRepository;
+import com.tripon.trip_on.trips.TripRepository; // TripRepository 경로 맞춤
+import com.tripon.trip_on.trips.Trip; // Trip 엔티티 import (필요시)
 import jakarta.persistence.EntityNotFoundException;
 
-
-
 /**
- * ReviewService 구현체
+ * ReviewService 구현체 (비즈니스 로직)
  */
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final TripRepository tripRepository;
+    private final TripRepository tripRepository; // TripRepository 주입
     private final ReviewLikeRepository reviewLikeRepository;
 
     public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository) {
@@ -34,7 +33,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public List<Review> getReviews(Long tripId) {
         List<Review> reviews = reviewRepository.findByTripId(tripId);
-        // 좋아요 수를 각 엔티티에 세팅
+        // 각 후기별로 좋아요 수 세팅
         for (Review r : reviews) {
             long count = reviewLikeRepository.countByReviewId(r.getId());
             r.setLikeCount(count);
