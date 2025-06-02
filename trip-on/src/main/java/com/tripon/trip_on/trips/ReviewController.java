@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import java.security.Principal;
@@ -32,17 +33,32 @@ public class ReviewController {
     /**
      * 여행 후기 페이지(웹)
      * @param tripId 여행 ID
+     * @param editReviewId 수정할 후기 ID
      * @param model 뷰에 데이터 전달
      * @return 후기 페이지 뷰 이름
      */
     @GetMapping("/trips/{tripId}/review")
-    public String showReviewPage(@PathVariable Long tripId, Model model) {
+    public String showReviewPage(@PathVariable Long tripId,
+                                 @RequestParam(value = "editReviewId", required = false) Long editReviewId,
+                                 Model model, Principal principal) {
         Object trip = reviewService.getTripPlan(tripId);
         if (trip == null) {
             return "error/404"; // 여행이 없으면 404 페이지로 이동
         }
+        
+        Long currentUserId = 0L;
+        if (principal != null) {
+            try {
+                currentUserId = Long.valueOf(principal.getName());
+            } catch (Exception e) {
+                currentUserId = 0L;
+            }
+            model.addAttribute("user", principal);
+        }
+        model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("trip", trip);
         model.addAttribute("reviews", reviewService.getReviews(tripId));
+        model.addAttribute("editReviewId", editReviewId != null ? editReviewId : 0L);
         return "trips/trip-plan-review";
     }
 
@@ -112,14 +128,15 @@ public class ReviewController {
     /**
      * 후기 수정(REST)
      */
-    @PutMapping("/api/reviews/{reviewId}")
+    @PutMapping("/trips/{tripId}/review/{reviewId}")
     @ResponseBody
-    public ResponseEntity<Void> updateReviewApi(
+    public ResponseEntity<Void> updateReview(
+            @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            @RequestParam String content,
-            @RequestParam(value = "userId", required = false) Long userId
-    ) {
-        if (userId == null) userId = 0L;
+            @RequestBody Map<String, Object> body,
+            Principal principal) {
+        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
+        String content = (String) body.get("content");
         reviewService.updateReview(reviewId, userId, content);
         return ResponseEntity.ok().build();
     }
@@ -127,13 +144,13 @@ public class ReviewController {
     /**
      * 후기 삭제(REST)
      */
-    @DeleteMapping("/api/reviews/{reviewId}")
+    @DeleteMapping("/trips/{tripId}/review/{reviewId}")
     @ResponseBody
-    public ResponseEntity<Void> deleteReviewApi(
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            @RequestParam(value = "userId", required = false) Long userId
-    ) {
-        if (userId == null) userId = 0L;
+            Principal principal) {
+        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
         reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().build();
     }

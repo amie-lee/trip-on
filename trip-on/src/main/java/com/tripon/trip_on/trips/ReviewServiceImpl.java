@@ -33,10 +33,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public List<Review> getReviews(Long tripId) {
         List<Review> reviews = reviewRepository.findByTripId(tripId);
-        // 각 후기별로 좋아요 수 세팅
+        // 각 후기별로 좋아요 수와 좋아요 상태 세팅
         for (Review r : reviews) {
             long count = reviewLikeRepository.countByReviewId(r.getId());
             r.setLikeCount(count);
+            
+            // 현재 사용자가 좋아요를 눌렀는지 확인
+            boolean liked = reviewLikeRepository.existsByReviewIdAndUserId(r.getId(), getCurrentUserId());
+            r.setLiked(liked);
         }
         return reviews;
     }
@@ -87,6 +91,11 @@ public class ReviewServiceImpl implements ReviewService {
         reviewLikeRepository.deleteByReviewIdAndUserId(reviewId, userId);
     }
 
+    // 현재 로그인한 사용자 ID를 가져오는 헬퍼 메서드
+    private Long getCurrentUserId() {
+        // TODO: SecurityContextHolder나 Principal에서 현재 사용자 ID를 가져오도록 구현
+        return 0L; // 임시로 0 반환
+    }
 
 }
 

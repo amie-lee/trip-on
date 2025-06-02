@@ -43,6 +43,9 @@ public class Review {
     @Column(name = "update_at")
     private LocalDateTime updateAt; // 후기 수정 시간
 
+    @Transient // DB에 저장하지 않는 임시 필드
+    private boolean liked; // 현재 사용자가 좋아요를 눌렀는지 여부
+
     @PrePersist         // JPA: 엔티티가 저장되기 전에 실행될 메서드 지정
     protected void onPrePersist() {
         this.createdAt = LocalDateTime.now(); // 엔티티가 저장될 때 현재 시간을 생성 시간으로 자동 설정
