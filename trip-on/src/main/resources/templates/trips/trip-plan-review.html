@@ -805,7 +805,22 @@
         </div>
         <div class="right-content">
             <div class="review-list">
-
+              <!-- 후기 목록 -->
+              <div th:each="review : ${reviews}" class="review-card">
+                <div class="review-header" style="position:relative;">
+                  <div class="review-author" th:text="${review.userId == 0 ? '비회원' : review.userId}">작성자</div>
+                  <button class="menu-dot review">&hellip;</button>
+                </div>
+                <div class="review-content" th:text="${review.content}">후기 내용</div>
+                <div class="review-meta">
+                  <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span>
+                  <span class="review-scroll"></span>
+                </div>
+                <span class="review-like-heart" style="cursor:pointer;">
+                  <span class="review-like heart">♡</span>
+                  <span class="like-count" th:text="${review.likeCount}">0</span>
+                </span>
+              </div>
             </div>
             <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
               <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
@@ -989,132 +1004,42 @@
         }
       });
       form.addEventListener('submit', function(e) {
-        e.preventDefault();
+        // 유효성 검사
         const text = input.value.trim();
-        if (!text) return;
+        if (!text) {
+          e.preventDefault();
+          warningDiv.textContent = '후기 내용을 입력해주세요.';
+          return;
+        }
+        
         if (text.length > 140) {
+          e.preventDefault();
           warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
           form.querySelector('.review-submit').disabled = true;
           return;
         }
-        // 후기 카드 생성
-        const card = document.createElement('div');
-        card.className = 'review-card';
-        // 이미지/동영상 미리보기 생성
-        let imagesHTML = '';
+        
         const files = window.selectedFiles || [];
         if (files.length > 10) {
+          e.preventDefault();
           warningDiv.textContent = '사진/동영상 첨부는 최대 10개까지 가능합니다.';
           return;
         }
-        if (files.length > 0) {
-          imagesHTML = '<div class="review-images">' + files.map(f => {
-            if (f.type.startsWith('image/')) {
-              return `<img src="" class="review-thumb" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" alt="첨부 이미지">`;
-            } else if (f.type.startsWith('video/')) {
-              return `<video src="" class="review-thumb" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" controls></video>`;
-            } else {
-              return '';
-            }
-          }).join('') + '</div>';
-        }
-        // 작성자 표시: userId가 0이면 '비회원', 아니면 userId
-        const authorText = (Number(currentUserId) === 0) ? '비회원' : currentUserId;
-        card.innerHTML = `
-          <div class="review-header" style="position:relative;">
-            <div class="review-author">${authorText}</div>
-            <button class="menu-dot review">&hellip;</button>
-          </div>
-          <div class="review-content"></div>
-          ${imagesHTML}
-          <div class="review-meta">
-            <span class="review-date">${new Date().toLocaleString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})}</span>
-            <span class="review-scroll"></span>
-          </div>
-          <span class="review-like-heart" style="cursor:pointer;"><span class="review-like heart">♡</span> <span class="like-count">0</span></span>
-        `;
-        card.querySelector('.review-content').textContent = text;
-        // 메뉴 팝업 생성
-        const menuPopup = document.createElement('div');
-        menuPopup.className = 'review-menu-popup';
-        menuPopup.style.display = 'none';
-        menuPopup.innerHTML = `
-          <button class="review-menu-btn review-edit-btn">수정</button>
-          <button class="review-menu-btn review-delete-btn">삭제</button>
-        `;
-        card.querySelector('.review-header').appendChild(menuPopup);
-        reviewList.appendChild(card);
-        input.value = '';
-        fileInput.value = '';
-        document.querySelector('.review-file-list').innerHTML = '';
-        window.selectedFiles = [];
-        warningDiv.textContent = '';
-        // 파일 미리보기 src 세팅
-        if (files.length > 0) {
-          const thumbs = card.querySelectorAll('.review-thumb');
-          let imgIdx = 0, vidIdx = 0;
-          files.forEach((f) => {
-            const url = URL.createObjectURL(f);
-            if (f.type.startsWith('image/')) {
-              while (imgIdx < thumbs.length && thumbs[imgIdx].tagName !== 'IMG') imgIdx++;
-              if (imgIdx < thumbs.length) thumbs[imgIdx].src = url;
-              imgIdx++;
-            } else if (f.type.startsWith('video/')) {
-              while (vidIdx < thumbs.length && thumbs[vidIdx].tagName !== 'VIDEO') vidIdx++;
-              if (vidIdx < thumbs.length) thumbs[vidIdx].src = url;
-              vidIdx++;
-            }
-          });
-        }
-        setupLikeButtons(card);
-        // .../수정/삭제 메뉴 동작
-        const menuDot = card.querySelector('.menu-dot');
-        menuDot.onclick = function(e) {
-          e.stopPropagation();
-          menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
-        };
-        document.addEventListener('click', function hideMenu(e) {
-          if (!card.contains(e.target)) menuPopup.style.display = 'none';
+        
+        // 유효성 검사를 통과하면 폼이 서버로 전송됨
+        // e.preventDefault()를 호출하지 않음
+        
+        // 폼 데이터 확인을 위한 로그
+        console.log('Form submitting with data:', {
+          content: text,
+          userId: form.querySelector('input[name="userId"]').value,
+          files: files.length
         });
-        // 삭제/수정 기능 바인딩
-        const delBtn = menuPopup.querySelector('.review-delete-btn');
-        if (delBtn) delBtn.onclick = () => card.remove();
-        const editBtn = menuPopup.querySelector('.review-edit-btn');
-        if (editBtn) editBtn.onclick = () => {
-          menuPopup.style.display = 'none';
-          const contentDiv = card.querySelector('.review-content');
-          const oldText = contentDiv.textContent;
-          // 기존 텍스트 숨기고 input 생성
-          contentDiv.style.display = 'none';
-          let input = document.createElement('input');
-          input.type = 'text';
-          input.value = oldText;
-          input.className = 'review-edit-input';
-          let saveBtn = document.createElement('button');
-          saveBtn.textContent = '저장';
-          saveBtn.type = 'button';
-          saveBtn.className = 'review-edit-btn2';
-          let cancelBtn = document.createElement('button');
-          cancelBtn.textContent = '취소';
-          cancelBtn.type = 'button';
-          cancelBtn.className = 'review-cancel-btn2';
-          contentDiv.parentNode.insertBefore(input, contentDiv.nextSibling);
-          contentDiv.parentNode.insertBefore(saveBtn, input.nextSibling);
-          contentDiv.parentNode.insertBefore(cancelBtn, saveBtn.nextSibling);
-          input.focus();
-          saveBtn.onclick = function() {
-            contentDiv.textContent = input.value;
-            contentDiv.style.display = '';
-            input.remove(); saveBtn.remove(); cancelBtn.remove();
-          };
-          cancelBtn.onclick = function() {
-            contentDiv.style.display = '';
-            input.remove(); saveBtn.remove(); cancelBtn.remove();
-          };
-        };
-        // 스크롤 맨 아래로 이동
-        reviewList.scrollTop = reviewList.scrollHeight;
-        form.querySelector('.review-submit').disabled = false;
+        
+        // 폼 제출 후 페이지 새로고침
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       });
     }
 

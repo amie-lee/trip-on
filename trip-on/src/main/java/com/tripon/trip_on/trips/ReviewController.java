@@ -43,7 +43,7 @@ public class ReviewController {
         }
         model.addAttribute("trip", trip);
         model.addAttribute("reviews", reviewService.getReviews(tripId));
-        return "trips/trip-plan_review";
+        return "trips/trip-plan-review";
     }
 
     /**
