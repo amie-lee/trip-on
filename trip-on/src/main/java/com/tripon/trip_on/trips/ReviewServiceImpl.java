@@ -3,7 +3,7 @@ package com.tripon.trip_on.trips;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import com.tripon.trip_on.plan.TripRepository;
+import com.tripon.trip_on.trips.TripRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 

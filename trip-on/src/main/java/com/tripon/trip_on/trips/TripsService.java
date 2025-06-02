@@ -1,11 +1,10 @@
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.trips.Trip;
-import com.tripon.trip_on.trips.TripTag;
+import com.tripon.trip_on.user.User;
+import com.tripon.trip_on.user.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import com.tripon.trip_on.trips.TripRegisterDto;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -22,6 +21,9 @@ public class TripsService {
     @Autowired private TripRepository tripRepository;
     @Autowired private TripTagRepository tripTagRepository;
     @Autowired private ScheduleRepository scheduleRepository;
+    @Autowired private TripMemberRepository tripMemberRepository;
+    @Autowired private UserRepository userRepository;
+
 
     /** 로그인 유저의 Trip 목록 */
     public List<Trip> findByCreatorId(Long userId) {
@@ -41,12 +43,17 @@ public class TripsService {
     }
 
     /** 새로운 Trip 저장 */
+    @Transactional
     public Trip saveTrip(Long userId, TripRegisterDto dto) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         Trip trip = new Trip();
         trip.setTitle(dto.getTitle());
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
         trip.setAccommodation(dto.getAccommodation());
+
         // 교통편이 빈 문자열일 경우 null로 처리
         if (dto.getTransportationDeparture() != null && dto.getTransportationDeparture().isBlank()) {
             dto.setTransportationDeparture(null);
@@ -57,6 +64,14 @@ public class TripsService {
         trip.setTransportation(dto.getTransportationDeparture() + " ~ " + dto.getTransportationReturn());
         trip.setStatus("예정");
         trip.setCreatorId(userId);
+
+        Trip savedTrip = tripRepository.save(trip);
+
+        TripMember tripMember = new TripMember();
+        tripMember.setTrip(savedTrip);
+        tripMember.setUser(user);
+        tripMemberRepository.save(tripMember);
+        
         return tripRepository.save(trip);
     }
 
