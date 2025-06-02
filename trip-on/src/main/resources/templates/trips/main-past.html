@@ -159,13 +159,15 @@
    </style>
 </head>
 <body>
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <a th:href="@{/user/logout}" class="logout-text">로그아웃</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
+
 
     <!-- 새 여행 시작하기 -->
     <button class="new-trip-btn"
