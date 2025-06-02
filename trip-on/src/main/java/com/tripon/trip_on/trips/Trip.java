@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tripon.trip_on.user.User;
+
 /**
  * Trip 엔티티 - 여행 정보를 담는 클래스
  */
@@ -35,4 +37,13 @@ public class Trip {
 
     @Transient
     private List<String> tags = new ArrayList<>(); // DB에 저장하지 않고 일시적으로 사용하는 태그 목록
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TripMember> tripMembers = new ArrayList<>();
+
+    public List<User> getTripMembers() {
+        return tripMembers.stream()
+                .map(TripMember::getUser)
+                .toList();
+    }
 }
