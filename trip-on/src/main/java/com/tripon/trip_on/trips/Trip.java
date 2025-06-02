@@ -29,7 +29,9 @@ public class Trip {
     private LocalDate endDate;   // 여행 종료일
 
     private String accommodation;  // 숙소 정보
-    private String transportation;  // 교통편 정보 (오타 주의: transportation)
+
+    private String departureTrip; // 가는 편
+    private String returnTrip; // 오는 편
 
     private String status; // 여행 상태 (예정/완료 등)
 
@@ -38,7 +40,7 @@ public class Trip {
     @Transient
     private List<String> tags = new ArrayList<>(); // DB에 저장하지 않고 일시적으로 사용하는 태그 목록
 
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripMember> tripMembers = new ArrayList<>();
 
     public List<User> getTripMembers() {
