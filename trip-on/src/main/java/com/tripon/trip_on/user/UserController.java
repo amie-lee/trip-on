@@ -23,6 +23,7 @@ public class UserController {
     // 회원가입 폼
     @GetMapping("/signup")
     public String signupForm(Model model) {
+            // model.addAttribute("signupForm", new User());  // 헤더/이름 바꿈
         model.addAttribute("user", new User());
         model.addAttribute("error", null);
         return "auth/signup";
@@ -216,6 +217,14 @@ public class UserController {
             return "redirect:/user/login";
         }
 
+        // header 위해 user 추가가
+        Optional<User> opt = userService.getUserById(userId);
+        if (opt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", opt.get());
+
         return "users/change-password";
     }
 
@@ -301,12 +310,22 @@ public class UserController {
     // }
 
         // 1) 회원 탈퇴 폼 보여주기 (GET /user/mypage/delete)
-        @GetMapping("/mypage/delete")
-    public String showDeleteForm(HttpSession session) {
-        if (session.getAttribute("userId") == null) {
+    @GetMapping("/mypage/delete")
+    public String showDeleteForm(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
             return "redirect:/user/login";
         }
-        return "users/delete";  // → /templates/users/delete.html
+
+        // 헤더에서 쓰기 위해 user 추가
+        Optional<User> opt = userService.getUserById(userId);
+        if (opt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", opt.get());
+
+        return "users/delete";
     }
 
     // 2) 회원 탈퇴 처리(POST) 
@@ -318,6 +337,23 @@ public class UserController {
             session.invalidate();
         }
         return "redirect:/user/login";
+    }
+
+    /**  
+     * header에 로고(Homepage) 클릭용. 
+     * 세션에 userId 가 없으면 로그인 페이지로, 
+     * 있으면 hasTrip 여부에 따라 main-past 또는 main 으로 보냄. 
+     */
+    @GetMapping("/")       // 혹은 @GetMapping("") 로 루트 URI 매핑
+    public String homeRedirect(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        boolean hasTrip = userService.hasTrips(userId);
+        return hasTrip 
+            ? "redirect:/trips/main-past" 
+            : "redirect:/trips/main";
     }
 
 }

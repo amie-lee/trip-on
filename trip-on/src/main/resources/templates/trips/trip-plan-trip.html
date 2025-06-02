@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -481,14 +481,16 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
             <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+<div th:replace="~{fragments/header :: header(${user})}"></div>
+
 
     <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 

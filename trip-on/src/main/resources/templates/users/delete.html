@@ -148,13 +148,16 @@
     </script> -->
 </head>
 <body>
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <div class="logout-text">로그아웃</div>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+  <div th:replace="~{fragments/header :: header(${user})}"></div>
+
+
 
   <div class="center-wrapper">
     <h1 class="title">회원 탈퇴</h1>
