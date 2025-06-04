@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TripsService {
+public class TripService {
 
     @Autowired private TripRepository tripRepository;
     @Autowired private TripTagRepository tripTagRepository;

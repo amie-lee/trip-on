@@ -20,10 +20,10 @@ import java.util.List;
 @Controller
 @RequestMapping("/trips")
 @SessionAttributes("tripRegisterDto")  // TripRegisterDto를 세션에 저장해 단계별 폼에서 공유
-public class TripsController {
+public class TripController {
 
     @Autowired
-    private TripsService planService;
+    private TripService planService;
 
     // 초기 trip DTO 생성 (세션에 등록됨)
     @ModelAttribute("tripRegisterDto")
