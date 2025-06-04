@@ -7,7 +7,7 @@ import com.tripon.trip_on.trips.TripTag;
 import com.tripon.trip_on.trips.TripRepository;
 import com.tripon.trip_on.trips.ScheduleRepository;
 import com.tripon.trip_on.trips.TripTagRepository;
-import com.tripon.trip_on.trips.TripsService;
+import com.tripon.trip_on.trips.TripService;
 import com.tripon.trip_on.user.User;         // ← User 엔티티
 import com.tripon.trip_on.user.UserService;  // ← UserService
 
@@ -40,14 +40,14 @@ public class DetailController {
     private final TripRepository tripRepository;
     private final ScheduleRepository scheduleRepository;
     private final TripTagRepository tripTagRepository;
-    private final TripsService tripsService;
+    private final TripService tripsService;
     private final UserService userService;  // ← UserService 추가
 
     @Autowired
     public DetailController(TripRepository tripRepository,
                             ScheduleRepository scheduleRepository,
                             TripTagRepository tripTagRepository,
-                            TripsService tripService,
+                            TripService tripService,
                             UserService userService) { // ← 생성자에 UserService 추가
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;

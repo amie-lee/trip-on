@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
 public class MainPageController {
 
     @Autowired
-    private TripsService planService;
+    private TripService planService;
 
     @Autowired
     private UserService userService;
