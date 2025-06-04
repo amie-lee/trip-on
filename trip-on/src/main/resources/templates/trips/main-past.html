@@ -190,7 +190,7 @@
                     </div>
                     <div class="trip-tags">
                         <span th:each="tag : ${trip.tags}"
-                              th:text="'#' + ${tag}">#태그</span>
+                              th:text="${tag}"></span>
                     </div>
                 </div>
                 <div th:if="${#lists.isEmpty(upcomingTrips)}" class="empty-message">
@@ -211,11 +211,10 @@
                     <div class="trip-location" th:text="${trip.title}">여행 제목</div>
                     <div class="trip-date"
                          th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
-                        2025.03.20 - 2025.03.25
                     </div>
                     <div class="trip-tags">
                         <span th:each="tag : ${trip.tags}"
-                              th:text="'#' + ${tag}">#태그</span>
+                              th:text="${tag}">#태그</span>
                     </div>
                 </div>
                 <div th:if="${#lists.isEmpty(pastTrips)}" class="empty-message">
