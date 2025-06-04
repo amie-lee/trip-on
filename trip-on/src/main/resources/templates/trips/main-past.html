@@ -159,17 +159,19 @@
    </style>
 </head>
 <body>
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <a th:href="@{/user/logout}" class="logout-text">로그아웃</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
+
 
     <!-- 새 여행 시작하기 -->
     <button class="new-trip-btn"
-            th:onclick="'location.href=\'/trips/register/trip-place\''">
+            th:onclick="'location.href=\'/trips/register/trip-register\''">
         새 여행 시작하기
     </button>
 
@@ -188,7 +190,7 @@
                     </div>
                     <div class="trip-tags">
                         <span th:each="tag : ${trip.tags}"
-                              th:text="'#' + ${tag}">#태그</span>
+                              th:text="${tag}"></span>
                     </div>
                 </div>
                 <div th:if="${#lists.isEmpty(upcomingTrips)}" class="empty-message">
@@ -209,11 +211,10 @@
                     <div class="trip-location" th:text="${trip.title}">여행 제목</div>
                     <div class="trip-date"
                          th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
-                        2025.03.20 - 2025.03.25
                     </div>
                     <div class="trip-tags">
                         <span th:each="tag : ${trip.tags}"
-                              th:text="'#' + ${tag}">#태그</span>
+                              th:text="${tag}">#태그</span>
                     </div>
                 </div>
                 <div th:if="${#lists.isEmpty(pastTrips)}" class="empty-message">

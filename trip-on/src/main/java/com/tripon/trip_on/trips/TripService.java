@@ -1,11 +1,11 @@
+
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.trips.Trip;
-import com.tripon.trip_on.trips.TripTag;
+import com.tripon.trip_on.user.User;
+import com.tripon.trip_on.user.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import com.tripon.trip_on.trips.TripRegisterDto;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -17,11 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TripsService {
+public class TripService {
 
     @Autowired private TripRepository tripRepository;
     @Autowired private TripTagRepository tripTagRepository;
     @Autowired private ScheduleRepository scheduleRepository;
+    @Autowired private TripMemberRepository tripMemberRepository;
+    @Autowired private UserRepository userRepository;
+
 
     /** 로그인 유저의 Trip 목록 */
     public List<Trip> findByCreatorId(Long userId) {
@@ -41,22 +44,27 @@ public class TripsService {
     }
 
     /** 새로운 Trip 저장 */
+    @Transactional
     public Trip saveTrip(Long userId, TripRegisterDto dto) {
-        Trip trip = new Trip();
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+         Trip trip = new Trip();
         trip.setTitle(dto.getTitle());
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
         trip.setAccommodation(dto.getAccommodation());
-        // 교통편이 빈 문자열일 경우 null로 처리
-        if (dto.getTransportationDeparture() != null && dto.getTransportationDeparture().isBlank()) {
-            dto.setTransportationDeparture(null);
-        }
-        if (dto.getTransportationReturn() != null && dto.getTransportationReturn().isBlank()) {
-            dto.setTransportationReturn(null);
-        }
-        trip.setTransportation(dto.getTransportationDeparture() + " ~ " + dto.getTransportationReturn());
-        trip.setStatus("예정");
+        trip.setDepartureTrip(dto.getDepartureTrip());
+        trip.setReturnTrip(dto.getReturnTrip());
         trip.setCreatorId(userId);
+
+        Trip savedTrip = tripRepository.save(trip);
+
+        TripMember tripMember = new TripMember();
+        tripMember.setTrip(savedTrip);
+        tripMember.setUser(user);
+        tripMemberRepository.save(tripMember);
+        
         return tripRepository.save(trip);
     }
 
@@ -102,20 +110,13 @@ public class TripsService {
             .map(name -> name.startsWith("#") ? name.substring(1) : name)
             .collect(Collectors.joining(","));
 
-        String dep = "", ret = "";
-        if (trip.getTransportation() != null) {
-            String[] parts = trip.getTransportation().split(" ~ ");
-            dep = parts.length>0?parts[0]:"";
-            ret = parts.length>1?parts[1]:"";
-        }
-
         return TripUpdateDto.builder()
             .title(trip.getTitle())
             .startDate(trip.getStartDate())
             .endDate(trip.getEndDate())
             .accommodation(trip.getAccommodation())
-            .transportationDeparture(dep)
-            .transportationReturn(ret)
+            .departureTrip(trip.getDepartureTrip())
+            .returnTrip(trip.getReturnTrip())
             .tagsText(tagsText)
             .build();
     }
@@ -130,9 +131,8 @@ public class TripsService {
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
         trip.setAccommodation(dto.getAccommodation());
-        trip.setTransportation(dto.getTransportationDeparture()
-                               + " ~ " + dto.getTransportationReturn());
-
+       trip.setDepartureTrip(dto.getDepartureTrip());
+        trip.setReturnTrip(dto.getReturnTrip());
         // 기존 태그 삭제
         tripTagRepository.deleteAllByTrip(trip);
         // 새 태그 저장

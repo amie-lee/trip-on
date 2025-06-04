@@ -142,6 +142,7 @@
             width: calc(100% - 120px);
             display: flex;
             justify-content: space-between;
+            justify-self: center;
         }
 
         .btn {
@@ -153,7 +154,7 @@
             font-size: 16px;
             color: #000;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease   ;
         }
 
         .btn:hover {
@@ -162,15 +163,15 @@
         }
     </style>
     </head>
-<body>
-    <div class="top-bar">
+<body> <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <a class="logout-text" href="/logout">로그아웃</a>
-            <a class="logout-text" href="/mypage">마이페이지</a>
+            <a href="/user/logout" class="logout-text">로그아웃</a>
+            <a href="/user/mypage" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
     <div class="progress-container">
         <div class="progress-line"></div>

@@ -314,14 +314,15 @@
     </style>
     </head>
 <body>
-    <div class="top-bar">
+     <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <a class="logout-text" href="/logout">로그아웃</a>
-            <a class="logout-text" href="/mypage">마이페이지</a>
+            <a href="/user/logout" class="logout-text">로그아웃</a>
+            <a href="/user/mypage" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
     <div class="progress-container">
         <div class="progress-line"></div>
@@ -346,8 +347,8 @@
             <div class="row">
                 <div class="label">교통편</div>
                 <div class="input-col">
-                    <input type="text" class="input-field" th:field="*{transportationDeparture}" placeholder="출발 교통편을 입력하세요" />
-                    <input type="text" class="input-field" th:field="*{transportationReturn}" placeholder="도착 교통편을 입력하세요" style="margin-top:16px;" />
+                    <input type="text" class="input-field" th:field="*{departureTrip}" placeholder="출발 교통편을 입력하세요" />
+                    <input type="text" class="input-field" th:field="*{returnTrip}" placeholder="도착 교통편을 입력하세요" style="margin-top:16px;" />
                 </div>
             </div>
 
