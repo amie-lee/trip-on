@@ -2,8 +2,23 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TripOn - 지출 입력</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      padding: 20px 60px;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
     table, th, td {
       border: 1px solid #aaa;
       border-collapse: collapse;
@@ -23,7 +38,8 @@
   </style>
 </head>
 <body>
-<h2 th:text="'TripOn - ' + ${trip.title} + ' 경비 입력'">TripOn - 경비 입력</h2>
+<div th:replace="~{fragments/header :: header(${user})}"></div>
+<h2 th:text="${trip.title} + ' 경비'">경비</h2>
 <form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
       th:object="${expenseForm}" method="post">
   <table>
