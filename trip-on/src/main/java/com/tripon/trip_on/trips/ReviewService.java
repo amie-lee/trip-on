@@ -54,4 +54,18 @@ public interface ReviewService {
      * 좋아요 취소
      */
     void unlikeReview(Long reviewId, Long userId);
+
+    /**
+     * 후기 사진 첨부
+     * @param reviewId 후기 ID
+     * @param imageUrl 파일 경로
+     * @param filePath 파일 시스템 경로
+     * @param fileType 파일 타입 (image/video)
+     */
+    void saveReviewPhoto(Long reviewId, String imageUrl, String filePath, String fileType);
+
+    /**
+     * 후기 저장 후 Review 반환 (REST용)
+     */
+    Review saveReviewAndReturn(Long tripId, Long userId, String content);
 }

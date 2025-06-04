@@ -16,11 +16,13 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final TripRepository tripRepository; // TripRepository 주입
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewPhotoRepository reviewPhotoRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository, ReviewPhotoRepository reviewPhotoRepository) {
         this.reviewRepository = reviewRepository;
         this.tripRepository = tripRepository;
         this.reviewLikeRepository = reviewLikeRepository;
+        this.reviewPhotoRepository = reviewPhotoRepository;
     }
 
     @Override
@@ -91,10 +93,32 @@ public class ReviewServiceImpl implements ReviewService {
         reviewLikeRepository.deleteByReviewIdAndUserId(reviewId, userId);
     }
 
+    @Override
+    @Transactional
+    public void saveReviewPhoto(Long reviewId, String imageUrl, String filePath, String fileType) {
+        ReviewPhoto photo = ReviewPhoto.builder()
+                .reviewId(reviewId)
+                .imageUrl(imageUrl)
+                .filePath(filePath)
+                .fileType(fileType)
+                .build();
+        reviewPhotoRepository.save(photo);
+    }
+
     // 현재 로그인한 사용자 ID를 가져오는 헬퍼 메서드
     private Long getCurrentUserId() {
         // TODO: SecurityContextHolder나 Principal에서 현재 사용자 ID를 가져오도록 구현
         return 0L; // 임시로 0 반환
+    }
+
+    @Override
+    public Review saveReviewAndReturn(Long tripId, Long userId, String content) {
+        Review review = Review.builder()
+                .tripId(tripId)
+                .userId(userId)
+                .content(content)
+                .build();
+        return reviewRepository.save(review);
     }
 
 }

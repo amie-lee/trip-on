@@ -858,6 +858,12 @@
                   <span class="review-like heart" th:classappend="${review.liked != null and review.liked ? 'liked' : ''}">♡</span>
                   <span class="like-count" th:text="${review.likeCount}">0</span>
                 </span>
+                <div class="review-images" th:if="${reviewPhotosMap[review.id] != null}">
+                  <span th:each="photo : ${reviewPhotosMap[review.id]}">
+                    <img th:if="${photo.fileType == 'image'}" th:src="@{${photo.imageUrl}}" class="review-image" />
+                    <video th:if="${photo.fileType == 'video'}" th:src="@{${photo.imageUrl}}" class="review-image" controls />
+                  </span>
+                </div>
               </div>
               <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="no-reviews" style="text-align:center;padding:20px;color:#666;">
                 아직 작성된 후기가 없습니다.
@@ -866,7 +872,7 @@
             <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
               <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}" th:if="${user != null}">
               <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
-              <input type="file" class="review-file" accept="image/*,video/*" multiple name="reviewFile" style="display:none;">
+              <input type="file" class="review-file" accept="image/*,video/*" multiple name="file" style="display:none;">
               <button type="button" class="review-attach">사진/동영상 첨부</button>
               <button type="submit" class="review-submit">등록</button>
             </form>
@@ -1077,14 +1083,26 @@
 
     // 좋아요 토글 기능
     window.toggleLike = function(reviewId) {
-      fetch(`/trips/${tripId}/review/${reviewId}/like`, {
-        method: 'POST'
-      })
-      .then(response => {
-        if (response.ok) {
-          window.location.reload();
-        }
-      });
+      const heart = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .review-like`);
+      const count = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .like-count`);
+      const isLiked = heart.classList.contains('liked');
+      const method = isLiked ? 'DELETE' : 'POST';
+      const url = `/trips/${tripId}/review/${reviewId}/like`;
+
+      fetch(url, { method })
+        .then(response => {
+          if (response.ok) {
+            if (isLiked) {
+              heart.textContent = '♡';
+              heart.classList.remove('liked');
+              count.textContent = parseInt(count.textContent) - 1;
+            } else {
+              heart.textContent = '♥';
+              heart.classList.add('liked');
+              count.textContent = parseInt(count.textContent) + 1;
+            }
+          }
+        });
     };
 
     // 후기 카드의 ... 버튼 클릭 시 메뉴 토글
@@ -1120,6 +1138,52 @@
         });
       }
     };
+
+    // 사진 첨부 기능 및 파일 미리보기/삭제
+    const fileInput = document.querySelector('.review-file');
+    const fileListDiv = document.querySelector('.review-file-list');
+    let selectedFiles = [];
+
+    document.querySelector('.review-attach').addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        selectedFiles = Array.from(e.target.files);
+        renderFileList();
+    });
+
+    function renderFileList() {
+        fileListDiv.innerHTML = '';
+        selectedFiles.forEach((file, idx) => {
+            const fileDiv = document.createElement('span');
+            fileDiv.style.display = 'inline-block';
+            fileDiv.style.marginRight = '8px';
+            fileDiv.style.background = '#f5f5f5';
+            fileDiv.style.borderRadius = '12px';
+            fileDiv.style.padding = '4px 10px';
+            fileDiv.style.fontSize = '16px';
+            fileDiv.style.marginTop = '8px';
+            fileDiv.textContent = file.name + ' ';
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = '✕';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.marginLeft = '4px';
+            removeBtn.onclick = function() {
+                selectedFiles.splice(idx, 1);
+                updateFileInput();
+                renderFileList();
+            };
+            fileDiv.appendChild(removeBtn);
+            fileListDiv.appendChild(fileDiv);
+        });
+    }
+
+    function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+    }
 
     setupReviewForm();
     });
