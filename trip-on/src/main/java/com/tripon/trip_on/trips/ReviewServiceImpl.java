@@ -4,24 +4,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import com.tripon.trip_on.trips.TripRepository;
+import com.tripon.trip_on.trips.Trip;
 import jakarta.persistence.EntityNotFoundException;
 
-
-
 /**
- * ReviewService 구현체
+ * ReviewService 구현체 (비즈니스 로직)
  */
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final TripRepository tripRepository;
+    private final TripRepository tripRepository; // TripRepository 주입
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewPhotoRepository reviewPhotoRepository;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository, ReviewPhotoRepository reviewPhotoRepository) {
         this.reviewRepository = reviewRepository;
         this.tripRepository = tripRepository;
         this.reviewLikeRepository = reviewLikeRepository;
+        this.reviewPhotoRepository = reviewPhotoRepository;
     }
 
     @Override
@@ -34,10 +35,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public List<Review> getReviews(Long tripId) {
         List<Review> reviews = reviewRepository.findByTripId(tripId);
-        // 좋아요 수를 각 엔티티에 세팅
+        // 각 후기별로 좋아요 수와 좋아요 상태 세팅
         for (Review r : reviews) {
             long count = reviewLikeRepository.countByReviewId(r.getId());
             r.setLikeCount(count);
+            
+            // 현재 사용자가 좋아요를 눌렀는지 확인
+            boolean liked = reviewLikeRepository.existsByReviewIdAndUserId(r.getId(), getCurrentUserId());
+            r.setLiked(liked);
         }
         return reviews;
     }
@@ -88,6 +93,33 @@ public class ReviewServiceImpl implements ReviewService {
         reviewLikeRepository.deleteByReviewIdAndUserId(reviewId, userId);
     }
 
+    @Override
+    @Transactional
+    public void saveReviewPhoto(Long reviewId, String imageUrl, String filePath, String fileType) {
+        ReviewPhoto photo = ReviewPhoto.builder()
+                .reviewId(reviewId)
+                .imageUrl(imageUrl)
+                .filePath(filePath)
+                .fileType(fileType)
+                .build();
+        reviewPhotoRepository.save(photo);
+    }
+
+    // 현재 로그인한 사용자 ID를 가져오는 헬퍼 메서드
+    private Long getCurrentUserId() {
+        // TODO: SecurityContextHolder나 Principal에서 현재 사용자 ID를 가져오도록 구현
+        return 0L; // 임시로 0 반환
+    }
+
+    @Override
+    public Review saveReviewAndReturn(Long tripId, Long userId, String content) {
+        Review review = Review.builder()
+                .tripId(tripId)
+                .userId(userId)
+                .content(content)
+                .build();
+        return reviewRepository.save(review);
+    }
 
 }
 

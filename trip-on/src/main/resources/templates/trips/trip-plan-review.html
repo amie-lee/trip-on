@@ -705,7 +705,7 @@
       outline: none;
       margin-right: 4px;
     }
-    /* 후기 카드 ... 버튼 */
+    /* 후기 카드의 ... 버튼 클릭 시 메뉴 토글 */
     .menu-dot.review {
       position: absolute;
       right: 0;
@@ -745,6 +745,11 @@
       color: #222;
       text-align: center;
     }
+    .review-menu-btn:hover {
+      background: #e0e0e0;
+      border-color: #888;
+      color: #222;
+    }
   </style>
 </head>
 <body>
@@ -759,83 +764,117 @@
 
     <a href="#" class="back-link">&larr; 이전</a>
     <div class="container">
-        <div class="left-info">
-            <div class="trip-title-row">
-                <div class="trip-title">제주도</div>
-                <div class="trip-menu-box" style="position: relative;">
-                    <button class="menu-dot left" id="menuDotBtn">&hellip;</button>
-                    <div class="trip-menu-popup" id="menuPopup" style="display:none;">
-                        <button class="trip-menu-btn" id="editInfoBtn">편집</button>
-                        <button class="trip-menu-btn">삭제</button>
-                    </div>
-                </div>
-            </div>
-            <div class="info-table">
-                <div class="info-row">
-                    <div class="info-label">일정</div>
-                    <div class="info-value">2025.04.01 - 2025.04.03</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">숙소</div>
-                    <div class="info-value">00호텔 <span class="info-link">(지도)</span></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">교통편</div>
-                    <div class="info-value">00항공 4/1 11:00, 4/3 19:00</div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">태그</div>
-                    <div class="info-value tag-list">
-                        <span class="tag selected">#혼자서</span>
-                        <span class="tag selected">#휴식</span>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">경비</div>
-                    <div class="info-value">326,000원 <span class="info-link">더보기</span></div>
-                </div>
-                <div class="info-row">
-                    <div class="info-label">동행</div>
-                    <div class="info-value"><span class="info-invite">초대</span></div>
-                </div>
-                <button id="saveInfoBtn" style="display:none;">저장</button>
-            </div>
-            <div class="side-btns">
-                <button class="side-btn selected">계획</button>
-                <button class="side-btn">후기</button>
-            </div>
+      <div class="left-info">
+        <div class="trip-title-row">
+          <div class="trip-title" th:text="${trip.title}"></div>
+          <button class="menu-dot" id="menuDotBtn">···</button>
+          <div class="menu-popup" id="menuPopup" style="display:none;">
+            <button class="menu-btn"
+                   th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
+              편집
+            </button>
+            <button class="menu-btn"
+                    th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
+              삭제
+            </button>
+          </div>
         </div>
+  
+        <div class="info-table">
+          <div class="info-row">
+            <div class="info-label">일정</div>
+            <div class="info-value"
+                 th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+              2025.05.24 - 2025.05.30
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">숙소</div>
+            <div class="info-value">
+          <!-- 숙소 텍스트 -->
+          <span th:text="${trip.accommodation}">숙소 이름</span>
+          <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
+          <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
+         class="info-link">
+        (지도)
+          </a>
+          </div>
+      </div>
+          <div class="info-row">
+            <div class="info-label">교통편</div>
+            <div class="info-value" th:text="${trip.transportation}"></div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">태그</div>
+            <div class="info-value tag-list">
+              <span th:each="tripTag : ${tags}"
+                    class="tag"
+                    th:text="${tripTag.tagName}">
+                #태그이름
+              </span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">경비</div>
+            <div class="info-value">300원</div>
+            <span class="info-link">더보기</span>
+          </div>
+          <div class="info-row">
+            <div class="info-label">동행</div>
+            <div class="info-value"><span class="info-invite">초대</span></div>
+          </div>
+        </div>
+  
+        <div class="side-btns">
+          <button class="side-btn selected">계획</button>
+          <button class="side-btn">후기</button>
+        </div>
+      </div>
         <div class="right-content">
-            <!-- 후기 리스트 -->
             <div class="review-list">
-              <div th:each="review : ${reviews}" class="review-card" th:attr="data-id=${review.id}">
+              <!-- 후기 목록 -->
+              <div th:each="review : ${reviews}" class="review-card">
                 <div class="review-header" style="position:relative;">
-                  <div class="review-author" th:text="${review.userId == 0 ? '비회원' : review.userId}"></div>
-                  <button class="menu-dot review" type="button">&hellip;</button>
+                  <div class="review-author" th:text="${review.userId != null and review.userId == 0 ? '비회원' : review.userId}">작성자</div>
+                  <button class="menu-dot review">&hellip;</button>
                   <div class="review-menu-popup" style="display:none;">
-                    <button class="review-menu-btn review-edit-btn" type="button">수정</button>
-                    <form method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review/' + ${review.id} + '/delete'}">                      
-                    <button class="review-menu-btn review-delete-btn" type="submit">삭제</button>
-                    </form>
+                    <button class="review-menu-btn review-edit-btn"
+                            th:if="${review.userId != null and review.userId == currentUserId}"
+                            th:onclick="'editReview(' + ${review.id} + ')'">수정</button>
+                    <button class="review-menu-btn review-delete-btn"
+                            th:if="${review.userId != null and review.userId == currentUserId}"
+                            th:onclick="'deleteReview(' + ${review.id} + ')'">삭제</button>
                   </div>
                 </div>
-                <div class="review-content" th:if="${review.id != editingReviewId}" th:text="${review.content}"></div>
-                <!-- 인라인 수정 폼 -->
-                <form th:if="${editingReviewId == review.id}" method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review/' + ${review.id} + '/edit'}">
-                  <input type="text" name="content" th:value="${review.content}" maxlength="140" style="width:70%;">
-                  <button type="submit" class="review-edit-btn2">저장</button>
-                  <button type="button" class="review-cancel-btn2" onclick="window.location.href=window.location.pathname">취소</button>
-                </form>
+                <div class="review-content" th:if="${editReviewId != review.id}" th:text="${review.content}"></div>
+                <div th:if="${editReviewId eq review.id}">
+                  <input class="review-edit-input" type="text" th:value="${review.content}" th:id="'edit-input-' + ${review.id}" />
+                  <button class="review-edit-btn2" type="button" th:attr="onclick='saveEdit(' + ${review.id} + ')'">저장</button>
+                  <button class="review-cancel-btn2" type="button" onclick="cancelEdit()">취소</button>
+                </div>
                 <div class="review-meta">
-                  <span class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+                  <span class="review-date" th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm') : ''}">작성일</span>
+                </div>
+                <span class="review-like-heart" style="cursor:pointer;"
+                      th:onclick="'toggleLike(' + ${review.id} + ')'">
+                  <span class="review-like heart" th:classappend="${review.liked != null and review.liked ? 'liked' : ''}">♡</span>
+                  <span class="like-count" th:text="${review.likeCount}">0</span>
+                </span>
+                <div class="review-images" th:if="${reviewPhotosMap[review.id] != null}">
+                  <span th:each="photo : ${reviewPhotosMap[review.id]}">
+                    <img th:if="${photo.fileType == 'image'}" th:src="@{${photo.imageUrl}}" class="review-image" />
+                    <video th:if="${photo.fileType == 'video'}" th:src="@{${photo.imageUrl}}" class="review-image" controls />
+                  </span>
                 </div>
               </div>
+              <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="no-reviews" style="text-align:center;padding:20px;color:#666;">
+                아직 작성된 후기가 없습니다.
+              </div>
             </div>
-            <!-- 후기 입력 폼 -->
-            <form class="review-input-area" method="post" th:action="@{'/tripReview/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
-              <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
+            <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
+              <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}" th:if="${user != null}">
               <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
-              <input type="file" class="review-file" accept="image/*,video/*" multiple name="reviewFile" style="display:none;">
+              <input type="file" class="review-file" accept="image/*,video/*" multiple name="file" style="display:none;">
               <button type="button" class="review-attach">사진/동영상 첨부</button>
               <button type="submit" class="review-submit">등록</button>
             </form>
@@ -844,18 +883,18 @@
         </div>
     </div>
     <script>
+    // 서버에서 userId, tripId를 JS 변수로 전달
+    var currentUserId = /*[[${user != null ? user.id : 0}]]*/ 0;
+    var tripId = /*[[${trip.id}]]*/ 0;
+    
     document.addEventListener('DOMContentLoaded', function() {
-    var menuDotBtn = document.getElementById('menuDotBtn');
-    if (menuDotBtn) {
-        menuDotBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const popup = document.getElementById('menuPopup');
-            popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
-        });
-    }
+    document.getElementById('menuDotBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const popup = document.getElementById('menuPopup');
+        popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+    });
     document.addEventListener('click', function() {
-        var menuPopup = document.getElementById('menuPopup');
-        if (menuPopup) menuPopup.style.display = 'none';
+        document.getElementById('menuPopup').style.display = 'none';
     });
     document.querySelectorAll('.side-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -865,21 +904,13 @@
             btn.classList.add('selected');
         });
     });
-    var infoInvite = document.querySelector('.info-invite');
-    if (infoInvite) {
-        infoInvite.addEventListener('click', function(e) {
-            e.preventDefault();
-            var inviteModal = document.getElementById('inviteModal');
-            if (inviteModal) inviteModal.style.display = 'flex';
-        });
-    }
-    var inviteCloseBtn = document.querySelector('.invite-close-btn');
-    if (inviteCloseBtn) {
-        inviteCloseBtn.addEventListener('click', function() {
-            var inviteModal = document.getElementById('inviteModal');
-            if (inviteModal) inviteModal.style.display = 'none';
-        });
-    }
+    document.querySelector('.info-invite').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('inviteModal').style.display = 'flex';
+    });
+    document.querySelector('.invite-close-btn').addEventListener('click', function() {
+        document.getElementById('inviteModal').style.display = 'none';
+    });
 
     // info-value 편집/저장 기능 (trip-plan.html과 100% 동일)
     const infoTable = document.querySelector('.info-table');
@@ -979,41 +1010,14 @@
         });
     }
 
-    // 하트(좋아요) 토글 기능 (빈 하트/채운 하트 모두 토글)
-    function setupLikeButtons(context) {
-      (context || document).querySelectorAll('.review-like-heart').forEach(function(btn) {
-        if (btn.dataset.likeBound) return; // 중복 바인딩 방지
-        btn.addEventListener('click', function() {
-          const heart = btn.querySelector('.review-like.heart');
-          const countSpan = btn.querySelector('.like-count');
-          let count = parseInt(countSpan.textContent, 10) || 0;
-          if (btn.classList.contains('liked')) {
-            count = 0;
-            btn.classList.remove('liked');
-            heart.textContent = '♡';
-            heart.style.color = '';
-          } else {
-            count = 1;
-            btn.classList.add('liked');
-            heart.textContent = '♥';
-            heart.style.color = '#e74c3c';
-          }
-          countSpan.textContent = count;
-        });
-        btn.dataset.likeBound = '1';
-      });
-    }
-
     // 후기 등록 기능
     function setupReviewForm() {
       const form = document.querySelector('.review-input-area');
-      if (!form) return; // 폼이 없으면 함수 종료
       const input = form.querySelector('.review-input');
-      const reviewList = document.querySelector('.review-list');
-      const fileInput = form.querySelector('.review-file');
-      const fileListDiv = form.querySelector('.review-file-list');
       const warningDiv = document.querySelector('.review-warning');
-      window.selectedFiles = [];
+      const fileInput = form.querySelector('.review-file');
+      const fileListDiv = document.querySelector('.review-file-list');
+      
       // 글자수 제한 경고 + 등록 버튼 비활성화
       input.addEventListener('input', function() {
         if (input.value.length > 140) {
@@ -1024,232 +1028,166 @@
           form.querySelector('.review-submit').disabled = false;
         }
       });
+
       form.addEventListener('submit', function(e) {
         const text = input.value.trim();
-        if (!text) return;
+        if (!text) {
+          e.preventDefault();
+          warningDiv.textContent = '후기 내용을 입력해주세요.';
+          return;
+        }
+        
         if (text.length > 140) {
+          e.preventDefault();
           warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
           form.querySelector('.review-submit').disabled = true;
           return;
         }
-        // 후기 카드 생성
-        const card = document.createElement('div');
-        card.className = 'review-card';
-        // 이미지/동영상 미리보기 생성
-        let imagesHTML = '';
+        
         const files = window.selectedFiles || [];
         if (files.length > 10) {
+          e.preventDefault();
           warningDiv.textContent = '사진/동영상 첨부는 최대 10개까지 가능합니다.';
           return;
         }
-        if (files.length > 0) {
-          imagesHTML = '<div class="review-images">' + files.map(f => {
-            if (f.type.startsWith('image/')) {
-              return `<img src="" class="review-thumb" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" alt="첨부 이미지">`;
-            } else if (f.type.startsWith('video/')) {
-              return `<video src="" class="review-thumb" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" controls></video>`;
+      });
+    }
+
+    // 후기 수정/삭제 기능
+    window.editReview = function(reviewId) {
+      // 쿼리스트링으로 editReviewId 전달하여 새로고침
+      const url = new URL(window.location.href);
+      url.searchParams.set('editReviewId', reviewId);
+      window.location.href = url.toString();
+    };
+
+    window.saveEdit = function(reviewId) {
+      const input = document.getElementById('edit-input-' + reviewId);
+      const content = input.value.trim();
+      if (!content) {
+        alert('내용을 입력하세요.');
+        return;
+      }
+      fetch(`/trips/${tripId}/review/${reviewId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: content })
+      })
+      .then(response => {
+        if (response.ok) window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
+        else alert('수정 실패');
+      });
+    };
+
+    window.cancelEdit = function() {
+      window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
+    };
+
+    // 좋아요 토글 기능
+    window.toggleLike = function(reviewId) {
+      const heart = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .review-like`);
+      const count = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .like-count`);
+      const isLiked = heart.classList.contains('liked');
+      const method = isLiked ? 'DELETE' : 'POST';
+      const url = `/trips/${tripId}/review/${reviewId}/like`;
+
+      fetch(url, { method })
+        .then(response => {
+          if (response.ok) {
+            if (isLiked) {
+              heart.textContent = '♡';
+              heart.classList.remove('liked');
+              count.textContent = parseInt(count.textContent) - 1;
             } else {
-              return '';
+              heart.textContent = '♥';
+              heart.classList.add('liked');
+              count.textContent = parseInt(count.textContent) + 1;
             }
-          }).join('') + '</div>';
-        }
-        card.innerHTML = `
-          <div class="review-header" style="position:relative;">
-            <div class="review-author">나</div>
-            <button class="menu-dot review">&hellip;</button>
-          </div>
-          <div class="review-content"></div>
-          ${imagesHTML}
-          <div class="review-meta">
-            <span class="review-date">${new Date().toLocaleString('ko-KR', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})}</span>
-            <span class="review-scroll"></span>
-          </div>
-          <span class="review-like-heart" style="cursor:pointer;"><span class="review-like heart">♡</span> <span class="like-count">0</span></span>
-        `;
-        card.querySelector('.review-content').textContent = text;
-        // 메뉴 팝업 생성
-        const menuPopup = document.createElement('div');
-        menuPopup.className = 'review-menu-popup';
-        menuPopup.style.display = 'none';
-        menuPopup.innerHTML = `
-          <button class="review-menu-btn review-edit-btn">수정</button>
-          <button class="review-menu-btn review-delete-btn">삭제</button>
-        `;
-        card.querySelector('.review-header').appendChild(menuPopup);
-        reviewList.appendChild(card);
-        input.value = '';
-        fileInput.value = '';
-        document.querySelector('.review-file-list').innerHTML = '';
-        window.selectedFiles = [];
-        warningDiv.textContent = '';
-        // 파일 미리보기 src 세팅
-        if (files.length > 0) {
-          const thumbs = card.querySelectorAll('.review-thumb');
-          let imgIdx = 0, vidIdx = 0;
-          files.forEach((f) => {
-            const url = URL.createObjectURL(f);
-            if (f.type.startsWith('image/')) {
-              while (imgIdx < thumbs.length && thumbs[imgIdx].tagName !== 'IMG') imgIdx++;
-              if (imgIdx < thumbs.length) thumbs[imgIdx].src = url;
-              imgIdx++;
-            } else if (f.type.startsWith('video/')) {
-              while (vidIdx < thumbs.length && thumbs[vidIdx].tagName !== 'VIDEO') vidIdx++;
-              if (vidIdx < thumbs.length) thumbs[vidIdx].src = url;
-              vidIdx++;
-            }
-          });
-        }
-        setupLikeButtons(card);
-        // .../수정/삭제 메뉴 동작
-        const menuDot = card.querySelector('.menu-dot');
-        if (menuDot) {
-          menuDot.onclick = function(e) {
+          }
+        });
+    };
+
+    // 후기 카드의 ... 버튼 클릭 시 메뉴 토글
+    document.querySelectorAll('.menu-dot.review').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
-          };
-        }
-        document.addEventListener('click', function hideMenu(e) {
-          if (!card.contains(e.target)) menuPopup.style.display = 'none';
+            // 모든 메뉴 닫기
+            document.querySelectorAll('.review-menu-popup').forEach(function(popup) {
+                popup.style.display = 'none';
+            });
+            // 현재 카드의 메뉴만 열기
+            const popup = btn.nextElementSibling;
+            if (popup) {
+                popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+            }
         });
-        // 삭제/수정 기능 바인딩
-        const delBtn = menuPopup.querySelector('.review-delete-btn');
-        if (delBtn) delBtn.onclick = () => card.remove();
-        const editBtn = menuPopup.querySelector('.review-edit-btn');
-        if (editBtn) editBtn.onclick = () => {
-          menuPopup.style.display = 'none';
-          const contentDiv = card.querySelector('.review-content');
-          const oldText = contentDiv.textContent;
-          // 기존 텍스트 숨기고 input 생성
-          contentDiv.style.display = 'none';
-          let input = document.createElement('input');
-          input.type = 'text';
-          input.value = oldText;
-          input.className = 'review-edit-input';
-          let saveBtn = document.createElement('button');
-          saveBtn.textContent = '저장';
-          saveBtn.type = 'button';
-          saveBtn.className = 'review-edit-btn2';
-          let cancelBtn = document.createElement('button');
-          cancelBtn.textContent = '취소';
-          cancelBtn.type = 'button';
-          cancelBtn.className = 'review-cancel-btn2';
-          contentDiv.parentNode.insertBefore(input, contentDiv.nextSibling);
-          contentDiv.parentNode.insertBefore(saveBtn, input.nextSibling);
-          contentDiv.parentNode.insertBefore(cancelBtn, saveBtn.nextSibling);
-          input.focus();
-          if (saveBtn) saveBtn.onclick = function() {
-            contentDiv.textContent = input.value;
-            contentDiv.style.display = '';
-            input.remove(); saveBtn.remove(); cancelBtn.remove();
-          };
-          if (cancelBtn) cancelBtn.onclick = function() {
-            contentDiv.style.display = '';
-            input.remove(); saveBtn.remove(); cancelBtn.remove();
-          };
-        };
-        // 스크롤 맨 아래로 이동
-        reviewList.scrollTop = reviewList.scrollHeight;
-        form.querySelector('.review-submit').disabled = false;
-      });
-    }
+    });
+    // 바깥 클릭 시 메뉴 닫기
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.review-menu-popup').forEach(function(popup) {
+            popup.style.display = 'none';
+        });
+    });
 
-    if (document.querySelector('.review-like-heart')) {
-        setupLikeButtons();
-    }
-    if (document.querySelector('.review-input-area')) {
-        setupReviewForm();
-    }
+    window.deleteReview = function(reviewId) {
+      if (confirm('정말 삭제하시겠습니까?')) {
+        fetch(`/trips/${tripId}/review/${reviewId}`, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (response.ok) window.location.href = window.location.pathname;
+          else alert('삭제 실패');
+        });
+      }
+    };
 
-    // 파일 첨부 기능
-    (function() {
-    const fileInput   = document.querySelector('.review-file');
-    const attachBtn   = document.querySelector('.review-attach');
+    // 사진 첨부 기능 및 파일 미리보기/삭제
+    const fileInput = document.querySelector('.review-file');
     const fileListDiv = document.querySelector('.review-file-list');
-    const warningDiv  = document.querySelector('.review-warning');
+    let selectedFiles = [];
 
-    // 요소가 전부 존재할 때만 이벤트 바인딩
-    if (attachBtn && fileInput && fileListDiv && warningDiv) {
-      attachBtn.addEventListener('click', e => {
+    document.querySelector('.review-attach').addEventListener('click', function() {
         fileInput.click();
-      });
+    });
 
-      fileInput.addEventListener('change', function(e) {
-        const files = Array.from(fileInput.files);
-        window.selectedFiles = files;
+    fileInput.addEventListener('change', function(e) {
+        selectedFiles = Array.from(e.target.files);
+        renderFileList();
+    });
 
-        // 기존에 렌더링된 리스트 비우기
+    function renderFileList() {
         fileListDiv.innerHTML = '';
-
-        // 선택된 파일들 렌더링
-        files.forEach((file, idx) => {
-          const coverUrl = URL.createObjectURL(file);
-          const fileItemDiv = document.createElement('div');
-          fileItemDiv.className = 'review-file-item';
-
-          const img = document.createElement('img');
-          img.src = coverUrl;
-          img.alt = file.name;
-          img.className = 'review-file-thumb';
-          fileItemDiv.appendChild(img);
-
-          const delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'review-file-remove';
-          delBtn.textContent = '×';
-          fileItemDiv.appendChild(delBtn);
-
-          // 삭제 버튼 핸들러
-          delBtn.addEventListener('click', () => {
-            fileItemDiv.remove();
-            const removeIdx = window.selectedFiles.findIndex(f => f.name === file.name && f.size === file.size);
-            if (removeIdx > -1) {
-              window.selectedFiles.splice(removeIdx, 1);
-              // DataTransfer로 FileList 동기화
-              const dt = new DataTransfer();
-              window.selectedFiles.forEach(f => dt.items.add(f));
-              fileInput.files = dt.files;
-              // 다시 렌더링
-              fileInput.dispatchEvent(new Event('change'));
-            }
-          });
-
-          fileListDiv.appendChild(fileItemDiv);
-        });
-
-        // 최대 파일 수 검사
-        if (files.length > 10) {
-          warningDiv.textContent = '사진/동영상 첨부는 최대 10개까지 가능합니다.';
-        } else {
-          warningDiv.textContent = '';
-        }
-      });
-    }
-  })();
-
-    function setupReviewMenus() {
-        document.querySelectorAll('.review-card').forEach(function(card) {
-            const menuDot = card.querySelector('.menu-dot.review');
-            const menuPopup = card.querySelector('.review-menu-popup');
-            if (menuDot && menuPopup) {
-                menuDot.onclick = function(e) {
-                    e.stopPropagation();
-                    menuPopup.style.display = menuPopup.style.display === 'none' ? 'flex' : 'none';
-                };
-                document.addEventListener('click', function hideMenu(e) {
-                    if (!card.contains(e.target)) menuPopup.style.display = 'none';
-                });
-                // 수정 버튼 클릭 시 인라인 폼으로 이동 (쿼리파라미터로 editingReviewId 전달)
-                const editBtn = menuPopup.querySelector('.review-edit-btn');
-                if (editBtn) editBtn.onclick = function() {
-                    const reviewId = card.getAttribute('data-id');
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('editingReviewId', reviewId);
-                    window.location.href = url.toString();
-                };
-            }
+        selectedFiles.forEach((file, idx) => {
+            const fileDiv = document.createElement('span');
+            fileDiv.style.display = 'inline-block';
+            fileDiv.style.marginRight = '8px';
+            fileDiv.style.background = '#f5f5f5';
+            fileDiv.style.borderRadius = '12px';
+            fileDiv.style.padding = '4px 10px';
+            fileDiv.style.fontSize = '16px';
+            fileDiv.style.marginTop = '8px';
+            fileDiv.textContent = file.name + ' ';
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = '✕';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.marginLeft = '4px';
+            removeBtn.onclick = function() {
+                selectedFiles.splice(idx, 1);
+                updateFileInput();
+                renderFileList();
+            };
+            fileDiv.appendChild(removeBtn);
+            fileListDiv.appendChild(fileDiv);
         });
     }
-    document.addEventListener('DOMContentLoaded', setupReviewMenus);
+
+    function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+    }
+
+    setupReviewForm();
     });
     </script>
 
