@@ -76,43 +76,52 @@
   </style>
 </head>
 <body>
-  <!-- 헤더 -->
-  <!-- <div class="top-bar">
-    <div class="logo">TRIP ON</div>
-    <div class="logout-group">
-      <a th:href="@{/user/logout}" class="logout-text">로그아웃</a>
-      <div class="avatar-small"></div>
-    </div>
-  </div> -->
-  <!-- <div th:replace="~{fragments/header :: header(${user})}"></div> -->
-  <!-- <div th:replace="~{fragments/header :: header(user)}"></div> -->
-
-  <!-- <div th:replace="~{fragments/header :: header(user=${user})}"></div> -->
+  <!-- 기존 헤더(프래그먼트)를 그대로 유지 -->
   <div th:replace="~{fragments/header :: header(${user})}"></div>
 
-
-
-
-
-
-  <!-- 본문 -->
+  <!-- 마이페이지 본문 -->
   <div class="center-wrapper">
-    <!-- 프로필 -->
-    <div class="profile-section">
-      <!-- 프로필 이미지 (background-image 동적 바인딩) -->
-      <div class="avatar-large" id="avatar"
-           th:style="${user.profileImage} != null 
-                       ? 'background-image:url(' + @{${user.profileImage}} + '); background-size:cover; background-position:center;' 
-                       : ''">
+
+    <!-- 1) 프로필 이미지 변경용 form -->
+    <form th:action="@{/user/mypage}" method="post" enctype="multipart/form-data" id="profileForm">
+      <div class="profile-section">
+
+        <!-- 2) DB에 profileImage 값이 있을 때: 절대 URL을 바로 사용 -->
+        <div class="avatar-large" 
+             id="avatar"
+             th:if="${user.profileImage} != null"
+             th:style="|background-image: url('${user.profileImage}'); background-size:cover; background-position:center;|">
+        </div>
+
+        <!-- 3) 사용자에게 기본 이미지가 필요한 경우 -->
+        <div class="avatar-large" 
+             id="avatar"
+             th:if="${user.profileImage} == null"
+             style="background-image: url('/images/tripon_profile_demo.png'); background-size:cover; background-position:center;">
+        </div>
+
+        <!-- 4) 실제 파일 input -->
+        <input type="file"
+               id="avatarInput"
+               name="imageFile"
+               accept="image/*"
+               style="display:none;" />
+
+        <!-- 사용자 이름/이메일 -->
+        <div class="user-info">
+          <div class="user-name" th:text="${user.username}">홍길동</div>
+          <div class="user-email" th:text="${user.email}">email@example.com</div>
+        </div>
       </div>
-      <input type="file" id="avatarInput" accept="image/*" style="display:none;" />
-      <div class="user-info">
-        <div class="user-name" th:text="${user.username}">홍길동</div>
-        <div class="user-email" th:text="${user.email}">email@example.com</div>
-      </div>
+    </form>
+
+    <!-- 업로드 오류 메시지 -->
+    <div th:if="${imageError != null}"
+         class="error-message"
+         th:text="${imageError}">
     </div>
 
-    <!-- 메뉴 -->
+    <!-- 비밀번호 변경 / 회원 탈퇴 버튼 -->
     <div class="menu">
       <button type="button"
               class="menu-item-btn"
@@ -125,17 +134,32 @@
         회원 탈퇴
       </button>
     </div>
+
+    
   </div>
 
-  <!-- JS (프로필 이미지 변경 토글) -->
+  <!-- JS: 클릭 → 파일 선택 → 프리뷰 → 자동 제출 -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const avatar      = document.getElementById('avatar');
       const avatarInput = document.getElementById('avatarInput');
-      avatar.addEventListener('click', () => avatarInput.click());
+      const profileForm = document.getElementById('profileForm');
+
+      avatar.addEventListener('click', () => {
+        avatarInput.click();
+      });
+
       avatarInput.addEventListener('change', e => {
         const file = e.target.files[0];
-        if (!file || !file.type.startsWith('image/')) return;
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+          alert('이미지 파일만 업로드 가능합니다.');
+          e.target.value = "";
+          return;
+        }
+
+        // 선택 즉시 프리뷰(미리보기)
         const reader = new FileReader();
         reader.onload = ev => {
           avatar.style.backgroundImage = `url('${ev.target.result}')`;
@@ -143,9 +167,11 @@
           avatar.style.backgroundPosition = 'center';
         };
         reader.readAsDataURL(file);
+
+        // 바로 서버로 전송
+        profileForm.submit();
       });
     });
   </script>
 </body>
 </html>
-
