@@ -70,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("본인의 후기만 수정할 수 있습니다.");
         }
         r.setContent(newContent);
-        // 사진 삭제는 별도의 API에서 처리하므로 여기서는 삭제하지 않음!
+        // 사진 삭제는 별도의 API에서 처리하므로 여기서는 삭제하지 않음!!
     }
 
     @Override
