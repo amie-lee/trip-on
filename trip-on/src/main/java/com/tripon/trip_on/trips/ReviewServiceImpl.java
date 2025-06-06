@@ -6,6 +6,7 @@ import java.util.List;
 import com.tripon.trip_on.trips.TripRepository; // TripRepository 경로 맞춤
 import com.tripon.trip_on.trips.Trip; // Trip 엔티티 import (필요시)
 import jakarta.persistence.EntityNotFoundException;
+import com.tripon.trip_on.service.S3Service;
 
 /**
  * ReviewService 구현체 (비즈니스 로직)
@@ -17,12 +18,14 @@ public class ReviewServiceImpl implements ReviewService {
     private final TripRepository tripRepository; // TripRepository 주입
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewPhotoRepository reviewPhotoRepository;
+    private final S3Service s3Service;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository, ReviewPhotoRepository reviewPhotoRepository) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, TripRepository tripRepository, ReviewLikeRepository reviewLikeRepository, ReviewPhotoRepository reviewPhotoRepository, S3Service s3Service) {
         this.reviewRepository = reviewRepository;
         this.tripRepository = tripRepository;
         this.reviewLikeRepository = reviewLikeRepository;
         this.reviewPhotoRepository = reviewPhotoRepository;
+        this.s3Service = s3Service;
     }
 
     @Override
@@ -67,6 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new RuntimeException("본인의 후기만 수정할 수 있습니다.");
         }
         r.setContent(newContent);
+        // 사진 삭제는 별도의 API에서 처리하므로 여기서는 삭제하지 않음!
     }
 
     @Override
@@ -96,13 +100,24 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public void saveReviewPhoto(Long reviewId, String imageUrl, String filePath, String fileType) {
-        ReviewPhoto photo = ReviewPhoto.builder()
-                .reviewId(reviewId)
-                .imageUrl(imageUrl)
-                .filePath(filePath)
-                .fileType(fileType)
-                .build();
-        reviewPhotoRepository.save(photo);
+        try {
+            // 리뷰 존재 여부 확인
+            if (!reviewRepository.existsById(reviewId)) {
+                throw new EntityNotFoundException("리뷰를 찾을 수 없습니다.");
+            }
+
+            ReviewPhoto photo = ReviewPhoto.builder()
+                    .reviewId(reviewId)
+                    .imageUrl(imageUrl)
+                    .filePath(filePath)
+                    .fileType(fileType)
+                    .build();
+            
+            reviewPhotoRepository.save(photo);
+        } catch (Exception e) {
+            System.err.println("ReviewPhoto save failed: " + e.getMessage());
+            throw e;
+        }
     }
 
     // 현재 로그인한 사용자 ID를 가져오는 헬퍼 메서드
@@ -112,13 +127,25 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public Review saveReviewAndReturn(Long tripId, Long userId, String content) {
-        Review review = Review.builder()
-                .tripId(tripId)
-                .userId(userId)
-                .content(content)
-                .build();
-        return reviewRepository.save(review);
+        try {
+            // 여행 존재 여부 확인
+            if (!tripRepository.existsById(tripId)) {
+                throw new EntityNotFoundException("여행을 찾을 수 없습니다.");
+            }
+
+            Review review = Review.builder()
+                    .tripId(tripId)
+                    .userId(userId)
+                    .content(content)
+                    .build();
+            
+            return reviewRepository.save(review);
+        } catch (Exception e) {
+            System.err.println("Review save failed: " + e.getMessage());
+            throw e;
+        }
     }
 
 }

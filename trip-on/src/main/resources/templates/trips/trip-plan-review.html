@@ -550,6 +550,7 @@
       height: 80px;
       background: #d9d9d9;
       border-radius: 8px;
+      cursor: pointer;
     }
     .review-limit {
       color: #e74c3c;
@@ -750,6 +751,24 @@
       border-color: #888;
       color: #222;
     }
+    .photo-add-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      border: 2px dashed #bbb;
+      background: #fafafa;
+      font-size: 40px;
+      color: #bbb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .photo-add-btn:hover {
+      border-color: #888;
+      color: #888;
+    }
   </style>
 </head>
 <body>
@@ -850,9 +869,6 @@
                   <button class="review-edit-btn2" type="button" th:attr="onclick='saveEdit(' + ${review.id} + ')'">저장</button>
                   <button class="review-cancel-btn2" type="button" onclick="cancelEdit()">취소</button>
                 </div>
-                <div class="review-meta">
-                  <span class="review-date" th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm') : ''}">작성일</span>
-                </div>
                 <span class="review-like-heart" style="cursor:pointer;"
                       th:onclick="'toggleLike(' + ${review.id} + ')'">
                   <span class="review-like heart" th:classappend="${review.liked != null and review.liked ? 'liked' : ''}">♡</span>
@@ -860,9 +876,26 @@
                 </span>
                 <div class="review-images" th:if="${reviewPhotosMap[review.id] != null}">
                   <span th:each="photo : ${reviewPhotosMap[review.id]}">
-                    <img th:if="${photo.fileType == 'image'}" th:src="@{${photo.imageUrl}}" class="review-image" />
-                    <video th:if="${photo.fileType == 'video'}" th:src="@{${photo.imageUrl}}" class="review-image" controls />
+                    <div class="review-image-wrapper" style="position:relative; display:inline-block;">
+                      <img th:if="${photo.fileType == 'image'}" th:src="${photo.imageUrl}" class="review-image" />
+                      <video th:if="${photo.fileType == 'video'}" th:src="${photo.imageUrl}" class="review-image" controls />
+                      <button type="button"
+                              th:if="${editReviewId eq review.id}"
+                              class="photo-delete-btn"
+                              th:attr="onclick='window.deletePhoto(' + (${photo.id} != null ? ${photo.id} : (${photo.photoId} != null ? ${photo.photoId} : (${photo.pk} != null ? ${photo.pk} : 0))) + ', this)'"
+                              style="position:absolute;top:2px;right:2px;background:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:18px;z-index:2;">
+                        ×
+                      </button>
+                    </div>
                   </span>
+                  <!-- + 버튼 (수정 모드일 때만 노출) -->
+                  <div th:if="${editReviewId eq review.id}" class="review-image-wrapper" style="position:relative; display:inline-block;">
+                    <button type="button" class="photo-add-btn" onclick="triggerFileInput(this)">+</button>
+                    <input type="file" class="review-file-input" accept="image/*,video/*" style="display:none;" onchange="addPreviewImage(this, this.files)" multiple>
+                  </div>
+                </div>
+                <div class="review-meta">
+                  <span class="review-date" th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm') : ''}">작성일</span>
                 </div>
               </div>
               <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="no-reviews" style="text-align:center;padding:20px;color:#666;">
@@ -870,17 +903,17 @@
               </div>
             </div>
             <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
-              <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}" th:if="${user != null}">
+              <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
               <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
               <input type="file" class="review-file" accept="image/*,video/*" multiple name="file" style="display:none;">
-              <button type="button" class="review-attach">사진/동영상 첨부</button>
+              <button type="button" class="review-attach">사진 첨부</button>
               <button type="submit" class="review-submit">등록</button>
             </form>
             <div class="review-warning" style="color:#e74c3c;font-size:14px;margin-top:4px;"></div>
             <div class="review-file-list"></div>
         </div>
     </div>
-    <script>
+    <script th:inline="javascript">
     // 서버에서 userId, tripId를 JS 변수로 전달
     var currentUserId = /*[[${user != null ? user.id : 0}]]*/ 0;
     var tripId = /*[[${trip.id}]]*/ 0;
@@ -1045,7 +1078,7 @@
         const files = window.selectedFiles || [];
         if (files.length > 10) {
           e.preventDefault();
-          warningDiv.textContent = '사진/동영상 첨부는 최대 10개까지 가능합니다.';
+          warningDiv.textContent = '사진 첨부는 최대 10개까지 가능합니다.';
           return;
         }
       });
@@ -1140,19 +1173,25 @@
     };
 
     // 사진 첨부 기능 및 파일 미리보기/삭제
-    const fileInput = document.querySelector('.review-file');
+    const form = document.querySelector('.review-input-area');
+    const fileInput = form.querySelector('.review-file');
     const fileListDiv = document.querySelector('.review-file-list');
     let selectedFiles = [];
 
+    // 파일 첨부 버튼 클릭
     document.querySelector('.review-attach').addEventListener('click', function() {
         fileInput.click();
     });
 
+    // 파일 선택 시
     fileInput.addEventListener('change', function(e) {
-        selectedFiles = Array.from(e.target.files);
+        const newFiles = Array.from(e.target.files);
+        selectedFiles = [...selectedFiles, ...newFiles];
         renderFileList();
+        updateFileInput();
     });
 
+    // 파일 목록 렌더링
     function renderFileList() {
         fileListDiv.innerHTML = '';
         selectedFiles.forEach((file, idx) => {
@@ -1179,10 +1218,82 @@
         });
     }
 
+    // 파일 input 업데이트
     function updateFileInput() {
         const dataTransfer = new DataTransfer();
         selectedFiles.forEach(file => dataTransfer.items.add(file));
         fileInput.files = dataTransfer.files;
+    }
+
+    // 폼 제출
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const content = form.querySelector('.review-input').value.trim();
+        if (!content) {
+            alert('후기 내용을 입력해주세요.');
+            return;
+        }
+        
+        if (content.length > 140) {
+            alert('글자수 제한 140자를 초과했습니다.');
+            return;
+        }
+        
+        if (selectedFiles.length > 10) {
+            alert('사진 첨부는 최대 10개까지 가능합니다.');
+            return;
+        }
+
+        // FormData 생성
+        const formData = new FormData(form);
+        
+        // 파일 추가
+        selectedFiles.forEach(file => {
+            formData.append('file', file);
+        });
+
+        // fetch로 전송
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('저장 실패');
+            }
+        })
+        .catch(error => {
+            alert('저장 중 오류가 발생했습니다: ' + error.message);
+        });
+    });
+
+    // + 버튼으로 파일 추가
+    window.triggerFileInput = function(btn) {
+        btn.nextElementSibling.click();
+    }
+
+    window.addPreviewImage = function(input, files) {
+        const container = input.parentElement.parentElement;
+        Array.from(files).forEach(file => {
+            selectedFiles.push(file);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'review-image-wrapper';
+                div.style.position = 'relative';
+                div.style.display = 'inline-block';
+                const img = document.createElement('img');
+                img.className = 'review-image';
+                img.src = e.target.result;
+                div.appendChild(img);
+                container.insertBefore(div, input.parentElement);
+            };
+            reader.readAsDataURL(file);
+        });
+        updateFileInput();
     }
 
     setupReviewForm();
@@ -1201,6 +1312,11 @@
     <div class="invite-message invite-success">전송 완료 메시지</div>
     <button class="invite-close-btn">닫기</button>
   </div>
+</div>
+
+<!-- 이미지 확대 모달 -->
+<div id="photoModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+  <img id="modalImage" src="" style="max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.2);" />
 </div>
 
 </body>

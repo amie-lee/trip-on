@@ -1,5 +1,6 @@
 package com.tripon.trip_on.trips;
 
+import com.tripon.trip_on.service.S3Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 
 import lombok.RequiredArgsConstructor;
 import java.security.Principal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping
@@ -27,9 +30,18 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewLikeService likeService;
     private final ReviewPhotoRepository reviewPhotoRepository;
+    private final S3Service s3Service;
 
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    // 리전을 ap-southeast-2로 고정
+    private final String region = "ap-southeast-2";
+
+    private static final Logger log = LoggerFactory.getLogger(ReviewController.class);
 
     // ===================== 웹용 후기 페이지 =====================
     /**
@@ -87,36 +99,58 @@ public class ReviewController {
             @RequestParam("content") String content,
             @RequestParam(value = "file", required = false) MultipartFile[] files
     ) throws IOException {
-        Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        try {
+            log.info("Submit Review - tripId: {}, userId: {}, content: {}", tripId, userId, content);
+            log.info("Files count: {}", files != null ? files.length : 0);
+            
+            if (userId == null) {
+                userId = 0L;
+                log.info("userId was null, set to default: {}", userId);
+            }
+            
+            // 1. Review 저장
+            Review review = reviewService.saveReviewAndReturn(tripId, userId, content);
+            if (review == null) {
+                log.error("Failed to save review");
+                throw new RuntimeException("후기 저장에 실패했습니다.");
+            }
+            log.info("Review saved successfully with ID: {}", review.getId());
 
-        if (userId == null) userId = 0L;
-        
-        // 1. 먼저 Review 저장
-        Review review = reviewService.saveReviewAndReturn(tripId, userId, content);
-
-        // 2. 파일이 있으면 저장하고 ReviewPhoto DB에 저장
-        if (files != null) {
-            int limit = Math.min(files.length, 10);
-            for (int i = 0; i < limit; i++) {
-                MultipartFile file = files[i];
-                if (!file.isEmpty()) {
-                    String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    Path filePath = uploadPath.resolve(filename);
-                    file.transferTo(filePath.toFile());
-                    
-                    String imageUrl = "/uploads/" + filename;
-                    String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
-                    
-                    // ReviewPhoto DB에 저장 (file_path 포함)
-                    reviewService.saveReviewPhoto(review.getId(), imageUrl, filePath.toString(), fileType);
+            // 2. 파일 처리
+            if (files != null && files.length > 0) {
+                for (MultipartFile file : files) {
+                    if (!file.isEmpty()) {
+                        try {
+                            log.info("Processing file: {}, size: {} bytes", 
+                                file.getOriginalFilename(), file.getSize());
+                            
+                            // S3에 파일 업로드
+                            String fileName = s3Service.uploadFile(file);
+                            log.info("File uploaded to S3: {}", fileName);
+                            
+                            String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
+                            
+                            // S3 URL 생성
+                            String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 
+                                bucket, region, fileName);
+                            log.info("Generated S3 URL: {}", imageUrl);
+                            
+                            // ReviewPhoto DB에 저장
+                            reviewService.saveReviewPhoto(review.getId(), imageUrl, imageUrl, fileType);
+                            log.info("ReviewPhoto saved for review ID: {}", review.getId());
+                        } catch (Exception e) {
+                            log.error("File upload failed: {}", e.getMessage(), e);
+                            throw new RuntimeException("파일 업로드에 실패했습니다: " + e.getMessage());
+                        }
+                    }
                 }
             }
-        }
 
-        return "redirect:/trips/" + tripId + "/review";
+            return "redirect:/trips/" + tripId + "/review";
+        } catch (Exception e) {
+            log.error("Review submission failed: {}", e.getMessage(), e);
+            throw new RuntimeException("후기 등록에 실패했습니다: " + e.getMessage());
+        }
     }
 
     // ===================== REST API =====================
@@ -133,14 +167,20 @@ public class ReviewController {
     ) throws IOException {
         if (userId == null) userId = 0L;
         Review review = reviewService.saveReviewAndReturn(tripId, userId, content);
-        // 파일 10개까지만 저장, 초과분은 무시
+        
         if (files != null) {
             int limit = Math.min(files.length, 10);
             for (int i = 0; i < limit; i++) {
                 MultipartFile file = files[i];
-                String imageUrl = saveFile(file);
-                String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
-                reviewService.saveReviewPhoto(review.getId(), imageUrl, fileType);
+                if (!file.isEmpty()) {
+                    String fileName = s3Service.uploadFile(file);
+                    String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
+                    
+                    // S3 URL 생성 (us-east-1로 고정)
+                    String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
+                    
+                    reviewService.saveReviewPhoto(review.getId(), imageUrl, imageUrl, fileType);
+                }
             }
         }
         return ResponseEntity.ok().build();
@@ -226,6 +266,19 @@ public class ReviewController {
             Principal principal) {
         Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
         likeService.unlike(reviewId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/trips/{tripId}/review/photo/{photoId}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteReviewPhoto(
+            @PathVariable Long tripId,
+            @PathVariable Long photoId,
+            Principal principal) {
+        ReviewPhoto photo = reviewPhotoRepository.findById(photoId)
+            .orElseThrow(() -> new RuntimeException("사진을 찾을 수 없습니다."));
+        s3Service.deleteFileByUrl(photo.getImageUrl());
+        reviewPhotoRepository.deleteById(photoId);
         return ResponseEntity.ok().build();
     }
 
