@@ -81,6 +81,7 @@ public class ExpenseService {
                     ? expense.getParticipants().stream().map(p -> p.getUser().getId()).toList()
                     : List.of()
             );
+            dto.setExpenseId(expense.getId());
             return dto;
         }).toList();
     }

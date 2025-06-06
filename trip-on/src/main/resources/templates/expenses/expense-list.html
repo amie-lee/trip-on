@@ -6,115 +6,141 @@
   <title>TripOn - 지출 입력</title>
   <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      background-color: #fff;
-      font-family: 'Noto Sans KR', sans-serif;
-      padding: 20px 60px;
-      height: 100vh;
+    .container {
+      gap: 60px;
+      margin-top: 40px;
       position: relative;
-      overflow: hidden;
+      width: 90%;
+      justify-self: center;
     }
-    table, th, td {
-      border: 1px solid #aaa;
-      border-collapse: collapse;
-      padding: 8px;
+    .back-link {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #000;
+        text-decoration: none;
+        transition: all 0.3s ease;
     }
-    input[type="text"], input[type="number"], select {
+    table {
       width: 100%;
-      border: none;
-      background: transparent;
-      text-align: center;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 14px;
     }
-    .add-row {
-      margin-top: 10px;
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+    }
+
+    th {
+      background-color: #fafafa;
+      font-weight: 500;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .edit-btn, .delete-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
       cursor: pointer;
-      color: blue;
+      color: #888;
+      margin-left: 4px;
+    }
+
+    .edit-btn:hover, .delete-btn:hover {
+      color: #333;
+    }
+
+    .add-row {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #1a73e8;
+      text-align: right;
+      cursor: pointer;
+    }
+
+    .save-button {
+      margin-top: 20px;
+      padding: 8px 20px;
+      font-size: 14px;
+      background: #111;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      float: right;
+    }
+
+    .category-cell select {
+      padding: 5px 10px;
+      font-size: 13px;
     }
   </style>
+
 </head>
 <body>
 <div th:replace="~{fragments/header :: header(${user})}"></div>
-<h2 th:text="${trip.title} + ' 경비'">경비</h2>
-<form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
-      th:object="${expenseForm}" method="post">
-  <table>
-    <thead>
+
+<div class="container">
+  
+  <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
+    <h2 th:text="${trip.title} + ' 경비'">경비</h2>
+    <a th:href="@{'/trips/' + ${trip.id} + '/trip-plan'}" class="back-link">&larr; 이전</a>
+  </div>
+
+  <form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
+        th:object="${expenseForm}" method="post">
+    <table>
+      <thead>
+        <tr>
+          <th>결제한 사람</th>
+          <th>정산할 사람</th>
+          <th>카테고리</th>
+          <th>항목</th>
+          <th>금액</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="expenseTbody">
+        <!-- 기존 지출 -->
+        <tr th:each="e : ${expenses}">
+          <td th:text="${e.payerName}">-</td>
+          <td>
+            <span th:if="${e.participantIds != null}"
+                  th:each="id, iter : ${e.participantIds}"
+                  th:text="${userMap != null ? userMap.get(id) : '알 수 없음'} + ${iter.last ? '' : ', '}">
+              -
+            </span>
+          </td>
+          <td th:text="${e.category}">-</td>
+          <td th:text="${e.description}">-</td>
+          <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
+          <td>
+            <button type="button" class="edit-btn" onclick="editRow(this)">✏️</button>
+            <button type="button" class="delete-btn" th:onclick="|deleteRow(this, '${e.expenseId}')|">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    <tfoot>
       <tr>
-        <th>결제자</th>
-        <th>참여자</th>
-        <th>항목</th>
-        <th>금액</th>
-        <th>카테고리</th> <!-- ✅ 수정 -->
+        <td colspan="6" ><b>합계:  </b><span th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')} + ' 원'"></span></td>
       </tr>
-    </thead>
-    <tbody id="expenseTbody">
-      <!-- ✅ 기존 지출 -->
-      <tr th:each="e : ${expenses}">
-        <td th:text="${e.payerName}">-</td>
-        <td>
-          <span th:if="${e.participantIds != null}"
-                th:each="id, iter : ${e.participantIds}"
-                th:text="${userMap != null && userMap.containsKey(id) ? userMap[id] : '알 수 없음'} + ${iter.last ? '' : ', '}">
-            -
-          </span>
-        </td>
-        <td th:text="${e.description}">-</td>
-        <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
-        <td th:text="${e.category}">-</td> <!-- ✅ 카테고리 표시 -->
-      </tr>
-
-      <!-- ✅ 입력 행 -->
-      <tr>
-        <td>
-          <select th:field="*{expenseRows[0].payerId}">
-            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
-          </select>
-        </td>
-        <td>
-          <select multiple th:field="*{expenseRows[0].participantIds}">
-            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
-          </select>
-        </td>
-        <td><input type="text" th:field="*{expenseRows[0].description}" /></td>
-        <td><input type="number" th:field="*{expenseRows[0].amount}" /></td>
-        <td>
-          <select th:field="*{expenseRows[0].category}">
-            <option value="">-</option>
-            <option value="숙소">숙소</option>
-            <option value="식사">식사</option>
-            <option value="교통">교통</option>
-            <option value="관광">관광</option>
-            <option value="카페">카페</option>
-            <option value="술">술</option>
-            <option value="기념품">기념품</option>
-            <option value="기타">기타</option>
-          </select>
-        </td>
-      </tr>
-    </tbody>
-
-  <tfoot>
-    <tr>
-      <td colspan="3" style="text-align:right"><b>총합:</b></td>
-      <td colspan="2" th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')} + ' 원'">0 원</td>
-    </tr>
-  </tfoot>
-
-  </table>
-
-  <button type="submit">저장</button>
-</form>
-
+    </tfoot>
+    </table>
+    <div class="add-row" onclick="addRow()">+ 항목 추가</div>
+    <button type="submit">저장</button>
+  </form>
+</div>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
-  let index = /*[[${expenseForm.expenseRows.size()}]]*/ 0;
-  const users = /*[[${users}]]*/ [];
+  let index = /*[[${expenseForm.expenseRows.size()}]]*/ 1;
+  const users = JSON.parse(/*[[${usersJson}]]*/ '[]');
   /*]]>*/
 
   function addRow() {
@@ -132,13 +158,71 @@
           ${users.map(u => `<option value="${u.id}">${u.username}</option>`).join('')}
         </select>
       </td>
+      <td>
+        <select name="expenseRows[${index}].category">
+          <option value="">-</option>
+          <option value="숙소">숙소</option>
+          <option value="식사">식사</option>
+          <option value="교통">교통</option>
+          <option value="관광">관광</option>
+          <option value="카페">카페</option>
+          <option value="술">술</option>
+          <option value="기념품">기념품</option>
+          <option value="기타">기타</option>
+        </select>
+      </td>
       <td><input type="text" name="expenseRows[${index}].description" /></td>
       <td><input type="number" name="expenseRows[${index}].amount" /></td>
-      <td><input type="text" name="expenseRows[${index}].paymentDate" placeholder="예: 2025-05-01" /></td>
     `;
+
     tbody.appendChild(row);
     index++;
   }
+
+  function deleteRow(button, id) {
+    button.closest('tr').remove();
+
+    if (id !== null && id !== "null" && id !== undefined) {
+      const deleted = document.createElement("input");
+      deleted.type = "hidden";
+      deleted.name = "toDeleteIds";
+      deleted.value = id;
+      document.querySelector("form").appendChild(deleted);
+    }
+  }
+
+  function editRow(button) {
+    const row = button.closest('tr');
+    const cells = row.querySelectorAll('td');
+
+    const payer = cells[0].innerText;
+    const participants = cells[1].innerText.split(',').map(s => s.trim());
+    const category = cells[2].innerText;
+    const description = cells[3].innerText;
+    const amount = cells[4].innerText;
+
+    row.innerHTML = `
+      <td>
+        <select name="expenseRows[${index}].payerId">
+          ${users.map(u => `<option value="${u.id}" ${u.username === payer ? 'selected' : ''}>${u.username}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select name="expenseRows[${index}].participantIds" multiple>
+          ${users.map(u => `<option value="${u.id}" ${participants.includes(u.username) ? 'selected' : ''}>${u.username}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select name="expenseRows[${index}].category">
+          ${['숙소','식사','교통','관광','카페','술','기념품','기타'].map(opt => `<option value="${opt}" ${opt === category ? 'selected' : ''}>${opt}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="text" name="expenseRows[${index}].description" value="${description}"/></td>
+      <td><input type="number" name="expenseRows[${index}].amount" value="${amount}"/></td>
+      <td><button type="button" onclick="saveRow(this)">💾</button></td>
+    `;
+  }
+
 </script>
 </body>
 </html>

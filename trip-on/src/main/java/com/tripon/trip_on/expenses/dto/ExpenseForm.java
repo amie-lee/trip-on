@@ -13,6 +13,10 @@ public class ExpenseForm {
     public List<ExpenseRequestDto> toRequestDtoList() {
         List<ExpenseRequestDto> result = new ArrayList<>();
         for (ExpenseRowDto row : expenseRows) {
+            if (row.getPayerId() == null || 
+                row.getParticipantIds() == null || row.getParticipantIds().isEmpty()) {
+                continue; // skip invalid rows
+            }
             ExpenseRequestDto dto = new ExpenseRequestDto();
             dto.setPayerId(row.getPayerId());
             dto.setParticipantIds(row.getParticipantIds());
