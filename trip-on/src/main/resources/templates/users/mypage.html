@@ -36,12 +36,13 @@
     .center-wrapper {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      /* flex: 1; margin-top: -80px; */
       flex: 1; margin-top: -40px;
     }
     .profile-section {
       display: flex; align-items: center; gap: 24px;
       margin-bottom: 40px; width: 100%; max-width: 700px;
+        /* align-self: flex-start; */
+
     }
     .avatar-large {
       width: 100px; height: 100px;
@@ -49,7 +50,7 @@
       position: relative;
       cursor: pointer;
     }
-    .avatar-large::after {
+    /* .avatar-large::after {
       content: "";
       position: absolute;
       width: 24px; height: 24px;
@@ -57,7 +58,7 @@
       border: 1px solid #000;
       border-radius: 50%;
       bottom: 0; left: 70px;
-    }
+    } */
     .user-info {
       display: flex; flex-direction: column; justify-content: center;
       text-align: left;
