@@ -35,4 +35,7 @@ public class User {
     @Column(name = "reset_token_expiry")
     private LocalDateTime resetTokenExpiry;
 
+    @Column(nullable = false, length = 20)
+    private String role = "ROLE_USER";
+    
 }
