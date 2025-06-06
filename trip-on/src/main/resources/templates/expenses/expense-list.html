@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>TripOn - 지출 입력</title>
+  <style>
+    table, th, td {
+      border: 1px solid #aaa;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+    }
+    .add-row {
+      margin-top: 10px;
+      cursor: pointer;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+<h2 th:text="'TripOn - ' + ${trip.title} + ' 경비 입력'">TripOn - 경비 입력</h2>
+<form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
+      th:object="${expenseForm}" method="post">
+  <table>
+    <thead>
+      <tr>
+        <th>결제자</th>
+        <th>참여자</th>
+        <th>항목</th>
+        <th>금액</th>
+        <th>카테고리</th> <!-- ✅ 수정 -->
+      </tr>
+    </thead>
+    <tbody id="expenseTbody">
+      <!-- ✅ 기존 지출 -->
+      <tr th:each="e : ${expenses}">
+        <td th:text="${e.payerName}">-</td>
+        <td>
+          <span th:if="${e.participantIds != null}"
+                th:each="id, iter : ${e.participantIds}"
+                th:text="${userMap != null && userMap.containsKey(id) ? userMap[id] : '알 수 없음'} + ${iter.last ? '' : ', '}">
+            -
+          </span>
+        </td>
+        <td th:text="${e.description}">-</td>
+        <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
+        <td th:text="${e.category}">-</td> <!-- ✅ 카테고리 표시 -->
+      </tr>
+
+      <!-- ✅ 입력 행 -->
+      <tr>
+        <td>
+          <select th:field="*{expenseRows[0].payerId}">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
+          </select>
+        </td>
+        <td>
+          <select multiple th:field="*{expenseRows[0].participantIds}">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
+          </select>
+        </td>
+        <td><input type="text" th:field="*{expenseRows[0].description}" /></td>
+        <td><input type="number" th:field="*{expenseRows[0].amount}" /></td>
+        <td>
+          <select th:field="*{expenseRows[0].category}">
+            <option value="">-</option>
+            <option value="숙소">숙소</option>
+            <option value="식사">식사</option>
+            <option value="교통">교통</option>
+            <option value="관광">관광</option>
+            <option value="카페">카페</option>
+            <option value="술">술</option>
+            <option value="기념품">기념품</option>
+            <option value="기타">기타</option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
+
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align:right"><b>총합:</b></td>
+      <td colspan="2" th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')} + ' 원'">0 원</td>
+    </tr>
+  </tfoot>
+
+  </table>
+
+  <button type="submit">저장</button>
+</form>
+
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  let index = /*[[${expenseForm.expenseRows.size()}]]*/ 0;
+  const users = /*[[${users}]]*/ [];
+  /*]]>*/
+
+  function addRow() {
+    const tbody = document.getElementById('expenseTbody');
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>
+        <select name="expenseRows[${index}].payerId">
+          ${users.map(u => `<option value="${u.id}">${u.username}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select name="expenseRows[${index}].participantIds" multiple>
+          ${users.map(u => `<option value="${u.id}">${u.username}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="text" name="expenseRows[${index}].description" /></td>
+      <td><input type="number" name="expenseRows[${index}].amount" /></td>
+      <td><input type="text" name="expenseRows[${index}].paymentDate" placeholder="예: 2025-05-01" /></td>
+    `;
+    tbody.appendChild(row);
+    index++;
+  }
+</script>
+</body>
+</html>

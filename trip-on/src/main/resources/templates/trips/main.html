@@ -116,21 +116,21 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <a href="/user/logout" class="logout-text">로그아웃</a>
             <a href="/user/mypage" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
+
 
     <div class="content-wrapper">
         <div class="empty-message">아직 등록된 여행이 없어요.</div>
-        <button class="start-trip-btn" onclick="location.href='/plan/register/destination'">새 여행 시작하기</button>
+        <button class="start-trip-btn" onclick="location.href='/trips/register/trip-register'">새 여행 시작하기</button>
         <div class="btn-row">
-            <button class="sub-btn" onclick="location.href='/user/logout'">로그아웃</button>
-            <button class="sub-btn" onclick="location.href='/user/mypage'">마이페이지</button>
         </div>
     </div>
 </body>

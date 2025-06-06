@@ -536,15 +536,7 @@
     </style>
 </head>
 <body>
-  <!-- 상단 바 -->
-  <div class="top-bar">
-    <div class="logo">TRIP ON</div>
-    <div class="logout-group">
-      <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-      <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
-      <div class="avatar-small"></div>
-    </div>
-  </div>
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
   <!-- 뒤로가기 -->
   <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
@@ -588,8 +580,12 @@
         </div>
     </div>
         <div class="info-row">
-          <div class="info-label">교통편</div>
-          <div class="info-value" th:text="${trip.transportation}"></div>
+         <div class="info-label">가는 편</div>
+        <div class="info-value" th:text="${trip.departureTrip}"></div>
+        </div>
+        <div class="info-row">
+        <div class="info-label">오는 편</div>
+        <div class="info-value" th:text="${trip.returnTrip}"></div>
         </div>
         <div class="info-row">
           <div class="info-label">태그</div>
@@ -604,7 +600,7 @@
         <div class="info-row">
           <div class="info-label">경비</div>
           <div class="info-value">300원</div>
-          <span class="info-link">더보기</span>
+          <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
         </div>
         <div class="info-row">
           <div class="info-label">동행</div>

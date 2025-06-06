@@ -481,14 +481,15 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
+     <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
-            <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-            <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
+            <a href="/user/logout" class="logout-text">로그아웃</a>
+            <a href="/user/mypage" class="logout-text">마이페이지</a>
             <div class="avatar-small"></div>
         </div>
-    </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
     <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
@@ -521,8 +522,8 @@
                     <div class="info-row">
                         <div class="info-label">교통편</div>
                         <div class="info-value">
-                            <input type="text" th:field="*{transportationDeparture}" placeholder="출발" />,
-                            <input type="text" th:field="*{transportationReturn}" placeholder="귀환" />
+                            <input type="text" th:field="*{departureTrip}" placeholder="" />,
+                            <input type="text" th:field="*{returnTrip}" placeholder="" />
                         </div>
                     </div>
                     <div class="info-row">
