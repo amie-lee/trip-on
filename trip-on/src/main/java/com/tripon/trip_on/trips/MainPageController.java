@@ -82,7 +82,8 @@ public class MainPageController {
      * 3) 여행 목록(upcomingTrips, pastTrips)도 모델에 추가
      * 4) "trips/main-past" 뷰 렌더링
      */
-    @GetMapping({"/", "/trips/main-past"})
+    // @GetMapping({"/", "/trips/main-past"})
+    @GetMapping({"/trips/main-past"})
     public String mainPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
