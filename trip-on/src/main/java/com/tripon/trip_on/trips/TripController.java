@@ -30,7 +30,7 @@ public class TripController {
     public TripRegisterDto tripRegisterDto() {
         return new TripRegisterDto();
     }
-
+/*
    @GetMapping("/register/trip-place")
     public String showPlaceForm(
         @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
@@ -130,14 +130,8 @@ public String accommodationForm(
         return "redirect:/trips/main-past";
     }
 
-    //한 페이지로 만들기 
-    @GetMapping("/register/trip-register")
-public String showForm(Model model) {
-    model.addAttribute("tripRegisterDto", new TripRegisterDto());
-    model.addAttribute("allTags", List.of("#혼자서", "#친구랑", "#가족여행", "#연인과", "#휴식", "#관광"));
-    return "trips/trip-register";
-}
-
+    */
+    
 @PostMapping("/register/trip-register")
 public String processUnifiedForm(
         @ModelAttribute TripRegisterDto dto,
@@ -166,6 +160,7 @@ public String processUnifiedForm(
 
     return "redirect:/trips/main-past";
 }
+
 
 }
 

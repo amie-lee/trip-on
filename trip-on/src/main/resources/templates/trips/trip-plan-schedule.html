@@ -482,7 +482,12 @@
             text-align: center;
             font-size: 14px;
         }
-
+         .info-link.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #888;
+  text-decoration: none;
+}
     </style>
 </head>
 <body>
@@ -531,10 +536,14 @@
         <!-- 숙소 텍스트 -->
         <span th:text="${trip.accommodation}">숙소 이름</span>
         <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-        <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
-       class="info-link">
+        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+       th:href="${trip.accommodationLink}"
+       class="info-link"
+       target="_blank"
+       rel="noopener">
       (지도)
-        </a>
+    </a>
         </div>
     </div>
         <div class="info-row">

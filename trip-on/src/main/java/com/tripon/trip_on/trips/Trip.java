@@ -29,6 +29,7 @@ public class Trip {
     private LocalDate endDate;   // 여행 종료일
 
     private String accommodation;  // 숙소 정보
+    private String accommodationLink;
 
     private String departureTrip; // 가는 편
     private String returnTrip; // 오는 편
