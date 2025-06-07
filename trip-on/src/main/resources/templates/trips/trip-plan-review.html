@@ -1185,8 +1185,7 @@
 
     // 파일 선택 시
     fileInput.addEventListener('change', function(e) {
-        const newFiles = Array.from(e.target.files);
-        selectedFiles = [...selectedFiles, ...newFiles];
+        selectedFiles = Array.from(e.target.files); // 중복 방지: 새로 선택한 파일로 덮어씀
         renderFileList();
         updateFileInput();
     });
@@ -1228,20 +1227,27 @@
     // 폼 제출
     form.addEventListener('submit', function(e) {
         e.preventDefault();
+
+        // 중복 제출 방지
+        if (form.classList.contains('submitting')) return;
+        form.classList.add('submitting');
         
         const content = form.querySelector('.review-input').value.trim();
         if (!content) {
             alert('후기 내용을 입력해주세요.');
+            form.classList.remove('submitting');
             return;
         }
         
         if (content.length > 140) {
             alert('글자수 제한 140자를 초과했습니다.');
+            form.classList.remove('submitting');
             return;
         }
         
         if (selectedFiles.length > 10) {
             alert('사진 첨부는 최대 10개까지 가능합니다.');
+            form.classList.remove('submitting');
             return;
         }
 
@@ -1259,6 +1265,7 @@
             body: formData
         })
         .then(response => {
+            form.classList.remove('submitting');
             if (response.ok) {
                 window.location.reload();
             } else {
@@ -1266,6 +1273,7 @@
             }
         })
         .catch(error => {
+            form.classList.remove('submitting');
             alert('저장 중 오류가 발생했습니다: ' + error.message);
         });
     });
@@ -1277,8 +1285,11 @@
 
     window.addPreviewImage = function(input, files) {
         const container = input.parentElement.parentElement;
+        // 중복 방지: 새로 선택한 파일로 덮어씀
+        selectedFiles = Array.from(files);
+        renderFileList();
+        updateFileInput();
         Array.from(files).forEach(file => {
-            selectedFiles.push(file);
             const reader = new FileReader();
             reader.onload = function(e) {
                 const div = document.createElement('div');
@@ -1293,8 +1304,24 @@
             };
             reader.readAsDataURL(file);
         });
-        updateFileInput();
     }
+
+    // 후기 이미지 클릭 시 모달로 크게 보기
+    document.querySelectorAll('.review-image').forEach(function(img) {
+      img.addEventListener('click', function() {
+        var modal = document.getElementById('photoModal');
+        var modalImg = document.getElementById('modalImage');
+        modalImg.src = img.src;
+        modal.style.display = 'flex';
+      });
+    });
+    // 모달 바깥 클릭 시 닫기
+    document.getElementById('photoModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+        document.getElementById('modalImage').src = '';
+      }
+    });
 
     setupReviewForm();
     });
