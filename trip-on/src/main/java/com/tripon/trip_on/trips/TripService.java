@@ -199,28 +199,4 @@ public class TripService {
         }
     }
 
-    @Transactional
-    public String inviteMember(Long tripId, String email) {
-        // 1. 초대받을 사용자 존재 확인
-        User invitee = userRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 없습니다."));
-
-        // 2. 여행이 존재하는지 (내가 만든 여행이든, 내가 초대할 수 있는 여행이든)
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 여행이 존재하지 않습니다."));
-
-        // 3. 이미 초대된 사용자라면 중복 방지
-        if (tripMemberRepository.existsByTripIdAndUserId(tripId, invitee.getId())) {
-            throw new IllegalStateException("이미 초대된 사용자입니다.");
-        }
-
-        // 4. TripMember 생성
-        TripMember tripMember = new TripMember();
-        tripMember.setTrip(trip);
-        tripMember.setUser(invitee);
-        tripMemberRepository.save(tripMember);
-
-        return invitee.getUsername(); // 프론트에 보여줄 이름
-    }
-
 }
