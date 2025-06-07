@@ -11,4 +11,5 @@ public class ExpenseRowDto {
     private int amount;
     private String category;
     private String description;
+    private Long ExpenseId;
 }
