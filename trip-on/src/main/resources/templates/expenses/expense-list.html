@@ -44,19 +44,6 @@
       background-color: #f9f9f9;
     }
 
-    .edit-btn, .delete-btn {
-      background: none;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-      color: #888;
-      margin-left: 4px;
-    }
-
-    .edit-btn:hover, .delete-btn:hover {
-      color: #333;
-    }
-
     .add-row {
       margin-top: 12px;
       font-size: 14px;
@@ -80,8 +67,82 @@
       padding: 5px 10px;
       font-size: 13px;
     }
-  </style>
 
+    .edit-btn {
+      background: none;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #3a3a3a;
+      cursor: pointer;
+      padding: 4px 6px;
+      text-decoration: underline;
+    }
+    .btn {
+      background: #fff;
+      border: 1.5px solid #bbb;
+      border-radius: 8px;
+      padding: 6px 18px;
+      font-size: 14px;
+      color: #222;
+      cursor: pointer;
+      transition: all 0.2s;
+      align-self: stretch;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .btn:hover {
+      background-color: #f0f0f0;
+      border-color: #999;
+      color: #000;
+    }
+    #editControls {
+      justify-self: center;
+    }
+    #categoryChart {
+      width: 100%;
+      height: 320px;
+    }
+    .split-box {
+      border: 1.5px solid #ccc;
+      border-radius: 14px;
+      padding: 16px 20px;
+      max-width: 380px;
+      font-size: 15px;
+    }
+    .split-title {
+      font-size: 18px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+    .split-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .split-list li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .split-route {
+      background: #e0e0e0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-right: 8px;
+      color: #444;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px;
+    }
+
+    .split-amount {
+      font-weight: 700;
+      color: #111;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header(${user})}"></div>
@@ -95,6 +156,7 @@
 
   <form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
         th:object="${expenseForm}" method="post">
+    <button type="button" id="toggleEditMode" class="edit-btn">편집</button>
     <table>
       <thead>
         <tr>
@@ -108,7 +170,8 @@
       </thead>
       <tbody id="expenseTbody">
         <!-- 기존 지출 -->
-        <tr th:each="e : ${expenses}">
+        <tr th:each="e : ${expenses}"
+            th:attr="data-expense-id=${e.expenseId}">
           <td th:text="${e.payerName}">-</td>
           <td>
             <span th:if="${e.participantIds != null}"
@@ -120,10 +183,7 @@
           <td th:text="${e.category}">-</td>
           <td th:text="${e.description}">-</td>
           <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
-          <td>
-            <button type="button" class="edit-btn" onclick="editRow(this)">✏️</button>
-            <button type="button" class="delete-btn" th:onclick="|deleteRow(this, '${e.expenseId}')|">🗑️</button>
-          </td>
+          <td></td>
         </tr>
       </tbody>
     <tfoot>
@@ -132,20 +192,143 @@
       </tr>
     </tfoot>
     </table>
-    <div class="add-row" onclick="addRow()">+ 항목 추가</div>
-    <button type="submit">저장</button>
+    <div class="add-row" onclick="addRow()" style="display: none;">+ 항목 추가</div>
+    <div id="editControls" style="display: none;">
+      <button class="btn" type="submit">✅ 저장</button>
+      <button class="btn" type="button" onclick="window.location.reload()">❌ 취소</button>
+    </div>
   </form>
+
+  <div style="display: flex; gap: 40px; justify-content: center; margin-top: 40px; margin-bottom: 40px;">
+    <!-- 정산 내역 -->
+    <div class="split-box">
+      <h3 class="split-title">정산 내역</h3>
+      <ul class="split-list">
+        <li th:each="r : ${splitResults}">
+          <span class="split-route">
+            <span th:text="${r.fromUser}"></span> → <span th:text="${r.toUser}"></span>
+          </span>
+          <span class="split-amount" th:text="${#numbers.formatInteger(r.amount, 3, 'COMMA')} + ' 원'"></span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 카테고리별 지출 차트 -->
+    <div style="flex: 1; max-width: 300px;">
+      <canvas id="categoryChart" style="width: 100%; "></canvas>
+    </div>
+  </div>
+
+  
+
 </div>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
-  let index = /*[[${expenseForm.expenseRows.size()}]]*/ 1;
   const users = JSON.parse(/*[[${usersJson}]]*/ '[]');
+  const tripId = /*[[${trip.id}]]*/ 0;
+
+  const categoryData = /*[[${categoryTotalsJson}]]*/ '{}';
+  const parsedData = JSON.parse(categoryData);
+
+  const labels = Object.keys(parsedData);
+  const data = Object.values(parsedData);
+
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '지출',
+        data: data,
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+          '#FF9F40', '#C9CBCF', '#FF6666'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
   /*]]>*/
 
+  let index = document.querySelectorAll('#expenseTbody tr').length;
+  let isEditMode = false;
+
+  document.getElementById('toggleEditMode').addEventListener('click', () => {
+    isEditMode = !isEditMode;
+    document.getElementById('editControls').style.display = isEditMode ? 'block' : 'none';
+    document.querySelector('.add-row').style.display = isEditMode ? 'block' : 'none';
+    document.getElementById('toggleEditMode').style.display = isEditMode ? 'none' : 'inline-block';
+    const chart = document.getElementById('categoryChart');
+    if (chart) chart.style.display = isEditMode ? 'none' : 'block';
+    renderTable();
+  });
+
+  function renderTable() {
+    const tbody = document.getElementById('expenseTbody');
+    const rows = tbody.querySelectorAll('tr');
+
+    rows.forEach((row, i) => {
+      const expenseId = row.dataset.expenseId;
+      const cells = row.querySelectorAll('td');
+
+      const payer = cells[0].innerText;
+      const participants = cells[1].innerText.split(',').map(s => s.trim());
+      const category = cells[2].innerText;
+      const description = cells[3].innerText;
+      const amount = parseInt(cells[4].innerText.replace(/,/g, ''), 10);
+
+      if (isEditMode) {
+        row.innerHTML = `
+          <td>
+            <select name="expenseRows[${i}].payerId" required>
+              ${users.map(u => `<option value="${u.id}" ${u.username === payer ? 'selected' : ''}>${u.username}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select name="expenseRows[${i}].participantIds" multiple required>
+              ${users.map(u => `<option value="${u.id}" ${participants.includes(u.username) ? 'selected' : ''}>${u.username}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select name="expenseRows[${i}].category" required>
+              ${['숙소','식사','교통','관광','카페','술','기념품','기타'].map(opt => `<option value="${opt}" ${opt === category ? 'selected' : ''}>${opt}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="text" name="expenseRows[${i}].description" value="${description}" required /></td>
+          <td><input type="number" name="expenseRows[${i}].amount" value="${amount}" required /></td>
+          <input type="hidden" name="expenseRows[${i}].expenseId" value="${expenseId}" />
+          <input type="hidden" name="expenseRows[${i}].tripId" value="${tripId}" />
+          <td><button type="button" onclick="deleteRow(this)">삭제</button></td>
+        `;
+      } else {
+        row.innerHTML = `
+          <td>${payer}</td>
+          <td>${participants.join(', ')}</td>
+          <td>${category}</td>
+          <td>${description}</td>
+          <td>${amount.toLocaleString()}</td>
+          <td></td>
+        `;
+      }
+    });
+  }
+
+
   function addRow() {
+    if (!isEditMode) return;
+
     const tbody = document.getElementById('expenseTbody');
     const row = document.createElement('tr');
+    row.setAttribute('data-expense-id', '');
 
     row.innerHTML = `
       <td>
@@ -173,54 +356,27 @@
       </td>
       <td><input type="text" name="expenseRows[${index}].description" /></td>
       <td><input type="number" name="expenseRows[${index}].amount" /></td>
+      <input type="hidden" name="expenseRows[${index}].tripId" value="${tripId}" />
+      <input type="hidden" name="expenseRows[${index}].expenseId" value="" />
+      <td><button type="button" onclick="deleteRow(this)">삭제</button></td>
     `;
 
     tbody.appendChild(row);
     index++;
   }
 
-  function deleteRow(button, id) {
-    button.closest('tr').remove();
+  function deleteRow(button) {
+    const row = button.closest('tr');
+    const id = row.dataset.expenseId;
+    row.remove();
 
-    if (id !== null && id !== "null" && id !== undefined) {
+    if (id && id !== "null" && id !== undefined) {
       const deleted = document.createElement("input");
       deleted.type = "hidden";
       deleted.name = "toDeleteIds";
       deleted.value = id;
       document.querySelector("form").appendChild(deleted);
     }
-  }
-
-  function editRow(button) {
-    const row = button.closest('tr');
-    const cells = row.querySelectorAll('td');
-
-    const payer = cells[0].innerText;
-    const participants = cells[1].innerText.split(',').map(s => s.trim());
-    const category = cells[2].innerText;
-    const description = cells[3].innerText;
-    const amount = cells[4].innerText;
-
-    row.innerHTML = `
-      <td>
-        <select name="expenseRows[${index}].payerId">
-          ${users.map(u => `<option value="${u.id}" ${u.username === payer ? 'selected' : ''}>${u.username}</option>`).join('')}
-        </select>
-      </td>
-      <td>
-        <select name="expenseRows[${index}].participantIds" multiple>
-          ${users.map(u => `<option value="${u.id}" ${participants.includes(u.username) ? 'selected' : ''}>${u.username}</option>`).join('')}
-        </select>
-      </td>
-      <td>
-        <select name="expenseRows[${index}].category">
-          ${['숙소','식사','교통','관광','카페','술','기념품','기타'].map(opt => `<option value="${opt}" ${opt === category ? 'selected' : ''}>${opt}</option>`).join('')}
-        </select>
-      </td>
-      <td><input type="text" name="expenseRows[${index}].description" value="${description}"/></td>
-      <td><input type="number" name="expenseRows[${index}].amount" value="${amount}"/></td>
-      <td><button type="button" onclick="saveRow(this)">💾</button></td>
-    `;
   }
 
 </script>
