@@ -43,7 +43,7 @@ public class TripService {
         return tripTagRepository.findDistinctTagNames();
     }
 
-    /** 새로운 Trip 저장 */
+     /** 새로운 Trip 저장 */
     @Transactional
     public Trip saveTrip(Long userId, TripRegisterDto dto) {
         User user = userRepository.findById(userId)
@@ -57,6 +57,7 @@ public class TripService {
         trip.setDepartureTrip(dto.getDepartureTrip());
         trip.setReturnTrip(dto.getReturnTrip());
         trip.setCreatorId(userId);
+        trip.setAccommodationLink(dto.getAccommodationLink());
 
         Trip savedTrip = tripRepository.save(trip);
 
@@ -115,40 +116,45 @@ public class TripService {
             .startDate(trip.getStartDate())
             .endDate(trip.getEndDate())
             .accommodation(trip.getAccommodation())
+            .accommodationLink(trip.getAccommodationLink()) 
             .departureTrip(trip.getDepartureTrip())
             .returnTrip(trip.getReturnTrip())
             .tagsText(tagsText)
             .build();
     }
+     /** 수정 처리: 엔티티와 태그, 숙소 링크 업데이트 */
+@Transactional
+public void updateTrip(Long tripId, TripUpdateDto dto) {
+    Trip trip = tripRepository.findById(tripId)
+        .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
 
-    /** 수정 처리: 엔티티와 태그 업데이트 */
-    @Transactional
-    public void updateTrip(Long tripId, TripUpdateDto dto) {
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
+    // 기본 필드 업데이트
+    trip.setTitle(dto.getTitle());
+    trip.setStartDate(dto.getStartDate());
+    trip.setEndDate(dto.getEndDate());
+    trip.setAccommodation(dto.getAccommodation());
+    // ★ 숙소 링크 필드 업데이트 추가 ★
+    trip.setAccommodationLink(dto.getAccommodationLink());
+    trip.setDepartureTrip(dto.getDepartureTrip());
+    trip.setReturnTrip(dto.getReturnTrip());
 
-        trip.setTitle(dto.getTitle());
-        trip.setStartDate(dto.getStartDate());
-        trip.setEndDate(dto.getEndDate());
-        trip.setAccommodation(dto.getAccommodation());
-       trip.setDepartureTrip(dto.getDepartureTrip());
-        trip.setReturnTrip(dto.getReturnTrip());
-        // 기존 태그 삭제
-        tripTagRepository.deleteAllByTrip(trip);
-        // 새 태그 저장
-        if (dto.getTagsText() != null && !dto.getTagsText().isBlank()) {
-            Arrays.stream(dto.getTagsText().split(","))
-                  .map(String::trim)
-                  .filter(s -> !s.isEmpty())
-                  .map(s -> s.startsWith("#") ? s : "#" + s)
-                  .forEach(tagName -> {
-                      TripTag tag = new TripTag();
-                      tag.setTrip(trip);
-                      tag.setTagName(tagName);
-                      tripTagRepository.save(tag);
-                  });
-        }
+    // 기존 태그 삭제
+    tripTagRepository.deleteAllByTrip(trip);
+
+    // 새 태그 저장
+    if (dto.getTagsText() != null && !dto.getTagsText().isBlank()) {
+        Arrays.stream(dto.getTagsText().split(","))
+              .map(String::trim)
+              .filter(s -> !s.isEmpty())
+              .map(s -> s.startsWith("#") ? s : "#" + s)
+              .forEach(tagName -> {
+                  TripTag tag = new TripTag();
+                  tag.setTrip(trip);
+                  tag.setTagName(tagName);
+                  tripTagRepository.save(tag);
+              });
     }
+}
 
    /** 특정 여행의 기존 일정 DTO 리스트 로드 (day/time으로 정렬) */
     public List<ScheduleUpdateDto> loadSchedules(Long tripId) {

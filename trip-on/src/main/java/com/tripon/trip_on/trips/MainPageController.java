@@ -62,6 +62,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,17 +99,20 @@ public class MainPageController {
         }
         model.addAttribute("user", optUser.get());
 
-        // ── (B) 여행 목록 계산 ──
+                // ── (B) 여행 목록 계산 ──
         LocalDate today = LocalDate.now();
         List<Trip> allTrips = planService.findByCreatorId(userId);
 
-        // 예정 중인 여행 (endDate >= today)
+        // 예정 중인 여행 (endDate >= today) → startDate 오름차순 정렬
         List<Trip> upcomingTrips = allTrips.stream()
             .filter(trip -> !trip.getEndDate().isBefore(today))
+            .sorted(Comparator.comparing(Trip::getStartDate))
             .collect(Collectors.toList());
-        // 과거 여행 (endDate < today)
+
+        // 과거 여행 (endDate < today) → startDate 내림차순 정렬
         List<Trip> pastTrips = allTrips.stream()
             .filter(trip -> trip.getEndDate().isBefore(today))
+            .sorted(Comparator.comparing(Trip::getStartDate).reversed())
             .collect(Collectors.toList());
 
         upcomingTrips.forEach(trip -> trip.setTags(planService.getTags(trip.getId())));

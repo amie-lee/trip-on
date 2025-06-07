@@ -556,6 +556,21 @@
             width: 420px;
         }
 
+    .info-link {
+    color: #0077cc;        /* 필요 시 링크 색상 조정 */
+    text-decoration: none; /* 필요 시 밑줄 제거 */
+    cursor: pointer;       /* 항상 손가락 커서 */
+  }
+  .info-link:hover {
+    text-decoration: underline;
+  }
+  .info-link.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #888;
+  text-decoration: none;
+}
+
     </style>
 </head>
 <body>
@@ -595,11 +610,18 @@
           <div class="info-value">
         <!-- 숙소 텍스트 -->
         <span th:text="${trip.accommodation}">숙소 이름</span>
-        <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-        <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
-       class="info-link">
+        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+       th:href="${trip.accommodationLink}"
+       class="info-link"
+       target="_blank"
+       rel="noopener">
       (지도)
-        </a>
+    </a>
+    <span th:unless="${trip.accommodationLink != null}"
+          class="info-link disabled">
+      (지도)
+    </span>
         </div>
     </div>
         <div class="info-row">
@@ -625,7 +647,7 @@
           <div class="info-value">00원</div>
           <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
         </div>
-        <div class="info-row">
+         <div class="info-row">
             <div class="info-label">동행</div>
             <div class="info-value">
                 <span th:each="name : ${memberNames}"
@@ -635,13 +657,12 @@
             </div>
         </div>
       </div>
-
       <div class="side-btns">
         <button class="side-btn selected">계획</button>
         <button class="side-btn">후기</button>
       </div>
     </div>
-
+    
     <!-- ✅ 팝업 구조 -->
     <div id="inviteModal" class="invite-modal" style="display:none;">
     <div class="invite-modal-content">
@@ -700,7 +721,7 @@
     </div>
   </div>
 </div>
- <script th:inline="javascript">
+<script th:inline="javascript">
     document.getElementById('menuDotBtn').addEventListener('click', function() {
       const pop = document.getElementById('menuPopup');
       pop.style.display = pop.style.display === 'none' ? 'block' : 'none';

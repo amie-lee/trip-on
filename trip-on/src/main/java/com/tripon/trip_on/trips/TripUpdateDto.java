@@ -20,6 +20,7 @@ public class TripUpdateDto {
     private LocalDate endDate;
     
     private String accommodation;            // 숙소
+    private String accommodationLink;
     private String departureTrip;  // 출발 교통
     private String returnTrip;     // 귀환 교통
 

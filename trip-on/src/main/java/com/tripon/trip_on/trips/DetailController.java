@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,14 +96,26 @@ public class DetailController {
                 );
 
         List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+
+        
         List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
 
         // 날짜 라벨 생성
         List<String> dateLabels = tripsService.generateDateLabels(trip);
 
-        // dayNumber로 그룹화
-        Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
-            .collect(Collectors.groupingBy(Schedule::getDayNumber));
+            // 스케줄 조회 후, 시간(null 포함) 기준 정렬
+    schedules.sort(Comparator.comparing(
+        Schedule::getTime,
+        Comparator.nullsFirst(Comparator.naturalOrder())
+    ));
+
+    // dayNumber 순서대로 그룹화 (LinkedHashMap 으로 순서 보존)
+    Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
+        .collect(Collectors.groupingBy(
+            Schedule::getDayNumber,
+            LinkedHashMap::new,
+            Collectors.toList()
+        ));
 
         List<String> memberNames = trip.getTripMembers().stream()
             .map(TripMember::getUser)
@@ -148,6 +162,19 @@ public class DetailController {
                     new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
                 );
         List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+        schedules.sort(Comparator.comparing(
+        Schedule::getTime,
+        Comparator.nullsFirst(Comparator.naturalOrder())
+    ));
+
+    // dayNumber 순서대로 그룹화 (LinkedHashMap 으로 순서 보존)
+    Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
+        .collect(Collectors.groupingBy(
+            Schedule::getDayNumber,
+            LinkedHashMap::new,
+            Collectors.toList()
+        ));
+
         List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
         List<String> dateLabels = tripsService.generateDateLabels(trip);
 
@@ -158,11 +185,6 @@ public class DetailController {
         model.addAttribute("dateLabels", dateLabels);
         model.addAttribute("tripId", tripId);
         model.addAttribute("allTags", tripsService.getAllTagNames());
-
-        // scheduleMap 추가
-        Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
-            .collect(Collectors.groupingBy(Schedule::getDayNumber));
-        model.addAttribute("scheduleMap", scheduleMap);
 
         // DTO 채우기
         TripUpdateDto filled = tripsService.getTripUpdateDto(tripId);

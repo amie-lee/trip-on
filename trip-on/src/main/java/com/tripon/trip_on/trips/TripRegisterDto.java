@@ -19,6 +19,7 @@ public class TripRegisterDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;     // 여행 종료일
     private String accommodation;
+       private String accommodationLink;
     private String departureTrip; //가는 편
     private String returnTrip; //오는 편
     private List<String> selectedTags;
