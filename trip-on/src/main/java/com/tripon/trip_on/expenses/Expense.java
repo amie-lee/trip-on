@@ -1,5 +1,6 @@
 package com.tripon.trip_on.expenses;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.tripon.trip_on.trips.Trip;
@@ -37,5 +38,5 @@ public class Expense {
     private String description;
 
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExpenseParticipant> participants = new java.util.ArrayList<>();
+    private List<ExpenseParticipant> participants = new ArrayList<>();
 }
