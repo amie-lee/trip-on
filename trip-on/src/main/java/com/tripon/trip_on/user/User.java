@@ -26,7 +26,7 @@ public class User {
     @Column(unique=true) // unique=true -> 한 DB에 하나만 있어야 함
     private String email;
 
-    @Column(name = "profile_image", nullable = false)
+    @Column(name = "profile_image", nullable = false, length = 512)
     private String profileImage = "/images/tripon_profile_demo.png";
 
     @Column(name = "reset_token", length=64)
@@ -35,4 +35,7 @@ public class User {
     @Column(name = "reset_token_expiry")
     private LocalDateTime resetTokenExpiry;
 
+    @Column(nullable = false, length = 20)
+    private String role = "ROLE_USER";
+    
 }
