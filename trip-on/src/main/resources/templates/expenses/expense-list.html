@@ -6,329 +6,120 @@
   <title>TripOn - 지출 입력</title>
   <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet" />
   <style>
-    .container {
-      gap: 60px;
-      margin-top: 40px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      padding: 20px 60px;
+      height: 100vh;
       position: relative;
-      width: 90%;
-      justify-self: center;
+      overflow: hidden;
     }
-    .back-link {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 10px;
-        font-size: 16px;
-        color: #000;
-        text-decoration: none;
-        transition: all 0.3s ease;
+    table, th, td {
+      border: 1px solid #aaa;
+      border-collapse: collapse;
+      padding: 8px;
     }
-    table {
+    input[type="text"], input[type="number"], select {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      font-size: 14px;
-    }
-
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e0e0e0;
-      text-align: left;
-    }
-
-    th {
-      background-color: #fafafa;
-      font-weight: 500;
-    }
-
-    tr:hover {
-      background-color: #f9f9f9;
-    }
-
-    .add-row {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #1a73e8;
-      text-align: right;
-      cursor: pointer;
-    }
-
-    .save-button {
-      margin-top: 20px;
-      padding: 8px 20px;
-      font-size: 14px;
-      background: #111;
-      color: white;
       border: none;
-      border-radius: 6px;
-      float: right;
-    }
-
-    .category-cell select {
-      padding: 5px 10px;
-      font-size: 13px;
-    }
-
-    .edit-btn {
-      background: none;
-      border: none;
-      font-size: 13px;
-      font-weight: 500;
-      color: #3a3a3a;
-      cursor: pointer;
-      padding: 4px 6px;
-      text-decoration: underline;
-    }
-    .btn {
-      background: #fff;
-      border: 1.5px solid #bbb;
-      border-radius: 8px;
-      padding: 6px 18px;
-      font-size: 14px;
-      color: #222;
-      cursor: pointer;
-      transition: all 0.2s;
-      align-self: stretch;
-      margin-bottom: 8px;
+      background: transparent;
       text-align: center;
     }
-    .btn:hover {
-      background-color: #f0f0f0;
-      border-color: #999;
-      color: #000;
-    }
-    #editControls {
-      justify-self: center;
-    }
-    #categoryChart {
-      width: 100%;
-      height: 320px;
-    }
-    .split-box {
-      border: 1.5px solid #ccc;
-      border-radius: 14px;
-      padding: 16px 20px;
-      max-width: 380px;
-      font-size: 15px;
-    }
-    .split-title {
-      font-size: 18px;
-      margin-bottom: 14px;
-      font-weight: 700;
-    }
-    .split-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .split-list li {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .split-route {
-      background: #e0e0e0;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      margin-right: 8px;
-      color: #444;
-      font-family: 'Noto Sans KR', sans-serif;
-      font-size: 14px;
-    }
-
-    .split-amount {
-      font-weight: 700;
-      color: #111;
+    .add-row {
+      margin-top: 10px;
+      cursor: pointer;
+      color: blue;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header(${user})}"></div>
-
-<div class="container">
-  
-  <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
-    <h2 th:text="${trip.title} + ' 경비'">경비</h2>
-    <a th:href="@{'/trips/' + ${trip.id} + '/trip-plan'}" class="back-link">&larr; 이전</a>
-  </div>
-
-  <form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
-        th:object="${expenseForm}" method="post">
-    <button type="button" id="toggleEditMode" class="edit-btn">편집</button>
-    <table>
-      <thead>
-        <tr>
-          <th>결제한 사람</th>
-          <th>정산할 사람</th>
-          <th>카테고리</th>
-          <th>항목</th>
-          <th>금액</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="expenseTbody">
-        <!-- 기존 지출 -->
-        <tr th:each="e : ${expenses}"
-            th:attr="data-expense-id=${e.expenseId}">
-          <td th:text="${e.payerName}">-</td>
-          <td>
-            <span th:if="${e.participantIds != null}"
-                  th:each="id, iter : ${e.participantIds}"
-                  th:text="${userMap != null ? userMap.get(id) : '알 수 없음'} + ${iter.last ? '' : ', '}">
-              -
-            </span>
-          </td>
-          <td th:text="${e.category}">-</td>
-          <td th:text="${e.description}">-</td>
-          <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
-          <td></td>
-        </tr>
-      </tbody>
-    <tfoot>
+<h2 th:text="${trip.title} + ' 경비'">경비</h2>
+<form th:action="@{'/trips/' + ${trip.id} + '/expenses'}"
+      th:object="${expenseForm}" method="post">
+  <table>
+    <thead>
       <tr>
-        <td colspan="6" ><b>합계:  </b><span th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')} + ' 원'"></span></td>
+        <th>결제자</th>
+        <th>참여자</th>
+        <th>항목</th>
+        <th>금액</th>
+        <th>카테고리</th> <!-- ✅ 수정 -->
       </tr>
-    </tfoot>
-    </table>
-    <div class="add-row" onclick="addRow()" style="display: none;">+ 항목 추가</div>
-    <div id="editControls" style="display: none;">
-      <button class="btn" type="submit">✅ 저장</button>
-      <button class="btn" type="button" onclick="window.location.reload()">❌ 취소</button>
-    </div>
-  </form>
-
-  <div style="display: flex; gap: 40px; justify-content: center; margin-top: 40px; margin-bottom: 40px;">
-    <!-- 정산 내역 -->
-    <div class="split-box">
-      <h3 class="split-title">정산 내역</h3>
-      <ul class="split-list">
-        <li th:each="r : ${splitResults}">
-          <span class="split-route">
-            <span th:text="${r.fromUser}"></span> → <span th:text="${r.toUser}"></span>
+    </thead>
+    <tbody id="expenseTbody">
+      <!-- ✅ 기존 지출 -->
+      <tr th:each="e : ${expenses}">
+        <td th:text="${e.payerName}">-</td>
+        <td>
+          <span th:if="${e.participantIds != null}"
+                th:each="id, iter : ${e.participantIds}"
+                th:text="${userMap != null && userMap.containsKey(id) ? userMap[id] : '알 수 없음'} + ${iter.last ? '' : ', '}">
+            -
           </span>
-          <span class="split-amount" th:text="${#numbers.formatInteger(r.amount, 3, 'COMMA')} + ' 원'"></span>
-        </li>
-      </ul>
-    </div>
+        </td>
+        <td th:text="${e.description}">-</td>
+        <td th:text="${#numbers.formatInteger(e.amount, 3, 'COMMA')}">-</td>
+        <td th:text="${e.category}">-</td> <!-- ✅ 카테고리 표시 -->
+      </tr>
 
-    <!-- 카테고리별 지출 차트 -->
-    <div style="flex: 1; max-width: 300px;">
-      <canvas id="categoryChart" style="width: 100%; "></canvas>
-    </div>
-  </div>
+      <!-- ✅ 입력 행 -->
+      <tr>
+        <td>
+          <select th:field="*{expenseRows[0].payerId}">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
+          </select>
+        </td>
+        <td>
+          <select multiple th:field="*{expenseRows[0].participantIds}">
+            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}">선택</option>
+          </select>
+        </td>
+        <td><input type="text" th:field="*{expenseRows[0].description}" /></td>
+        <td><input type="number" th:field="*{expenseRows[0].amount}" /></td>
+        <td>
+          <select th:field="*{expenseRows[0].category}">
+            <option value="">-</option>
+            <option value="숙소">숙소</option>
+            <option value="식사">식사</option>
+            <option value="교통">교통</option>
+            <option value="관광">관광</option>
+            <option value="카페">카페</option>
+            <option value="술">술</option>
+            <option value="기념품">기념품</option>
+            <option value="기타">기타</option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
 
-  
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align:right"><b>총합:</b></td>
+      <td colspan="2" th:text="${#numbers.formatInteger(totalAmount, 3, 'COMMA')} + ' 원'">0 원</td>
+    </tr>
+  </tfoot>
 
-</div>
+  </table>
+
+  <button type="submit">저장</button>
+</form>
+
 
 <script th:inline="javascript">
   /*<![CDATA[*/
-  const users = JSON.parse(/*[[${usersJson}]]*/ '[]');
-  const tripId = /*[[${trip.id}]]*/ 0;
-
-  const categoryData = /*[[${categoryTotalsJson}]]*/ '{}';
-  const parsedData = JSON.parse(categoryData);
-
-  const labels = Object.keys(parsedData);
-  const data = Object.values(parsedData);
-
-  const ctx = document.getElementById('categoryChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '지출',
-        data: data,
-        backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-          '#FF9F40', '#C9CBCF', '#FF6666'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: { position: 'bottom' }
-      }
-    }
-  });
+  let index = /*[[${expenseForm.expenseRows.size()}]]*/ 0;
+  const users = /*[[${users}]]*/ [];
   /*]]>*/
 
-  let index = document.querySelectorAll('#expenseTbody tr').length;
-  let isEditMode = false;
-
-  document.getElementById('toggleEditMode').addEventListener('click', () => {
-    isEditMode = !isEditMode;
-    document.getElementById('editControls').style.display = isEditMode ? 'block' : 'none';
-    document.querySelector('.add-row').style.display = isEditMode ? 'block' : 'none';
-    document.getElementById('toggleEditMode').style.display = isEditMode ? 'none' : 'inline-block';
-    const chart = document.getElementById('categoryChart');
-    if (chart) chart.style.display = isEditMode ? 'none' : 'block';
-    renderTable();
-  });
-
-  function renderTable() {
-    const tbody = document.getElementById('expenseTbody');
-    const rows = tbody.querySelectorAll('tr');
-
-    rows.forEach((row, i) => {
-      const expenseId = row.dataset.expenseId;
-      const cells = row.querySelectorAll('td');
-
-      const payer = cells[0].innerText;
-      const participants = cells[1].innerText.split(',').map(s => s.trim());
-      const category = cells[2].innerText;
-      const description = cells[3].innerText;
-      const amount = parseInt(cells[4].innerText.replace(/,/g, ''), 10);
-
-      if (isEditMode) {
-        row.innerHTML = `
-          <td>
-            <select name="expenseRows[${i}].payerId" required>
-              ${users.map(u => `<option value="${u.id}" ${u.username === payer ? 'selected' : ''}>${u.username}</option>`).join('')}
-            </select>
-          </td>
-          <td>
-            <select name="expenseRows[${i}].participantIds" multiple required>
-              ${users.map(u => `<option value="${u.id}" ${participants.includes(u.username) ? 'selected' : ''}>${u.username}</option>`).join('')}
-            </select>
-          </td>
-          <td>
-            <select name="expenseRows[${i}].category" required>
-              ${['숙소','식사','교통','관광','카페','술','기념품','기타'].map(opt => `<option value="${opt}" ${opt === category ? 'selected' : ''}>${opt}</option>`).join('')}
-            </select>
-          </td>
-          <td><input type="text" name="expenseRows[${i}].description" value="${description}" required /></td>
-          <td><input type="number" name="expenseRows[${i}].amount" value="${amount}" required /></td>
-          <input type="hidden" name="expenseRows[${i}].expenseId" value="${expenseId}" />
-          <input type="hidden" name="expenseRows[${i}].tripId" value="${tripId}" />
-          <td><button type="button" onclick="deleteRow(this)">삭제</button></td>
-        `;
-      } else {
-        row.innerHTML = `
-          <td>${payer}</td>
-          <td>${participants.join(', ')}</td>
-          <td>${category}</td>
-          <td>${description}</td>
-          <td>${amount.toLocaleString()}</td>
-          <td></td>
-        `;
-      }
-    });
-  }
-
-
   function addRow() {
-    if (!isEditMode) return;
-
     const tbody = document.getElementById('expenseTbody');
     const row = document.createElement('tr');
-    row.setAttribute('data-expense-id', '');
 
     row.innerHTML = `
       <td>
@@ -341,44 +132,13 @@
           ${users.map(u => `<option value="${u.id}">${u.username}</option>`).join('')}
         </select>
       </td>
-      <td>
-        <select name="expenseRows[${index}].category">
-          <option value="">-</option>
-          <option value="숙소">숙소</option>
-          <option value="식사">식사</option>
-          <option value="교통">교통</option>
-          <option value="관광">관광</option>
-          <option value="카페">카페</option>
-          <option value="술">술</option>
-          <option value="기념품">기념품</option>
-          <option value="기타">기타</option>
-        </select>
-      </td>
       <td><input type="text" name="expenseRows[${index}].description" /></td>
       <td><input type="number" name="expenseRows[${index}].amount" /></td>
-      <input type="hidden" name="expenseRows[${index}].tripId" value="${tripId}" />
-      <input type="hidden" name="expenseRows[${index}].expenseId" value="" />
-      <td><button type="button" onclick="deleteRow(this)">삭제</button></td>
+      <td><input type="text" name="expenseRows[${index}].paymentDate" placeholder="예: 2025-05-01" /></td>
     `;
-
     tbody.appendChild(row);
     index++;
   }
-
-  function deleteRow(button) {
-    const row = button.closest('tr');
-    const id = row.dataset.expenseId;
-    row.remove();
-
-    if (id && id !== "null" && id !== undefined) {
-      const deleted = document.createElement("input");
-      deleted.type = "hidden";
-      deleted.name = "toDeleteIds";
-      deleted.value = id;
-      document.querySelector("form").appendChild(deleted);
-    }
-  }
-
 </script>
 </body>
 </html>

@@ -1,30 +1,31 @@
 // --- DetailController.java (login 체크 추가 버전) ---
 package com.tripon.trip_on.trips;
 
+import com.tripon.trip_on.trips.Trip;
+import com.tripon.trip_on.trips.Schedule;
+import com.tripon.trip_on.trips.TripTag;
+import com.tripon.trip_on.trips.TripRepository;
+import com.tripon.trip_on.trips.ScheduleRepository;
+import com.tripon.trip_on.trips.TripTagRepository;
+import com.tripon.trip_on.trips.TripService;
 import com.tripon.trip_on.user.User;         // ← User 엔티티
 import com.tripon.trip_on.user.UserService;  // ← UserService
 
 import jakarta.servlet.http.HttpSession;      // ← HttpSession
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ public class DetailController {
     private final TripService tripsService;
     private final UserService userService;  // ← UserService 추가
 
+    @Autowired
     public DetailController(TripRepository tripRepository,
                             ScheduleRepository scheduleRepository,
                             TripTagRepository tripTagRepository,
@@ -84,8 +86,7 @@ public class DetailController {
             return "redirect:/user/login";
         }
         // ③ 헤더에 표시할 User 객체를 모델에 추가
-        User loginUser = optUser.get();
-        model.addAttribute("user", loginUser);
+        model.addAttribute("user", optUser.get());
 
         // ── 이하 기존 로직 ──
         Trip trip = tripRepository.findById(tripId)
@@ -103,14 +104,6 @@ public class DetailController {
         Map<Integer, List<Schedule>> scheduleMap = schedules.stream()
             .collect(Collectors.groupingBy(Schedule::getDayNumber));
 
-        List<String> memberNames = trip.getTripMembers().stream()
-            .map(TripMember::getUser)
-            .filter(Objects::nonNull)
-            .filter(u -> u.getId() != loginUser.getId())
-            .map(User::getUsername)
-            .collect(Collectors.toList());
-        
-        model.addAttribute("memberNames", memberNames);
         model.addAttribute("trip", trip);
         model.addAttribute("tags", tags);
         model.addAttribute("dateLabels", dateLabels);
@@ -250,19 +243,4 @@ public class DetailController {
 
         return "redirect:/trips/" + tripId + "/trip-plan";
     }
-
-    @PostMapping("/trips/{tripId}/invite")
-    @ResponseBody
-    public ResponseEntity<?> inviteMember(@PathVariable Long tripId,
-                                        @RequestBody @Valid TripInviteDto inviteDto) {
-        try {
-            String invitedName = tripsService.inviteMember(tripId, inviteDto.getEmail());
-            return ResponseEntity.ok().body(Map.of("username", invitedName));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage()));
-        }
-    }
-
 }

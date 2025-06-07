@@ -428,14 +428,6 @@
             background: #eee;
             color: #222;
         }
-        .member-tag {
-            display: inline-block;
-            background-color: #eee;
-            border-radius: 12px;
-            padding: 4px 10px;
-            margin-right: 6px;
-            font-size: 14px;
-        }
         .invite-modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -448,6 +440,7 @@
         }
         .invite-modal-content {
             background: #ddd;
+            border: 2px solid #444;
             border-radius: 20px;
             padding: 36px 32px 24px 32px;
             min-width: 420px;
@@ -458,7 +451,7 @@
             align-items: center;
         }
         .invite-title {
-            font-size: 16px;
+            font-size: 24px;
             text-align: center;
             margin-bottom: 36px;
             font-weight: 400;
@@ -492,7 +485,7 @@
         }
         .invite-message {
             width: 100%;
-            font-size: 13px;
+            font-size: 16px;
             margin-bottom: 4px;
         }
         .invite-error {
@@ -538,23 +531,7 @@
             overflow-x: auto;
             overflow-y: auto;
             padding-bottom: 10px;
-        }
-        .invite-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .invite-modal-content {
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            width: 420px;
-        }
+}
 
     </style>
 </head>
@@ -622,17 +599,12 @@
         </div>
         <div class="info-row">
           <div class="info-label">경비</div>
-          <div class="info-value">00원</div>
+          <div class="info-value">300원</div>
           <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
         </div>
         <div class="info-row">
-            <div class="info-label">동행</div>
-            <div class="info-value">
-                <span th:each="name : ${memberNames}"
-                    th:text="${name}"
-                    class="member-tag"></span>
-                <span class="info-invite" onclick="openInviteModal()">초대</span>
-            </div>
+          <div class="info-label">동행</div>
+          <div class="info-value"><span class="info-invite">초대</span></div>
         </div>
       </div>
 
@@ -640,22 +612,6 @@
         <button class="side-btn selected">계획</button>
         <button class="side-btn">후기</button>
       </div>
-    </div>
-
-    <!-- ✅ 팝업 구조 -->
-    <div id="inviteModal" class="invite-modal" style="display:none;">
-    <div class="invite-modal-content">
-        <div class="invite-title">초대할 유저의 이메일을 입력해주세요!</div>
-
-        <div class="invite-form-row">
-        <input type="email" id="inviteEmailInput" class="invite-input" placeholder="example@email.com" />
-        <button class="invite-send-btn" onclick="sendInvite()">전송</button>
-        </div>
-
-        <div class="invite-message" id="inviteMessage"></div>
-
-        <button class="invite-close-btn" onclick="closeInviteModal()">닫기</button>
-    </div>
     </div>
     
 <div class="right-content">
@@ -700,46 +656,11 @@
     </div>
   </div>
 </div>
- <script th:inline="javascript">
+ <script>
     document.getElementById('menuDotBtn').addEventListener('click', function() {
       const pop = document.getElementById('menuPopup');
       pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
     });
-
-    function openInviteModal() {
-        document.getElementById("inviteModal").style.display = "flex";
-    }
-    function closeInviteModal() {
-        document.getElementById("inviteModal").style.display = "none";
-        document.getElementById("inviteEmailInput").value = "";
-        document.getElementById("inviteMessage").textContent = "";
-    }
-
-    async function sendInvite() {
-        const email = document.getElementById("inviteEmailInput").value;
-        const message = document.getElementById("inviteMessage");
-        const tripId = /*[[${trip.id}]]*/ 0;
-
-        try {
-            const response = await fetch(`/trips/${tripId}/invite`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ email })
-            });
-            const result = await response.json();
-
-            if (response.ok) {
-            message.style.color = "green";
-            message.textContent = `"${result.username}" 님을 초대했어요!`;
-            } else {
-            message.style.color = "red";
-            message.textContent = result.error || "초대 실패";
-            }
-        } catch (e) {
-            message.style.color = "red";
-            message.textContent = "서버 오류가 발생했습니다.";
-        }
-    }
   </script>
 </body>
 </html>
