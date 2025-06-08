@@ -20,8 +20,9 @@ public class TripUpdateDto {
     private LocalDate endDate;
     
     private String accommodation;            // 숙소
-    private String transportationDeparture;  // 출발 교통
-    private String transportationReturn;     // 귀환 교통
+    private String accommodationLink;
+    private String departureTrip;  // 출발 교통
+    private String returnTrip;     // 귀환 교통
 
      /** 태그를 콤마(,)로 입력할 텍스트 박스 */
     private String tagsText;

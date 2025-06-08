@@ -9,19 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Noto+Sans+KR&display=swap" rel="stylesheet"/>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    /* ────────────────────────────────────────────────────────────────── */
+    /* 기본 레이아웃 스타일은 기존 코드와 동일합니다.                    */
     body {
       background-color: #ffffff;
       font-family: 'Noto Sans KR', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh; /* 한 화면에 꽉 차게 */
+      height: 100vh;
     }
 
     .container {
@@ -34,7 +30,7 @@
       font-family: 'Bagel Fat One', cursive;
       font-size: 40px;
       text-align: center;
-      margin-bottom: 10px;
+      margin: 20px 0 10px;
       color: #000;
     }
 
@@ -46,7 +42,7 @@
     }
 
     .form-wrapper {
-      padding: 0 40px;
+      padding: 0 40px 40px;
     }
 
     .input-group {
@@ -73,7 +69,6 @@
       color: red;
       visibility: hidden;
       margin-left: 4px;
-
     }
 
     .error-message.visible {
@@ -106,16 +101,75 @@
       border-radius: 8px;
       color: #000;
       cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
     }
 
     .submit-btn:hover {
       background: #000;
       color: #fff;
     }
+
+    /* ────────────────────────────────────────────────────────────────── */
+    /* 모달(팝업) 스타일                                             */
+    /* 모달이 뜰 때 화면 뒤 어둡게 처리하기 위한 오버레이 */
+    .modal-overlay {
+      display: none; /* 기본적으로 감춰두기 */
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 100; /* 최상위 레이어 */
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 실제 모달 창 */
+    .modal-content {
+      background-color: #fff;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    /* 모달 헤더 */
+    .modal-content h2 {
+      margin-bottom: 12px;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    /* 모달 본문 텍스트 */
+    .modal-content .modal-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    /* 모달 닫기 버튼(X) */
+    .modal-close-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      font-size: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+    }
+    .modal-close-btn:hover {
+      color: #000;
+    }
+    /* ────────────────────────────────────────────────────────────────── */
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Thymeleaf 기반 예시: th:action, th:object 사용 -->
     <form th:action="@{/user/signup}" th:object="${user}" method="post">
       <div class="logo">TRIP ON</div>
       <div class="subtitle">회원가입</div>
@@ -124,72 +178,263 @@
         <!-- 이름 -->
         <div class="input-group">
           <input type="text" name="username" th:value="*{username}" placeholder="이름" required />
-          <div class="error-message" th:text="${usernameError} ?: '&nbsp;'" th:classappend="${usernameError} ? ' visible' : ''"></div>
+          <div class="error-message"
+               th:text="${usernameError} ?: '&nbsp;'"
+               th:classappend="${usernameError} ? ' visible' : ''"></div>
         </div>
 
         <!-- 이메일 -->
         <div class="input-group">
           <input type="email" name="email" th:value="*{email}" placeholder="이메일" required />
-          <div class="error-message" th:text="${emailError} ?: '&nbsp;'" th:classappend="${emailError} ? ' visible' : ''"></div>
+          <div class="error-message"
+               th:text="${emailError} ?: '&nbsp;'"
+               th:classappend="${emailError} ? ' visible' : ''"></div>
         </div>
 
         <!-- 비밀번호 -->
         <div class="input-group">
           <input type="password" name="password" placeholder="비밀번호" required />
-          <div class="error-message" th:text="${passwordError} ?: '&nbsp;'" th:classappend="${passwordError} ? ' visible' : ''"></div>
+          <div class="error-message"
+               th:text="${passwordError} ?: '&nbsp;'"
+               th:classappend="${passwordError} ? ' visible' : ''"></div>
         </div>
 
         <!-- 비밀번호 확인 -->
         <div class="input-group">
           <input type="password" name="confirmPassword" placeholder="비밀번호 확인" required />
-          <div class="error-message" th:text="${confirmError} ?: '&nbsp;'" th:classappend="${confirmError} ? ' visible' : ''"></div>
-        </div>
-        
-        <div class="checkbox-group">
-          <input type="checkbox" id="agree" required />
-          <label for="agree">
-            개인정보 수집 및 이용 동의&nbsp;&nbsp;<span>자세히&gt;</span>
-          </label>
+          <div class="error-message"
+               th:text="${confirmError} ?: '&nbsp;'"
+               th:classappend="${confirmError} ? ' visible' : ''"></div>
         </div>
 
+        <!-- 개인정보 동의 체크박스 + "자세히>" 링크 -->
+        <div class="checkbox-group">
+          <input type="checkbox" id="agree" name="agree" required />
+          <label for="agree">
+            개인정보 수집 및 이용 동의&nbsp;&nbsp;
+            <span id="detail-toggle">자세히&gt;</span>
+          </label>
+        </div>
+        <!-- 동의 체크박스 오류 메시지를 보여주고 싶다면 아래처럼 추가하세요 -->
+        <div class="error-message" id="agreeError">&nbsp;</div>
+
+        <!-- 제출 버튼 -->
         <button class="submit-btn" type="submit">회원가입</button>
       </div>
     </form>
   </div>
-  
-  <!-- <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.form-wrapper');
-    const emailInput = form.querySelector('input[type="email"]');
-    const emailError = emailInput.nextElementSibling;
-    const submitBtn = form.querySelector('.submit-btn');
-    const agreeChk = document.getElementById('agree');
-    const agreeError = document.querySelector('.agree-error');
-    submitBtn.addEventListener('click', function(e) {
-      let hasError = false;
-      const email = emailInput.value.trim();
-      if (!email.endsWith('.com')) {
-        emailError.textContent = '*올바른 이메일을 입력해 주세요';
-        emailError.classList.add('visible');
-        hasError = true;
-      } else {
-        emailError.textContent = '';
-        emailError.classList.remove('visible');
-      }
-      if (!agreeChk.checked) {
-        agreeError.textContent = '*개인정보 수집 및 이용에 동의해 주세요';
-        agreeError.classList.add('visible');
-        hasError = true;
-      } else {
-        agreeError.textContent = '';
-        agreeError.classList.remove('visible');
-      }
-      if (hasError) {
-        e.preventDefault();
-        return false;
-      }
+
+  <!-- ────────────────────────────────────────────────────────────────── -->
+  <!-- 2. 모달 오버레이 & 상세 동의 내용 영역                                 -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <!-- 닫기 버튼 -->
+      <button class="modal-close-btn" id="modal-close">&times;</button>
+
+      <!-- 모달 헤더 -->
+      <h2>개인정보 수집 및 이용 동의 (자세히 보기)</h2>
+
+      <!-- 모달 본문: 실제 동의해야 하는 내용 텍스트를 여기에 넣으세요 -->
+      <div class="modal-body">
+        <p>㈜TripOn(이하 “회사”)는 회원님의 개인정보를 소중하게 다루며, 개인정보 보호법 등 관련 법령을 준수하고 있습니다. 회원가입에 앞서 아래 내용을 꼭 확인하시고 동의 여부를 결정해 주시기 바랍니다.</p>
+        <h3>1. 수집하는 개인정보 항목</h3>
+        <ul>
+          <li>회원 가입 시점
+            <ul>
+              <li><strong>필수 항목:</strong> 이메일(로그인 ID), 비밀번호, 이름(닉네임), 휴대폰 번호(본인확인 시)</li>
+              <li><strong>선택 항목:</strong> 프로필 사진, 생년월일</li>
+            </ul>
+          </li>
+          <li>서비스 이용 과정에서 자동으로 생성·수집되는 정보: 접속 로그, 쿠키, 접속 IP 정보, 서비스 이용 기록, 기기 정보(브라우저 종류, OS 버전 등)</li>
+          <li>추가 정보: 비밀번호 재설정·이메일 발송을 위한 발신 이메일/앱 비밀번호, AWS S3 사용 시 업로드된 파일 정보(파일명, URL 등), 이벤트/프로모션 참여 시 입력한 추가 정보(주소, 결제 정보 등)</li>
+        </ul>
+
+        <h3>2. 개인정보 수집 및 이용 목적</h3>
+        <ol>
+          <li><strong>회원관리 및 서비스 제공</strong>:
+            <ul>
+              <li>회원 가입 의사 확인, 본인 식별, 회원 식별</li>
+              <li>서비스 이용 관련 고지 사항 전달, 불만 처리 등 고객지원</li>
+              <li>서비스 이용 기록 및 접속 빈도 파악, 통계학적 분석</li>
+            </ul>
+          </li>
+          <li><strong>서비스 개선 및 신규 서비스 개발</strong>:
+            <ul>
+              <li>이용자 서비스 이용 행태 분석을 통한 맞춤형 서비스 제공</li>
+              <li>서비스 기능 추가·개선, 마케팅 및 이벤트 정보 제공</li>
+            </ul>
+          </li>
+          <li><strong>이벤트/마케팅/광고 활용</strong>:
+            <ul>
+              <li>신규 기능, 이벤트·프로모션 정보 안내</li>
+              <li>광고성 정보 제공(이메일, SMS, 푸시 알림 등)</li>
+              <li>서비스 방문 및 이용 기록 분석을 통한 타겟 마케팅</li>
+            </ul>
+          </li>
+          <li><strong>계정 복구 및 비밀번호 재설정</strong>:
+            <ul>
+              <li>비밀번호 분실 시 본인 확인 및 임시 비밀번호 발급</li>
+            </ul>
+          </li>
+          <li><strong>결제 및 수수료 정산(유료 서비스 이용 시)</strong>:
+            <ul>
+              <li>유료 결제 처리, 환불, 세금계산서 발행</li>
+            </ul>
+          </li>
+          <li><strong>법령 및 내부 방침 준수</strong>:
+            <ul>
+              <li>부정 사용 방지 및 비인가 사용 차단</li>
+              <li>전자금융거래법, 통신비밀보호법 등 관계법령상 의무 이행</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h3>3. 개인정보 보유 및 이용 기간</h3>
+        <p>회원가입 시 수집된 개인정보는 <strong>탈퇴 시까지</strong> 위 이용 목적을 위하여 보유·이용됩니다. 단, 관계법령에 의해 보존할 필요가 있는 경우에는 아래와 같이 일정 기간 동안 보관합니다.</p>
+        <table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse: collapse; margin-bottom: 16px;">
+          <thead>
+            <tr style="background: #f0f0f0;">
+              <th>보유 항목</th>
+              <th>보유 기간</th>
+              <th>관련 법령</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>회원관리</td>
+              <td>탈퇴 시까지</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td>표시/광고에 관한 기록</td>
+              <td>광고성 정보 전송 시점부터 6개월</td>
+              <td>전자상거래 등에서의 소비자 보호에 관한 법률</td>
+            </tr>
+            <tr>
+              <td>계약 또는 청약철회 기록</td>
+              <td>5년</td>
+              <td>전자상거래 등에서의 소비자 보호에 관한 법률</td>
+            </tr>
+            <tr>
+              <td>대금결제 및 재화 등의 공급 기록</td>
+              <td>5년</td>
+              <td>전자상거래 등에서의 소비자 보호에 관한 법률</td>
+            </tr>
+            <tr>
+              <td>전자금융 거래 기록</td>
+              <td>5년</td>
+              <td>전자금융거래법</td>
+            </tr>
+            <tr>
+              <td>소비자의 불만 또는 분쟁 처리 기록</td>
+              <td>3년</td>
+              <td>전자상거래 등에서의 소비자 보호에 관한 법률</td>
+            </tr>
+            <tr>
+              <td>방문에 관한 기록</td>
+              <td>3개월</td>
+              <td>통신비밀보호법</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>4. 개인정보 파기 절차 및 방법</h3>
+        <ol>
+          <li><strong>파기 절차</strong>:
+            <ul>
+              <li>회원이 탈퇴하거나 개인정보 수집·이용 목적이 달성된 경우 즉시 파기합니다.</li>
+              <li>다른 법령에 의해 보관할 필요가 있는 정보는 해당 보관 기간 종료 후 파기합니다.</li>
+            </ul>
+          </li>
+          <li><strong>파기 방법</strong>:
+            <ul>
+              <li><strong>전자적 파일 형태</strong>: 복구 및 재생 불가능한 방법(Degaussing, 데이터 영구 삭제 프로그램 등)으로 영구 삭제</li>
+              <li><strong>문서·기타 기록물 형태</strong>: 출력물 혹은 복사본은 분쇄기로 분쇄하거나 소각</li>
+            </ul>
+          </li>
+        </ol>
+
+        <h3>5. 제3자 제공 및 위탁</h3>
+        <p>회사는 원칙적으로 회원님의 개인정보를 외부에 제공하지 않습니다. 다만, 아래의 경우에는 예외로 합니다.</p>
+        <ul>
+          <li>회원이 사전에 동의한 경우</li>
+          <li>법령에 특별한 규정이 있거나, 법령상 의무를 준수하기 위한 경우</li>
+          <li>통계작성·학술연구·시장조사를 위하여 필요한 경우로, 특정 개인을 식별할 수 없는 형태로 제공하는 경우</li>
+        </ul>
+        <p>원활한 서비스 제공을 위해 아래와 같이 개인정보 처리를 위탁하고 있습니다.</p>
+        <ul>
+          <li>AWS(Amazon) : 파일(이미지/동영상) 저장소 운영 (S3 사용)</li>
+          <li>메일 서비스 제공사 : 이메일 발송 (비밀번호 재설정, 마케팅 이메일 등)</li>
+          <li>SMS/문자 발송 대행사 : SMS 발송 서비스</li>
+        </ul>
+
+        <h3>6. 이용자 권리·의무 및 행사 방법</h3>
+        <ul>
+          <li>이용자(회원)는 언제든지 개인정보 열람, 정정, 삭제, 처리정지 등을 요청할 수 있습니다.</li>
+          <li>권리 행사는 마이페이지 또는 이메일·우편·팩스 등을 통해 요청 가능합니다.</li>
+          <li>다만, 다른 법령에서 보관해야 하는 정보나, 타인의 생명·신체·재산 보호를 위해 필요한 경우 권리 행사가 제한될 수 있습니다.</li>
+        </ul>
+
+        <h3>7. 개인정보 보호 책임자 및 문의처</h3>
+        <ul>
+          <li>개인정보 보호 책임자: 임혜령 (tripon25@gmail.com)</li>
+        </ul>
+
+        <h3>8. 동의 거부 시 안내</h3>
+        <p>회원님께서는 개인정보 수집 및 이용에 동의하지 않을 권리가 있습니다. 다만, 필수 정보 제공에 동의하지 않으면 회원가입 및 일부 서비스 이용이 제한될 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+  <!-- ────────────────────────────────────────────────────────────────── -->
+
+  <!-- ────────────────────────────────────────────────────────────────── -->
+  <!-- 3. JavaScript: 모달 열기/닫기 및 체크박스 검증                        -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const detailToggle = document.getElementById('detail-toggle');
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalClose  = document.getElementById('modal-close');
+      const agreeChk    = document.getElementById('agree');
+      const agreeError  = document.getElementById('agreeError');
+      const form        = document.querySelector('form');
+
+      // 1) “자세히>” 텍스트를 클릭했을 때 모달 열기
+      detailToggle.addEventListener('click', function() {
+        modalOverlay.style.display = 'flex';
+      });
+
+      // 2) 모달 내부의 X 버튼을 클릭했을 때 모달 닫기
+      modalClose.addEventListener('click', function() {
+        modalOverlay.style.display = 'none';
+      });
+
+      // 3) 모달 바깥(오버레이 영역)을 클릭해도 모달 닫기
+      modalOverlay.addEventListener('click', function(e) {
+        // 오버레이 배경을 클릭한 경우에만 닫기 (내부 콘텐츠 클릭 시에는 ignore)
+        if (e.target === modalOverlay) {
+          modalOverlay.style.display = 'none';
+        }
+      });
+
+      // 4) 폼 제출 전에 체크박스 동의 여부 재검증
+      form.addEventListener('submit', function(e) {
+        // 이미 <input type="checkbox" required> 속성 때문에
+        // 브라우저 수준에서 “체크 안 되어 있으면 제출 못 함”이 있지만,
+        // 추가로 에러 메시지를 띄워 주고 싶다면 아래와 같이 처리할 수 있습니다.
+
+        if (!agreeChk.checked) {
+          e.preventDefault();
+          agreeError.textContent = '*개인정보 수집 및 이용에 동의해 주세요.';
+          agreeError.classList.add('visible');
+          // 모달을 자동으로 띄우고 싶다면 아래 코드를 사용하세요.
+          // modalOverlay.style.display = 'flex';
+        } else {
+          agreeError.textContent = '';
+          agreeError.classList.remove('visible');
+        }
+      });
     });
-  });
-  </script> -->
+  </script>
+  <!-- ────────────────────────────────────────────────────────────────── -->
 </body>
 </html>

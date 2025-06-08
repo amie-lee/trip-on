@@ -1,11 +1,11 @@
+
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.trips.Trip;
-import com.tripon.trip_on.trips.TripTag;
+import com.tripon.trip_on.user.User;
+import com.tripon.trip_on.user.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import com.tripon.trip_on.trips.TripRegisterDto;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -17,11 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class TripsService {
+public class TripService {
 
     @Autowired private TripRepository tripRepository;
     @Autowired private TripTagRepository tripTagRepository;
     @Autowired private ScheduleRepository scheduleRepository;
+    @Autowired private TripMemberRepository tripMemberRepository;
+    @Autowired private UserRepository userRepository;
+
 
     /** 로그인 유저의 Trip 목록 */
     public List<Trip> findByCreatorId(Long userId) {
@@ -40,23 +43,29 @@ public class TripsService {
         return tripTagRepository.findDistinctTagNames();
     }
 
-    /** 새로운 Trip 저장 */
+     /** 새로운 Trip 저장 */
+    @Transactional
     public Trip saveTrip(Long userId, TripRegisterDto dto) {
-        Trip trip = new Trip();
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+         Trip trip = new Trip();
         trip.setTitle(dto.getTitle());
         trip.setStartDate(dto.getStartDate());
         trip.setEndDate(dto.getEndDate());
         trip.setAccommodation(dto.getAccommodation());
-        // 교통편이 빈 문자열일 경우 null로 처리
-        if (dto.getTransportationDeparture() != null && dto.getTransportationDeparture().isBlank()) {
-            dto.setTransportationDeparture(null);
-        }
-        if (dto.getTransportationReturn() != null && dto.getTransportationReturn().isBlank()) {
-            dto.setTransportationReturn(null);
-        }
-        trip.setTransportation(dto.getTransportationDeparture() + " ~ " + dto.getTransportationReturn());
-        trip.setStatus("예정");
+        trip.setDepartureTrip(dto.getDepartureTrip());
+        trip.setReturnTrip(dto.getReturnTrip());
         trip.setCreatorId(userId);
+        trip.setAccommodationLink(dto.getAccommodationLink());
+
+        Trip savedTrip = tripRepository.save(trip);
+
+        TripMember tripMember = new TripMember();
+        tripMember.setTrip(savedTrip);
+        tripMember.setUser(user);
+        tripMemberRepository.save(tripMember);
+        
         return tripRepository.save(trip);
     }
 
@@ -102,53 +111,50 @@ public class TripsService {
             .map(name -> name.startsWith("#") ? name.substring(1) : name)
             .collect(Collectors.joining(","));
 
-        String dep = "", ret = "";
-        if (trip.getTransportation() != null) {
-            String[] parts = trip.getTransportation().split(" ~ ");
-            dep = parts.length>0?parts[0]:"";
-            ret = parts.length>1?parts[1]:"";
-        }
-
         return TripUpdateDto.builder()
             .title(trip.getTitle())
             .startDate(trip.getStartDate())
             .endDate(trip.getEndDate())
             .accommodation(trip.getAccommodation())
-            .transportationDeparture(dep)
-            .transportationReturn(ret)
+            .accommodationLink(trip.getAccommodationLink()) 
+            .departureTrip(trip.getDepartureTrip())
+            .returnTrip(trip.getReturnTrip())
             .tagsText(tagsText)
             .build();
     }
+     /** 수정 처리: 엔티티와 태그, 숙소 링크 업데이트 */
+@Transactional
+public void updateTrip(Long tripId, TripUpdateDto dto) {
+    Trip trip = tripRepository.findById(tripId)
+        .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
 
-    /** 수정 처리: 엔티티와 태그 업데이트 */
-    @Transactional
-    public void updateTrip(Long tripId, TripUpdateDto dto) {
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
+    // 기본 필드 업데이트
+    trip.setTitle(dto.getTitle());
+    trip.setStartDate(dto.getStartDate());
+    trip.setEndDate(dto.getEndDate());
+    trip.setAccommodation(dto.getAccommodation());
+    // ★ 숙소 링크 필드 업데이트 추가 ★
+    trip.setAccommodationLink(dto.getAccommodationLink());
+    trip.setDepartureTrip(dto.getDepartureTrip());
+    trip.setReturnTrip(dto.getReturnTrip());
 
-        trip.setTitle(dto.getTitle());
-        trip.setStartDate(dto.getStartDate());
-        trip.setEndDate(dto.getEndDate());
-        trip.setAccommodation(dto.getAccommodation());
-        trip.setTransportation(dto.getTransportationDeparture()
-                               + " ~ " + dto.getTransportationReturn());
+    // 기존 태그 삭제
+    tripTagRepository.deleteAllByTrip(trip);
 
-        // 기존 태그 삭제
-        tripTagRepository.deleteAllByTrip(trip);
-        // 새 태그 저장
-        if (dto.getTagsText() != null && !dto.getTagsText().isBlank()) {
-            Arrays.stream(dto.getTagsText().split(","))
-                  .map(String::trim)
-                  .filter(s -> !s.isEmpty())
-                  .map(s -> s.startsWith("#") ? s : "#" + s)
-                  .forEach(tagName -> {
-                      TripTag tag = new TripTag();
-                      tag.setTrip(trip);
-                      tag.setTagName(tagName);
-                      tripTagRepository.save(tag);
-                  });
-        }
+    // 새 태그 저장
+    if (dto.getTagsText() != null && !dto.getTagsText().isBlank()) {
+        Arrays.stream(dto.getTagsText().split(","))
+              .map(String::trim)
+              .filter(s -> !s.isEmpty())
+              .map(s -> s.startsWith("#") ? s : "#" + s)
+              .forEach(tagName -> {
+                  TripTag tag = new TripTag();
+                  tag.setTrip(trip);
+                  tag.setTagName(tagName);
+                  tripTagRepository.save(tag);
+              });
     }
+}
 
    /** 특정 여행의 기존 일정 DTO 리스트 로드 (day/time으로 정렬) */
     public List<ScheduleUpdateDto> loadSchedules(Long tripId) {
@@ -197,6 +203,30 @@ public class TripsService {
                 }
             }
         }
+    }
+
+    @Transactional
+    public String inviteMember(Long tripId, String email) {
+        // 1. 초대받을 사용자 존재 확인
+        User invitee = userRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 없습니다."));
+
+        // 2. 여행이 존재하는지 (내가 만든 여행이든, 내가 초대할 수 있는 여행이든)
+        Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 여행이 존재하지 않습니다."));
+
+        // 3. 이미 초대된 사용자라면 중복 방지
+        if (tripMemberRepository.existsByTripIdAndUserId(tripId, invitee.getId())) {
+            throw new IllegalStateException("이미 초대된 사용자입니다.");
+        }
+
+        // 4. TripMember 생성
+        TripMember tripMember = new TripMember();
+        tripMember.setTrip(trip);
+        tripMember.setUser(invitee);
+        tripMemberRepository.save(tripMember);
+
+        return invitee.getUsername(); // 프론트에 보여줄 이름
     }
 
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <title>TRIP ON - 여행 상세 후기</title>
@@ -13,12 +14,12 @@
     }
 
     body {
-            background-color: #fff;
-            font-family: 'Noto Sans KR', sans-serif;
-            padding: 20px 60px;
-            min-height: 100vh;
-            position: relative;
-        }
+      background-color: #fff;
+      font-family: 'Noto Sans KR', sans-serif;
+      padding: 20px 60px;
+      min-height: 100vh;
+      position: relative;
+    }
 
 
     /* 헤더 영역 */
@@ -57,25 +58,25 @@
 
     /* 메인 콘텐츠 */
     .container {
-        display: flex;
-        gap: 60px;
-        margin-top: 40px;
-        position: relative;
+      display: flex;
+      gap: 60px;
+      margin-top: 40px;
+      position: relative;
     }
 
     .left-info {
-        width: 370px;
-        min-width: 320px;
-        border-right: 2px solid #888;
-        padding-right: 40px;
-        box-sizing: border-box;
-        margin-left: 30px;
+      width: 370px;
+      min-width: 320px;
+      border-right: 2px solid #888;
+      padding-right: 40px;
+      box-sizing: border-box;
+      margin-left: 30px;
     }
 
     .trip-title-row {
       display: flex;
       align-items: center;
-      
+
       margin-bottom: 20px;
     }
 
@@ -111,7 +112,7 @@
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       padding: 12px 16px;
       display: none;
       flex-direction: row;
@@ -162,9 +163,14 @@
     }
 
     .tag {
-      display: inline-block; border: 1.5px solid #888; border-radius: 30px;
-      padding: 4px 16px; font-size: 16px; color: #222; 
-      background: #f5f5f5; border-color: #888; 
+      display: inline-block;
+      border: 1.5px solid #888;
+      border-radius: 30px;
+      padding: 4px 16px;
+      font-size: 16px;
+      color: #222;
+      background: #f5f5f5;
+      border-color: #888;
     }
 
     .info-link {
@@ -320,6 +326,7 @@
       cursor: pointer;
       transition: color 0.2s;
     }
+
     .edit-day-link:hover {
       color: #666;
     }
@@ -329,12 +336,14 @@
         flex-direction: column;
         gap: 40px;
       }
+
       .left-info {
         width: 100%;
         min-width: 0;
         border-right: none;
         padding-right: 0;
       }
+
       .days-row {
         gap: 20px;
       }
@@ -344,38 +353,48 @@
       body {
         padding: 20px;
       }
+
       .top-bar {
         flex-direction: column;
         gap: 10px;
       }
+
       .logo {
         font-size: 28px;
       }
+
       .container {
         gap: 30px;
       }
+
       .trip-title {
         font-size: 24px;
       }
+
       .trip-menu-box {
         font-size: 14px;
         padding: 6px 12px;
       }
+
       .info-row {
         font-size: 16px;
       }
+
       .side-btn {
         width: 100%;
         height: 40px;
         font-size: 14px;
       }
+
       .days-row {
         flex-direction: column;
         gap: 20px;
       }
+
       .day-col {
         min-width: 0;
       }
+
       .back-link {
         top: 20px;
         right: 20px;
@@ -401,20 +420,27 @@
       width: 100%;
       text-align: center;
     }
+
     .schedule-add-btn:hover {
       background: #eee;
       color: #222;
     }
+
     .invite-modal {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.08);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
     }
+
     .invite-modal-content {
       background: #ddd;
       border: 2px solid #444;
@@ -422,23 +448,26 @@
       padding: 36px 32px 24px 32px;
       min-width: 420px;
       max-width: 90vw;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
     .invite-title {
       font-size: 24px;
       text-align: center;
       margin-bottom: 36px;
       font-weight: 400;
     }
+
     .invite-form-row {
       display: flex;
       width: 100%;
       gap: 16px;
       margin-bottom: 16px;
     }
+
     .invite-input {
       flex: 1 1 0;
       border: none;
@@ -448,6 +477,7 @@
       background: #fff;
       outline: none;
     }
+
     .invite-send-btn {
       border: none;
       border-radius: 12px;
@@ -457,20 +487,25 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+
     .invite-send-btn:hover {
       background: #eee;
     }
+
     .invite-message {
       width: 100%;
       font-size: 16px;
       margin-bottom: 4px;
     }
+
     .invite-error {
       color: #c44;
     }
+
     .invite-success {
       color: #c44;
     }
+
     .invite-close-btn {
       margin-top: 24px;
       border: none;
@@ -481,9 +516,11 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+
     .invite-close-btn:hover {
       background: #eee;
     }
+
     #saveInfoBtn {
       display: none;
       margin-top: 8px;
@@ -506,13 +543,15 @@
       max-height: 500px;
       overflow-y: auto;
       background: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
+
     .review-card {
       padding: 20px 0 8px 0;
       border-bottom: 1px solid #ccc;
       position: relative;
     }
+
     .review-header {
       display: flex;
       justify-content: flex-start;
@@ -520,31 +559,37 @@
       margin-bottom: 4px;
       position: relative;
     }
+
     .review-author {
       font-size: 20px;
       font-weight: 700;
       margin-bottom: 4px;
     }
+
     .review-menu {
       text-align: right;
       color: #e74c3c;
       font-size: 16px;
       line-height: 1.2;
     }
+
     .review-menu-text {
       color: #e74c3c;
       font-size: 15px;
     }
+
     .review-content {
       font-size: 18px;
       margin-bottom: 12px;
       margin-top: 0;
     }
+
     .review-images {
       display: flex;
       gap: 10px;
       margin-bottom: 6px;
     }
+
     .review-image {
       width: 80px;
       height: 80px;
@@ -552,12 +597,14 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     .review-limit {
       color: #e74c3c;
       font-size: 13px;
       margin-left: 4px;
       align-self: flex-end;
     }
+
     .review-meta {
       display: flex;
       align-items: center;
@@ -566,10 +613,12 @@
       color: #888;
       margin-top: 6px;
     }
+
     .review-date {
       font-size: 14px;
       color: #888;
     }
+
     .review-like {
       font-size: 22px;
       color: #111;
@@ -578,15 +627,18 @@
       align-items: center;
       gap: 2px;
     }
+
     .review-like.heart {
       color: #e74c3c;
     }
+
     .review-scroll {
       color: #e74c3c;
       font-size: 13px;
       margin-top: 6px;
       text-align: right;
     }
+
     .review-input-area {
       background: #dbdbdb;
       border-radius: 18px;
@@ -601,6 +653,7 @@
       min-height: 60px;
       height: 60px;
     }
+
     .review-input {
       flex: 1;
       border: none;
@@ -611,10 +664,12 @@
       padding: 0;
       margin-left: 4px;
     }
+
     .review-input::placeholder {
       color: #888;
       font-size: 22px;
     }
+
     .review-attach {
       background: none;
       border: none;
@@ -629,6 +684,7 @@
       height: 100%;
       transition: background 0.2s;
     }
+
     .review-submit {
       background: #fff;
       border: none;
@@ -643,36 +699,44 @@
       box-shadow: none;
       transition: background 0.2s;
     }
+
     .review-submit:hover {
       background: #f2f2f2;
     }
+
     .review-file-list {
       width: 100%;
       font-size: 14px;
       color: #444;
       margin-top: 8px;
     }
+
     @media (max-width: 900px) {
       .right-content {
         max-width: 100vw;
       }
+
       .review-input-area {
         min-height: 48px;
         height: 48px;
         padding: 0 8px;
       }
+
       .review-input {
         font-size: 16px;
       }
+
       .review-input::placeholder {
         font-size: 16px;
       }
+
       .review-submit {
         font-size: 16px;
         width: 48px;
         height: 32px;
       }
     }
+
     .review-like-heart {
       position: absolute;
       right: 0;
@@ -682,8 +746,10 @@
       align-items: center;
       gap: 4px;
     }
+
     /* 후기 수정 저장/취소 버튼 스타일 */
-    .review-edit-btn2, .review-cancel-btn2 {
+    .review-edit-btn2,
+    .review-cancel-btn2 {
       border-radius: 8px;
       border: 1.5px solid #bbb;
       background: #fff;
@@ -693,9 +759,12 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .review-edit-btn2:hover, .review-cancel-btn2:hover {
+
+    .review-edit-btn2:hover,
+    .review-cancel-btn2:hover {
       background: #f2f2f2;
     }
+
     .review-edit-input {
       width: 75%;
       min-width: 300px;
@@ -706,6 +775,7 @@
       outline: none;
       margin-right: 4px;
     }
+
     /* 후기 카드의 ... 버튼 클릭 시 메뉴 토글 */
     .menu-dot.review {
       position: absolute;
@@ -718,6 +788,7 @@
       z-index: 2;
       margin: 0;
     }
+
     .review-menu-popup {
       position: absolute;
       top: 32px;
@@ -725,13 +796,14 @@
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       padding: 12px 16px;
       display: none;
       flex-direction: row;
       gap: 12px;
       z-index: 10;
     }
+
     .review-menu-btn {
       background: #f5f5f5;
       border: 1.5px solid #888;
@@ -746,11 +818,13 @@
       color: #222;
       text-align: center;
     }
+
     .review-menu-btn:hover {
       background: #e0e0e0;
       border-color: #888;
       color: #222;
     }
+
     .photo-add-btn {
       width: 80px;
       height: 80px;
@@ -765,589 +839,595 @@
       justify-content: center;
       transition: border-color 0.2s, color 0.2s;
     }
+
     .photo-add-btn:hover {
       border-color: #888;
       color: #888;
     }
   </style>
 </head>
+
 <body>
   <div class="top-bar">
-    <div class="logo">TRIP ON</div>
+    <div class="Logo">TRIP ON</div>
     <div class="logout-group">
-        <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-        <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
-        <div class="avatar-small"></div>
+      <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
+      <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
+      <div class="avatar-small"></div>
     </div>
-</div>
+  </div>
 
-<a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
-    <div class="container">
-      <div class="left-info">
-        <div class="trip-title-row">
-          <div class="trip-title" th:text="${trip.title}"></div>
-          <button class="menu-dot" id="menuDotBtn">···</button>
-          <div class="menu-popup" id="menuPopup" style="display:none;">
-            <button class="menu-btn"
-                   th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
-              편집
-            </button>
-            <button class="menu-btn"
-                    th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
-              삭제
-            </button>
-          </div>
-        </div>
-  
-        <div class="info-table">
-          <div class="info-row">
-            <div class="info-label">일정</div>
-            <div class="info-value"
-                 th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
-              2025.05.24 - 2025.05.30
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">숙소</div>
-            <div class="info-value">
-          <!-- 숙소 텍스트 -->
-          <span th:text="${trip.accommodation}">숙소 이름</span>
-          <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-          <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
-         class="info-link">
-        (지도)
-          </a>
-          </div>
-      </div>
-          <div class="info-row">
-            <div class="info-label">교통편</div>
-            <div class="info-value" th:text="${trip.transportation}"></div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">태그</div>
-            <div class="info-value tag-list">
-              <span th:each="tripTag : ${tags}"
-                    class="tag"
-                    th:text="${tripTag.tagName}">
-                #태그이름
-              </span>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">경비</div>
-            <div class="info-value">300원</div>
-            <span class="info-link">더보기</span>
-          </div>
-          <div class="info-row">
-            <div class="info-label">동행</div>
-            <div class="info-value"><span class="info-invite">초대</span></div>
-          </div>
-        </div>
-  
-        <div class="side-btns">
-          <button class="side-btn selected">계획</button>
-          <button class="side-btn">후기</button>
+  <div class="container">
+    <div class="left-info">
+      <div class="trip-title-row">
+        <div class="trip-title" th:text="${trip.title}"></div>
+        <button class="menu-dot" id="menuDotBtn">···</button>
+        <div class="menu-popup" id="menuPopup" style="display:none;">
+          <button class="menu-btn" th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
+            편집
+          </button>
+          <button class="menu-btn" th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
+            삭제
+          </button>
         </div>
       </div>
-        <div class="right-content">
-            <div class="review-list">
-              <!-- 후기 목록 -->
-              <div th:each="review : ${reviews}" class="review-card">
-                <div class="review-header" style="position:relative;">
-                  <div class="review-author" th:text="${review.userId != null and review.userId == 0 ? '비회원' : review.userId}">작성자</div>
-                  <button class="menu-dot review">&hellip;</button>
-                  <div class="review-menu-popup" style="display:none;">
-                    <button class="review-menu-btn review-edit-btn"
-                            th:if="${review.userId != null and review.userId == currentUserId}"
-                            th:onclick="'editReview(' + ${review.id} + ')'">수정</button>
-                    <button class="review-menu-btn review-delete-btn"
-                            th:if="${review.userId != null and review.userId == currentUserId}"
-                            th:onclick="'deleteReview(' + ${review.id} + ')'">삭제</button>
-                  </div>
-                </div>
-                <div class="review-content" th:if="${editReviewId != review.id}" th:text="${review.content}"></div>
-                <div th:if="${editReviewId eq review.id}">
-                  <input class="review-edit-input" type="text" th:value="${review.content}" th:id="'edit-input-' + ${review.id}" />
-                  <button class="review-edit-btn2" type="button" th:attr="onclick='saveEdit(' + ${review.id} + ')'">저장</button>
-                  <button class="review-cancel-btn2" type="button" onclick="cancelEdit()">취소</button>
-                </div>
-                <span class="review-like-heart" style="cursor:pointer;"
-                      th:onclick="'toggleLike(' + ${review.id} + ')'">
-                  <span class="review-like heart" th:classappend="${review.liked != null and review.liked ? 'liked' : ''}">♡</span>
-                  <span class="like-count" th:text="${review.likeCount}">0</span>
-                </span>
-                <div class="review-images" th:if="${reviewPhotosMap[review.id] != null}">
-                  <span th:each="photo : ${reviewPhotosMap[review.id]}">
-                    <div class="review-image-wrapper" style="position:relative; display:inline-block;">
-                      <img th:if="${photo.fileType == 'image'}" th:src="${photo.imageUrl}" class="review-image" />
-                      <video th:if="${photo.fileType == 'video'}" th:src="${photo.imageUrl}" class="review-image" controls />
-                      <button type="button"
-                              th:if="${editReviewId eq review.id}"
-                              class="photo-delete-btn"
-                              th:attr="onclick='window.deletePhoto(' + (${photo.id} != null ? ${photo.id} : (${photo.photoId} != null ? ${photo.photoId} : (${photo.pk} != null ? ${photo.pk} : 0))) + ', this)'"
-                              style="position:absolute;top:2px;right:2px;background:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:18px;z-index:2;">
-                        ×
-                      </button>
-                    </div>
-                  </span>
-                  <!-- + 버튼 (수정 모드일 때만 노출) -->
-                  <div th:if="${editReviewId eq review.id}" class="review-image-wrapper" style="position:relative; display:inline-block;">
-                    <button type="button" class="photo-add-btn" onclick="triggerFileInput(this)">+</button>
-                    <input type="file" class="review-file-input" accept="image/*,video/*" style="display:none;" onchange="addPreviewImage(this, this.files)" multiple>
-                  </div>
-                </div>
-                <div class="review-meta">
-                  <span class="review-date" th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm') : ''}">작성일</span>
-                </div>
-              </div>
-              <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="no-reviews" style="text-align:center;padding:20px;color:#666;">
-                아직 작성된 후기가 없습니다.
-              </div>
-            </div>
-            <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}" enctype="multipart/form-data">
-              <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
-              <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
-              <input type="file" class="review-file" accept="image/*,video/*" multiple name="file" style="display:none;">
-              <button type="button" class="review-attach">사진 첨부</button>
-              <button type="submit" class="review-submit">등록</button>
-            </form>
-            <div class="review-warning" style="color:#e74c3c;font-size:14px;margin-top:4px;"></div>
-            <div class="review-file-list"></div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-label">일정</div>
+          <div class="info-value"
+            th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+            2025.05.24 - 2025.05.30
+          </div>
         </div>
+        <div class="info-row">
+          <div class="info-label">숙소</div>
+          <div class="info-value">
+            <!-- 숙소 텍스트 -->
+            <span th:text="${trip.accommodation}">숙소 이름</span>
+            <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
+            <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}" class="info-link">
+              (지도)
+            </a>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">교통편</div>
+          <div class="info-value" th:text="${trip.transportation}"></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">태그</div>
+          <div class="info-value tag-list">
+            <span th:each="tripTag : ${tags}" class="tag" th:text="${tripTag.tagName}">
+              #태그이름
+            </span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">경비</div>
+          <div class="info-value">300원</div>
+          <span class="info-link">더보기</span>
+        </div>
+        <div class="info-row">
+          <div class="info-label">동행</div>
+          <div class="info-value"><span class="info-invite">초대</span></div>
+        </div>
+      </div>
+
+      <div class="side-btns">
+        <button class="side-btn selected">계획</button>
+        <button class="side-btn">후기</button>
+      </div>
     </div>
-    <script th:inline="javascript">
+    <div class="right-content">
+      <div class="review-list">
+        <!-- 후기 목록 -->
+        <div th:each="review : ${reviews}" class="review-card">
+          <div class="review-header" style="position:relative;">
+            <div class="review-author"
+              th:text="${review.userId != null and review.userId == 0 ? '비회원' : review.userId}">작성자</div>
+            <button class="menu-dot review">&hellip;</button>
+            <div class="review-menu-popup" style="display:none;">
+              <button class="review-menu-btn review-edit-btn"
+                th:if="${review.userId != null and review.userId == currentUserId}"
+                th:onclick="'editReview(' + ${review.id} + ')'">수정</button>
+              <button class="review-menu-btn review-delete-btn"
+                th:if="${review.userId != null and review.userId == currentUserId}"
+                th:onclick="'deleteReview(' + ${review.id} + ')'">삭제</button>
+            </div>
+          </div>
+          <div class="review-content" th:if="${editReviewId != review.id}" th:text="${review.content}"></div>
+          <div th:if="${editReviewId eq review.id}">
+            <input class="review-edit-input" type="text" th:value="${review.content}"
+              th:id="'edit-input-' + ${review.id}" />
+            <button class="review-edit-btn2" type="button"
+              th:attr="onclick='saveEdit(' + ${review.id} + ')'">저장</button>
+            <button class="review-cancel-btn2" type="button" onclick="cancelEdit()">취소</button>
+          </div>
+          <span class="review-like-heart" style="cursor:pointer;" th:onclick="'toggleLike(' + ${review.id} + ')'">
+            <span class="review-like heart"
+              th:classappend="${review.liked != null and review.liked ? 'liked' : ''}">♡</span>
+            <span class="like-count" th:text="${review.likeCount}">0</span>
+          </span>
+          <div class="review-images" th:if="${reviewPhotosMap[review.id] != null}">
+            <span th:each="photo : ${reviewPhotosMap[review.id]}">
+              <div class="review-image-wrapper" style="position:relative; display:inline-block;">
+                <img th:if="${photo.fileType == 'image'}" th:src="${photo.imageUrl}" class="review-image" />
+                <video th:if="${photo.fileType == 'video'}" th:src="${photo.imageUrl}" class="review-image" controls />
+                <button type="button" th:if="${editReviewId eq review.id}" class="photo-delete-btn"
+                  th:attr="onclick='window.deletePhoto(' + (${photo.id} != null ? ${photo.id} : (${photo.photoId} != null ? ${photo.photoId} : (${photo.pk} != null ? ${photo.pk} : 0))) + ', this)'"
+                  style="position:absolute;top:2px;right:2px;background:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:18px;z-index:2;">
+                  ×
+                </button>
+              </div>
+            </span>
+            <!-- + 버튼 (수정 모드일 때만 노출) -->
+            <div th:if="${editReviewId eq review.id}" class="review-image-wrapper"
+              style="position:relative; display:inline-block;">
+              <button type="button" class="photo-add-btn" onclick="triggerFileInput(this)">+</button>
+              <input type="file" class="review-file-input" accept="image/*,video/*" style="display:none;"
+                onchange="addPreviewImage(this, this.files)" multiple>
+            </div>
+          </div>
+          <div class="review-meta">
+            <span class="review-date"
+              th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm') : ''}">작성일</span>
+          </div>
+        </div>
+        <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="no-reviews"
+          style="text-align:center;padding:20px;color:#666;">
+          아직 작성된 후기가 없습니다.
+        </div>
+      </div>
+      <form class="review-input-area" method="post" th:action="@{'/trips/' + ${trip.id} + '/review'}"
+        enctype="multipart/form-data">
+        <input type="hidden" name="userId" th:value="${user != null ? user.id : 0}">
+        <input class="review-input" name="content" placeholder="후기를 입력해주세요." maxlength="140">
+        <input type="file" class="review-file" accept="image/*,video/*" multiple name="file" style="display:none;">
+        <button type="button" class="review-attach">사진 첨부</button>
+        <button type="submit" class="review-submit">등록</button>
+      </form>
+      <div class="review-warning" style="color:#e74c3c;font-size:14px;margin-top:4px;"></div>
+      <div class="review-file-list"></div>
+    </div>
+  </div>
+  <script th:inline="javascript">
     // 서버에서 userId, tripId를 JS 변수로 전달
     var currentUserId = /*[[${user != null ? user.id : 0}]]*/ 0;
     var tripId = /*[[${trip.id}]]*/ 0;
-    
-    document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('menuDotBtn').addEventListener('click', function(e) {
+
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('menuDotBtn').addEventListener('click', function (e) {
         e.stopPropagation();
         const popup = document.getElementById('menuPopup');
         popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
-    });
-    document.addEventListener('click', function() {
+      });
+      document.addEventListener('click', function () {
         document.getElementById('menuPopup').style.display = 'none';
-    });
-    document.querySelectorAll('.side-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.side-btn').forEach(function(b) {
-                b.classList.remove('selected');
-            });
-            btn.classList.add('selected');
+      });
+      document.querySelectorAll('.side-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.side-btn').forEach(function (b) {
+            b.classList.remove('selected');
+          });
+          btn.classList.add('selected');
         });
-    });
-    document.querySelector('.info-invite').addEventListener('click', function(e) {
+      });
+      document.querySelector('.info-invite').addEventListener('click', function (e) {
         e.preventDefault();
         document.getElementById('inviteModal').style.display = 'flex';
-    });
-    document.querySelector('.invite-close-btn').addEventListener('click', function() {
+      });
+      document.querySelector('.invite-close-btn').addEventListener('click', function () {
         document.getElementById('inviteModal').style.display = 'none';
-    });
-
-    // info-value 편집/저장 기능 (trip-plan.html과 100% 동일)
-    const infoTable = document.querySelector('.info-table');
-    const editBtn = document.getElementById('editInfoBtn');
-    const saveBtn = document.getElementById('saveInfoBtn');
-    let editing = false;
-
-    if (editBtn) {
-        editBtn.addEventListener('click', function() {
-            if (editing) return;
-            editing = true;
-            if (saveBtn) saveBtn.style.display = 'block';
-            // 제주도(trip-title) 편집
-            const tripTitle = document.querySelector('.trip-title');
-            if (tripTitle) {
-                const text = tripTitle.textContent.trim();
-                tripTitle.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:32px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-            }
-            infoTable.querySelectorAll('.info-row').forEach(function(row) {
-                const label = row.querySelector('.info-label')?.textContent.trim();
-                const val = row.querySelector('.info-value');
-                if (!val) return;
-                // 태그/링크/초대 등은 편집 제외 (단, 태그/숙소/경비는 편집 가능)
-                if (label === '일정') {
-                    // 일정은 시작일과 종료일로 변경
-                    const text = val.textContent.trim();
-                    const dates = text.split(' - ');
-                    const startDate = dates[0] || '';
-                    const endDate = dates[1] || '';
-                    val.innerHTML = `<input type="date" value="${startDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;"> - <input type="date" value="${endDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-                } else if (label === '태그') {
-                    // 태그는 쉼표로 구분된 텍스트로 변환
-                    const tags = Array.from(val.querySelectorAll('.tag')).map(t => t.textContent.trim().replace(/^#/, ''));
-                    val.innerHTML = `<input type="text" value="${tags.join(', ')}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-                } else if (label === '숙소') {
-                    // 숙소명만 input으로, (지도) 링크는 그대로
-                    const text = val.childNodes[0]?.textContent.trim() || '';
-                    const link = val.querySelector('.info-link');
-                    val.innerHTML = `<input type="text" value="${text}" style="width:70%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-                    if (link) val.appendChild(link);
-                } else if (label === '경비') {
-                    // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
-                    return;
-                } else if (val.classList.contains('tag-list') || val.querySelector('.info-link') || val.querySelector('.info-invite')) {
-                    // 태그/링크/초대 등은 편집 제외 (위에서 처리함)
-                    return;
-                } else {
-                    // 기본: 텍스트 input
-                    const text = val.textContent.trim();
-                    val.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
-                }
-            });
-        });
-    }
-
-    if (saveBtn) {
-        saveBtn.addEventListener('click', function() {
-            editing = false;
-            saveBtn.style.display = 'none';
-            // 제주도(trip-title) 저장
-            const tripTitle = document.querySelector('.trip-title');
-            if (tripTitle) {
-                const input = tripTitle.querySelector('input');
-                if (input) {
-                    tripTitle.textContent = input.value;
-                }
-            }
-            infoTable.querySelectorAll('.info-row').forEach(function(row) {
-                const label = row.querySelector('.info-label')?.textContent.trim();
-                const val = row.querySelector('.info-value');
-                if (!val) return;
-                const input = val.querySelector('input');
-                if (input) {
-                    if (label === '일정') {
-                        // 시작일과 종료일 저장
-                        const inputs = val.querySelectorAll('input');
-                        const startDate = inputs[0]?.value || '';
-                        const endDate = inputs[1]?.value || '';
-                        val.textContent = `${startDate} - ${endDate}`;
-                    } else if (label === '태그') {
-                        // 쉼표로 분리해서 각각 태그로 렌더링
-                        const tags = input.value.split(',').map(t => t.trim()).filter(Boolean);
-                        val.innerHTML = tags.map(tag => `<span class="tag selected">#${tag}</span>`).join(' ');
-                    } else if (label === '숙소') {
-                        // 숙소명 input + (지도) 링크
-                        const link = val.querySelector('.info-link') || row.querySelector('.info-link');
-                        val.innerHTML = input.value;
-                        if (link) val.appendChild(link);
-                    } else if (label === '경비') {
-                        // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
-                        return;
-                    } else {
-                        val.textContent = input.value;
-                    }
-                }
-            });
-        });
-    }
-
-    // 후기 등록 기능
-    function setupReviewForm() {
-      const form = document.querySelector('.review-input-area');
-      const input = form.querySelector('.review-input');
-      const warningDiv = document.querySelector('.review-warning');
-      const fileInput = form.querySelector('.review-file');
-      const fileListDiv = document.querySelector('.review-file-list');
-      
-      // 글자수 제한 경고 + 등록 버튼 비활성화
-      input.addEventListener('input', function() {
-        if (input.value.length > 140) {
-          warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
-          form.querySelector('.review-submit').disabled = true;
-        } else {
-          warningDiv.textContent = '';
-          form.querySelector('.review-submit').disabled = false;
-        }
       });
 
-      form.addEventListener('submit', function(e) {
-        const text = input.value.trim();
-        if (!text) {
-          e.preventDefault();
-          warningDiv.textContent = '후기 내용을 입력해주세요.';
-          return;
-        }
-        
-        if (text.length > 140) {
-          e.preventDefault();
-          warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
-          form.querySelector('.review-submit').disabled = true;
-          return;
-        }
-        
-        const files = window.selectedFiles || [];
-        if (files.length > 10) {
-          e.preventDefault();
-          warningDiv.textContent = '사진 첨부는 최대 10개까지 가능합니다.';
-          return;
-        }
-      });
-    }
+      // info-value 편집/저장 기능 (trip-plan.html과 100% 동일)
+      const infoTable = document.querySelector('.info-table');
+      const editBtn = document.getElementById('editInfoBtn');
+      const saveBtn = document.getElementById('saveInfoBtn');
+      let editing = false;
 
-    // 후기 수정/삭제 기능
-    window.editReview = function(reviewId) {
-      // 쿼리스트링으로 editReviewId 전달하여 새로고침
-      const url = new URL(window.location.href);
-      url.searchParams.set('editReviewId', reviewId);
-      window.location.href = url.toString();
-    };
-
-    window.saveEdit = function(reviewId) {
-      const input = document.getElementById('edit-input-' + reviewId);
-      const content = input.value.trim();
-      if (!content) {
-        alert('내용을 입력하세요.');
-        return;
-      }
-      fetch(`/trips/${tripId}/review/${reviewId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: content })
-      })
-      .then(response => {
-        if (response.ok) window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
-        else alert('수정 실패');
-      });
-    };
-
-    window.cancelEdit = function() {
-      window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
-    };
-
-    // 좋아요 토글 기능
-    window.toggleLike = function(reviewId) {
-      const heart = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .review-like`);
-      const count = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .like-count`);
-      const isLiked = heart.classList.contains('liked');
-      const method = isLiked ? 'DELETE' : 'POST';
-      const url = `/trips/${tripId}/review/${reviewId}/like`;
-
-      fetch(url, { method })
-        .then(response => {
-          if (response.ok) {
-            if (isLiked) {
-              heart.textContent = '♡';
-              heart.classList.remove('liked');
-              count.textContent = parseInt(count.textContent) - 1;
+      if (editBtn) {
+        editBtn.addEventListener('click', function () {
+          if (editing) return;
+          editing = true;
+          if (saveBtn) saveBtn.style.display = 'block';
+          // 제주도(trip-title) 편집
+          const tripTitle = document.querySelector('.trip-title');
+          if (tripTitle) {
+            const text = tripTitle.textContent.trim();
+            tripTitle.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:32px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
+          }
+          infoTable.querySelectorAll('.info-row').forEach(function (row) {
+            const label = row.querySelector('.info-label')?.textContent.trim();
+            const val = row.querySelector('.info-value');
+            if (!val) return;
+            // 태그/링크/초대 등은 편집 제외 (단, 태그/숙소/경비는 편집 가능)
+            if (label === '일정') {
+              // 일정은 시작일과 종료일로 변경
+              const text = val.textContent.trim();
+              const dates = text.split(' - ');
+              const startDate = dates[0] || '';
+              const endDate = dates[1] || '';
+              val.innerHTML = `<input type="date" value="${startDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;"> - <input type="date" value="${endDate}" style="width:45%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
+            } else if (label === '태그') {
+              // 태그는 쉼표로 구분된 텍스트로 변환
+              const tags = Array.from(val.querySelectorAll('.tag')).map(t => t.textContent.trim().replace(/^#/, ''));
+              val.innerHTML = `<input type="text" value="${tags.join(', ')}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
+            } else if (label === '숙소') {
+              // 숙소명만 input으로, (지도) 링크는 그대로
+              const text = val.childNodes[0]?.textContent.trim() || '';
+              const link = val.querySelector('.info-link');
+              val.innerHTML = `<input type="text" value="${text}" style="width:70%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
+              if (link) val.appendChild(link);
+            } else if (label === '경비') {
+              // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
+              return;
+            } else if (val.classList.contains('tag-list') || val.querySelector('.info-link') || val.querySelector('.info-invite')) {
+              // 태그/링크/초대 등은 편집 제외 (위에서 처리함)
+              return;
             } else {
-              heart.textContent = '♥';
-              heart.classList.add('liked');
-              count.textContent = parseInt(count.textContent) + 1;
+              // 기본: 텍스트 input
+              const text = val.textContent.trim();
+              val.innerHTML = `<input type="text" value="${text}" style="width:100%;font-size:16px;padding:6px 8px;border-radius:6px;border:1px solid #bbb;">`;
+            }
+          });
+        });
+      }
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+          editing = false;
+          saveBtn.style.display = 'none';
+          // 제주도(trip-title) 저장
+          const tripTitle = document.querySelector('.trip-title');
+          if (tripTitle) {
+            const input = tripTitle.querySelector('input');
+            if (input) {
+              tripTitle.textContent = input.value;
             }
           }
-        });
-    };
-
-    // 후기 카드의 ... 버튼 클릭 시 메뉴 토글
-    document.querySelectorAll('.menu-dot.review').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            // 모든 메뉴 닫기
-            document.querySelectorAll('.review-menu-popup').forEach(function(popup) {
-                popup.style.display = 'none';
-            });
-            // 현재 카드의 메뉴만 열기
-            const popup = btn.nextElementSibling;
-            if (popup) {
-                popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+          infoTable.querySelectorAll('.info-row').forEach(function (row) {
+            const label = row.querySelector('.info-label')?.textContent.trim();
+            const val = row.querySelector('.info-value');
+            if (!val) return;
+            const input = val.querySelector('input');
+            if (input) {
+              if (label === '일정') {
+                // 시작일과 종료일 저장
+                const inputs = val.querySelectorAll('input');
+                const startDate = inputs[0]?.value || '';
+                const endDate = inputs[1]?.value || '';
+                val.textContent = `${startDate} - ${endDate}`;
+              } else if (label === '태그') {
+                // 쉼표로 분리해서 각각 태그로 렌더링
+                const tags = input.value.split(',').map(t => t.trim()).filter(Boolean);
+                val.innerHTML = tags.map(tag => `<span class="tag selected">#${tag}</span>`).join(' ');
+              } else if (label === '숙소') {
+                // 숙소명 input + (지도) 링크
+                const link = val.querySelector('.info-link') || row.querySelector('.info-link');
+                val.innerHTML = input.value;
+                if (link) val.appendChild(link);
+              } else if (label === '경비') {
+                // 경비는 편집 불가: 아무것도 하지 않음 (input으로 바꾸지 않음)
+                return;
+              } else {
+                val.textContent = input.value;
+              }
             }
-        });
-    });
-    // 바깥 클릭 시 메뉴 닫기
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.review-menu-popup').forEach(function(popup) {
-            popup.style.display = 'none';
-        });
-    });
-
-    window.deleteReview = function(reviewId) {
-      if (confirm('정말 삭제하시겠습니까?')) {
-        fetch(`/trips/${tripId}/review/${reviewId}`, {
-          method: 'DELETE'
-        })
-        .then(response => {
-          if (response.ok) window.location.href = window.location.pathname;
-          else alert('삭제 실패');
+          });
         });
       }
-    };
 
-    // 사진 첨부 기능 및 파일 미리보기/삭제
-    const form = document.querySelector('.review-input-area');
-    const fileInput = form.querySelector('.review-file');
-    const fileListDiv = document.querySelector('.review-file-list');
-    let selectedFiles = [];
+      // 후기 등록 기능
+      function setupReviewForm() {
+        const form = document.querySelector('.review-input-area');
+        const input = form.querySelector('.review-input');
+        const warningDiv = document.querySelector('.review-warning');
+        const fileInput = form.querySelector('.review-file');
+        const fileListDiv = document.querySelector('.review-file-list');
 
-    // 파일 첨부 버튼 클릭
-    document.querySelector('.review-attach').addEventListener('click', function() {
+        // 글자수 제한 경고 + 등록 버튼 비활성화
+        input.addEventListener('input', function () {
+          if (input.value.length > 140) {
+            warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
+            form.querySelector('.review-submit').disabled = true;
+          } else {
+            warningDiv.textContent = '';
+            form.querySelector('.review-submit').disabled = false;
+          }
+        });
+
+        form.addEventListener('submit', function (e) {
+          const text = input.value.trim();
+          if (!text) {
+            e.preventDefault();
+            warningDiv.textContent = '후기 내용을 입력해주세요.';
+            return;
+          }
+
+          if (text.length > 140) {
+            e.preventDefault();
+            warningDiv.textContent = '글자수 제한 140자를 초과했습니다.';
+            form.querySelector('.review-submit').disabled = true;
+            return;
+          }
+
+          const files = window.selectedFiles || [];
+          if (files.length > 10) {
+            e.preventDefault();
+            warningDiv.textContent = '사진 첨부는 최대 10개까지 가능합니다.';
+            return;
+          }
+        });
+      }
+
+      // 후기 수정/삭제 기능
+      window.editReview = function (reviewId) {
+        // 쿼리스트링으로 editReviewId 전달하여 새로고침
+        const url = new URL(window.location.href);
+        url.searchParams.set('editReviewId', reviewId);
+        window.location.href = url.toString();
+      };
+
+      window.saveEdit = function (reviewId) {
+        const input = document.getElementById('edit-input-' + reviewId);
+        const content = input.value.trim();
+        if (!content) {
+          alert('내용을 입력하세요.');
+          return;
+        }
+        fetch(`/trips/${tripId}/review/${reviewId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: content })
+        })
+          .then(response => {
+            if (response.ok) window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
+            else alert('수정 실패');
+          });
+      };
+
+      window.cancelEdit = function () {
+        window.location.href = window.location.pathname; // 쿼리스트링 없이 새로고침
+      };
+
+      // 좋아요 토글 기능
+      window.toggleLike = function (reviewId) {
+        const heart = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .review-like`);
+        const count = document.querySelector(`.review-like-heart[onclick="toggleLike(${reviewId})"] .like-count`);
+        const isLiked = heart.classList.contains('liked');
+        const method = isLiked ? 'DELETE' : 'POST';
+        const url = `/trips/${tripId}/review/${reviewId}/like`;
+
+        fetch(url, { method })
+          .then(response => {
+            if (response.ok) {
+              if (isLiked) {
+                heart.textContent = '♡';
+                heart.classList.remove('liked');
+                count.textContent = parseInt(count.textContent) - 1;
+              } else {
+                heart.textContent = '♥';
+                heart.classList.add('liked');
+                count.textContent = parseInt(count.textContent) + 1;
+              }
+            }
+          });
+      };
+
+      // 후기 카드의 ... 버튼 클릭 시 메뉴 토글
+      document.querySelectorAll('.menu-dot.review').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          // 모든 메뉴 닫기
+          document.querySelectorAll('.review-menu-popup').forEach(function (popup) {
+            popup.style.display = 'none';
+          });
+          // 현재 카드의 메뉴만 열기
+          const popup = btn.nextElementSibling;
+          if (popup) {
+            popup.style.display = (popup.style.display === 'none' || popup.style.display === '') ? 'flex' : 'none';
+          }
+        });
+      });
+      // 바깥 클릭 시 메뉴 닫기
+      document.addEventListener('click', function () {
+        document.querySelectorAll('.review-menu-popup').forEach(function (popup) {
+          popup.style.display = 'none';
+        });
+      });
+
+      window.deleteReview = function (reviewId) {
+        if (confirm('정말 삭제하시겠습니까?')) {
+          fetch(`/trips/${tripId}/review/${reviewId}`, {
+            method: 'DELETE'
+          })
+            .then(response => {
+              if (response.ok) window.location.href = window.location.pathname;
+              else alert('삭제 실패');
+            });
+        }
+      };
+
+      // 사진 첨부 기능 및 파일 미리보기/삭제
+      const form = document.querySelector('.review-input-area');
+      const fileInput = form.querySelector('.review-file');
+      const fileListDiv = document.querySelector('.review-file-list');
+      let selectedFiles = [];
+
+      // 파일 첨부 버튼 클릭
+      document.querySelector('.review-attach').addEventListener('click', function () {
         fileInput.click();
-    });
+      });
 
-    // 파일 선택 시
-    fileInput.addEventListener('change', function(e) {
+      // 파일 선택 시
+      fileInput.addEventListener('change', function (e) {
         selectedFiles = Array.from(e.target.files); // 중복 방지: 새로 선택한 파일로 덮어씀
         renderFileList();
         updateFileInput();
-    });
+      });
 
-    // 파일 목록 렌더링
-    function renderFileList() {
+      // 파일 목록 렌더링
+      function renderFileList() {
         fileListDiv.innerHTML = '';
         selectedFiles.forEach((file, idx) => {
-            const fileDiv = document.createElement('span');
-            fileDiv.style.display = 'inline-block';
-            fileDiv.style.marginRight = '8px';
-            fileDiv.style.background = '#f5f5f5';
-            fileDiv.style.borderRadius = '12px';
-            fileDiv.style.padding = '4px 10px';
-            fileDiv.style.fontSize = '16px';
-            fileDiv.style.marginTop = '8px';
-            fileDiv.textContent = file.name + ' ';
-            const removeBtn = document.createElement('span');
-            removeBtn.textContent = '✕';
-            removeBtn.style.cursor = 'pointer';
-            removeBtn.style.marginLeft = '4px';
-            removeBtn.onclick = function() {
-                selectedFiles.splice(idx, 1);
-                updateFileInput();
-                renderFileList();
-            };
-            fileDiv.appendChild(removeBtn);
-            fileListDiv.appendChild(fileDiv);
+          const fileDiv = document.createElement('span');
+          fileDiv.style.display = 'inline-block';
+          fileDiv.style.marginRight = '8px';
+          fileDiv.style.background = '#f5f5f5';
+          fileDiv.style.borderRadius = '12px';
+          fileDiv.style.padding = '4px 10px';
+          fileDiv.style.fontSize = '16px';
+          fileDiv.style.marginTop = '8px';
+          fileDiv.textContent = file.name + ' ';
+          const removeBtn = document.createElement('span');
+          removeBtn.textContent = '✕';
+          removeBtn.style.cursor = 'pointer';
+          removeBtn.style.marginLeft = '4px';
+          removeBtn.onclick = function () {
+            selectedFiles.splice(idx, 1);
+            updateFileInput();
+            renderFileList();
+          };
+          fileDiv.appendChild(removeBtn);
+          fileListDiv.appendChild(fileDiv);
         });
-    }
+      }
 
-    // 파일 input 업데이트
-    function updateFileInput() {
+      // 파일 input 업데이트
+      function updateFileInput() {
         const dataTransfer = new DataTransfer();
         selectedFiles.forEach(file => dataTransfer.items.add(file));
         fileInput.files = dataTransfer.files;
-    }
+      }
 
-    // 폼 제출
-    form.addEventListener('submit', function(e) {
+      // 폼 제출
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
 
         // 중복 제출 방지
         if (form.classList.contains('submitting')) return;
         form.classList.add('submitting');
-        
+
         const content = form.querySelector('.review-input').value.trim();
         if (!content) {
-            alert('후기 내용을 입력해주세요.');
-            form.classList.remove('submitting');
-            return;
+          alert('후기 내용을 입력해주세요.');
+          form.classList.remove('submitting');
+          return;
         }
-        
+
         if (content.length > 140) {
-            alert('글자수 제한 140자를 초과했습니다.');
-            form.classList.remove('submitting');
-            return;
+          alert('글자수 제한 140자를 초과했습니다.');
+          form.classList.remove('submitting');
+          return;
         }
-        
+
         if (selectedFiles.length > 10) {
-            alert('사진 첨부는 최대 10개까지 가능합니다.');
-            form.classList.remove('submitting');
-            return;
+          alert('사진 첨부는 최대 10개까지 가능합니다.');
+          form.classList.remove('submitting');
+          return;
         }
 
         // FormData 생성
         const formData = new FormData(form);
-        
+
         // 파일 추가
         selectedFiles.forEach(file => {
-            formData.append('file', file);
+          formData.append('file', file);
         });
 
         // fetch로 전송
         fetch(form.action, {
-            method: 'POST',
-            body: formData
+          method: 'POST',
+          body: formData
         })
-        .then(response => {
+          .then(response => {
             form.classList.remove('submitting');
             if (response.ok) {
-                window.location.reload();
+              window.location.reload();
             } else {
-                throw new Error('저장 실패');
+              throw new Error('저장 실패');
             }
-        })
-        .catch(error => {
+          })
+          .catch(error => {
             form.classList.remove('submitting');
             alert('저장 중 오류가 발생했습니다: ' + error.message);
-        });
-    });
+          });
+      });
 
-    // + 버튼으로 파일 추가
-    window.triggerFileInput = function(btn) {
+      // + 버튼으로 파일 추가
+      window.triggerFileInput = function (btn) {
         btn.nextElementSibling.click();
-    }
+      }
 
-    window.addPreviewImage = function(input, files) {
+      window.addPreviewImage = function (input, files) {
         const container = input.parentElement.parentElement;
         // 중복 방지: 새로 선택한 파일로 덮어씀
         selectedFiles = Array.from(files);
         renderFileList();
         updateFileInput();
         Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const div = document.createElement('div');
-                div.className = 'review-image-wrapper';
-                div.style.position = 'relative';
-                div.style.display = 'inline-block';
-                const img = document.createElement('img');
-                img.className = 'review-image';
-                img.src = e.target.result;
-                div.appendChild(img);
-                container.insertBefore(div, input.parentElement);
-            };
-            reader.readAsDataURL(file);
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const div = document.createElement('div');
+            div.className = 'review-image-wrapper';
+            div.style.position = 'relative';
+            div.style.display = 'inline-block';
+            const img = document.createElement('img');
+            img.className = 'review-image';
+            img.src = e.target.result;
+            div.appendChild(img);
+            container.insertBefore(div, input.parentElement);
+          };
+          reader.readAsDataURL(file);
         });
-    }
-
-    // 후기 이미지 클릭 시 모달로 크게 보기
-    document.querySelectorAll('.review-image').forEach(function(img) {
-      img.addEventListener('click', function() {
-        var modal = document.getElementById('photoModal');
-        var modalImg = document.getElementById('modalImage');
-        modalImg.src = img.src;
-        modal.style.display = 'flex';
-      });
-    });
-    // 모달 바깥 클릭 시 닫기
-    document.getElementById('photoModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        this.style.display = 'none';
-        document.getElementById('modalImage').src = '';
       }
-    });
 
-    setupReviewForm();
-    });
-    </script>
+      // 후기 이미지 클릭 시 모달로 크게 보기
+      document.querySelectorAll('.review-image').forEach(function (img) {
+        img.addEventListener('click', function () {
+          var modal = document.getElementById('photoModal');
+          var modalImg = document.getElementById('modalImage');
+          modalImg.src = img.src;
+          modal.style.display = 'flex';
+        });
+      });
+      // 모달 바깥 클릭 시 닫기
+      document.getElementById('photoModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+          this.style.display = 'none';
+          document.getElementById('modalImage').src = '';
+        }
+      });
 
-<!-- 초대 모달 추가 -->
-<div id="inviteModal" class="invite-modal" style="display:none;">
-  <div class="invite-modal-content">
-    <div class="invite-title">초대할 사용자의 이메일을 입력해주세요</div>
-    <div class="invite-form-row">
-      <input type="email" class="invite-input" placeholder="" />
-      <button class="invite-send-btn">전송</button>
+      setupReviewForm();
+    });
+  </script>
+
+  <!-- 초대 모달 추가 -->
+  <div id="inviteModal" class="invite-modal" style="display:none;">
+    <div class="invite-modal-content">
+      <div class="invite-title">초대할 사용자의 이메일을 입력해주세요</div>
+      <div class="invite-form-row">
+        <input type="email" class="invite-input" placeholder="" />
+        <button class="invite-send-btn">전송</button>
+      </div>
+      <div class="invite-message invite-error">*에러메시지 (가입된 회원의 이메일인지 확인)</div>
+      <div class="invite-message invite-success">전송 완료 메시지</div>
+      <button class="invite-close-btn">닫기</button>
     </div>
-    <div class="invite-message invite-error">*에러메시지 (가입된 회원의 이메일인지 확인)</div>
-    <div class="invite-message invite-success">전송 완료 메시지</div>
-    <button class="invite-close-btn">닫기</button>
   </div>
-</div>
 
-<!-- 이미지 확대 모달 -->
-<div id="photoModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
-  <img id="modalImage" src="" style="max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.2);" />
-</div>
+  <!-- 이미지 확대 모달 -->
+  <div id="photoModal"
+    style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center;">
+    <img id="modalImage" src=""
+      style="max-width:90vw; max-height:90vh; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.2);" />
+  </div>
 
 </body>
+
 </html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>숙소 검색 팝업</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    #container {
+      display: flex;
+      height: 100%;
+    }
+    /* 왼쪽: 검색창 + 결과 리스트 */
+    #search-pane {
+      flex: 0 0 30%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+      overflow: hidden;
+    }
+    #searchBox {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+      width: calc(100% - 20px);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #resultList {
+      flex: 1;
+      margin: 0 10px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fafafa;
+      overflow-y: auto;
+    }
+    .result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
+    }
+    .result-item:last-child {
+      border-bottom: none;
+    }
+    .result-item:hover {
+      cursor: pointer;
+      background: #f0f0f0;
+    }
+    .place-text {
+      flex: 1;
+      font-size: 14px;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-right: 8px;
+    }
+    .select-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #388e3c;
+      color: #fff;
+      cursor: pointer;
+    }
+    .select-btn:hover {
+      background: #2e7d32;
+    }
+    /* 오른쪽: 지도 */
+    #map {
+      flex: 1;
+    }
+    /* InfoWindow 텍스트 스타일 */
+    .info-window strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .info-window div {
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="search-pane">
+      <input id="searchBox" type="text" placeholder="숙소(장소) 검색..." autocomplete="off" />
+      <div id="resultList"></div>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <!-- Google Maps JS API (Places 라이브러리 포함) -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEy6nlvaa8tF6QlhdMvwiI1AW_rIBLT38&libraries=places&language=ko"
+    async defer>
+  </script>
+
+  <script>
+    let map, autocompleteService, placesService;
+    let highlightInfoWindow;
+
+    const searchInput = document.getElementById('searchBox');
+    const resultListDiv = document.getElementById('resultList');
+
+    window.onload = () => {
+      // 지도 초기화
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 37.5665, lng: 126.9780 },
+        zoom: 13,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false
+      });
+
+      // 서비스 초기화
+      autocompleteService = new google.maps.places.AutocompleteService();
+      placesService       = new google.maps.places.PlacesService(map);
+      highlightInfoWindow = new google.maps.InfoWindow();
+
+      // 맵 빈 곳 클릭 시 InfoWindow 닫기
+      map.addListener('click', () => highlightInfoWindow.close());
+
+      initAutocompleteListener();
+    };
+
+    function initAutocompleteListener() {
+      let debounceTimer;
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        clearTimeout(debounceTimer);
+        if (!query) {
+          clearResults();
+          return;
+        }
+        debounceTimer = setTimeout(() => {
+          autocompleteService.getPlacePredictions({ input: query }, onPredictions);
+        }, 300);
+      });
+    }
+
+    function onPredictions(predictions, status) {
+      if (status === google.maps.places.PlacesServiceStatus.OK && Array.isArray(predictions)) {
+        renderPredictions(predictions);
+      } else {
+        clearResults();
+      }
+    }
+
+    function renderPredictions(predictions) {
+      clearResults();
+      predictions.forEach(prediction => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('result-item');
+        itemDiv.addEventListener('click', () => panToPlace(prediction.place_id));
+
+        const textDiv = document.createElement('div');
+        textDiv.classList.add('place-text');
+        textDiv.textContent = prediction.description;
+
+        const selectBtn = document.createElement('button');
+        selectBtn.classList.add('select-btn');
+        selectBtn.textContent = '선택';
+        selectBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          selectPlaceAndClose(prediction.place_id, prediction.description);
+        });
+
+        itemDiv.append(textDiv, selectBtn);
+        resultListDiv.appendChild(itemDiv);
+      });
+    }
+
+    function clearResults() {
+      resultListDiv.innerHTML = '';
+    }
+
+    function panToPlace(placeId) {
+      placesService.getDetails({
+        placeId: placeId,
+        fields: [
+          'geometry',
+          'name',
+          'formatted_address',
+          'formatted_phone_number',
+          'website'
+        ]
+      }, (place, status) => {
+        if (status !== google.maps.places.PlacesServiceStatus.OK ||
+            !place.geometry?.location) return;
+
+        // 지도 이동
+        map.panTo(place.geometry.location);
+        map.setZoom(15);
+
+        // InfoWindow 내용 구성
+        const content = document.createElement('div');
+        content.className = 'info-window';
+
+        // 장소명
+        const nameEl = document.createElement('strong');
+        nameEl.textContent = place.name;
+        content.appendChild(nameEl);
+
+        // 주소
+        if (place.formatted_address) {
+          const addr = document.createElement('div');
+          addr.textContent = place.formatted_address;
+          content.appendChild(addr);
+        }
+
+        // 전화번호
+        if (place.formatted_phone_number) {
+          const ph = document.createElement('div');
+          ph.textContent = place.formatted_phone_number;
+          content.appendChild(ph);
+        }
+
+        // 웹사이트
+        if (place.website) {
+          const site = document.createElement('div');
+          const a = document.createElement('a');
+          a.href = place.website;
+          a.textContent = '웹사이트';
+          a.target = '_blank';
+          site.appendChild(a);
+          content.appendChild(site);
+        }
+
+        // InfoWindow 열기
+        highlightInfoWindow.setContent(content);
+        highlightInfoWindow.setPosition(place.geometry.location);
+        highlightInfoWindow.open(map);
+      });
+    }
+
+    function selectPlaceAndClose(placeId, description) {
+      placesService.getDetails({
+        placeId: placeId,
+        fields: ['name', 'formatted_address']
+      }, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place) {
+          const placeName = place.name || description;
+          const mapsUrl   = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+          try {
+            window.opener.receivePlaceFromPopup(placeName, mapsUrl);
+          } catch (e) {
+            console.error('부모 창 호출 실패', e);
+          }
+          window.close();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

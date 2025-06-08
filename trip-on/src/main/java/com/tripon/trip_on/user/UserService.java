@@ -8,12 +8,15 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.tripon.trip_on.aws.S3Service;
 import com.tripon.trip_on.trips.TripRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +26,8 @@ import java.util.UUID;
 public class UserService {
     
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final S3Service s3Service;
+
 
     @Autowired
     private UserRepository userRepository;
@@ -151,5 +156,83 @@ public class UserService {
     // 회원 탈퇴
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    //  /**
+    //  * 사용자가 업로드한 프로필 이미지를 S3에 저장하고, 해당 URL을 User 엔티티에 반영한 뒤 저장한다.
+    //  * @param userId  프로필을 변경할 사용자 ID
+    //  * @param file    업로드된 MultipartFile (이미지)
+    //  * @return 변경된 User 객체(Optional). userId가 없거나 예외 발생 시 Optional.empty() 반환.
+    //  */
+    // public Optional<User> updateProfileImage(Long userId, MultipartFile file) {
+    //     Optional<User> userOpt = userRepository.findById(userId);
+    //     if (userOpt.isEmpty()) {
+    //         return Optional.empty();
+    //     }
+
+    //     User user = userOpt.get();
+    //     try {
+    //         // S3에 업로드 (디렉토리: "profiles")
+    //         String imageUrl = s3Service.uploadFile(file, "profiles");
+            
+    //         // 만약 기존에 기본 이미지가 아닌 커스텀 이미지가 있었고, 삭제하고 싶다면:
+    //         // String oldImageKey = extractKeyFromUrl(user.getProfileImage());
+    //         // s3Service.deleteFile(oldImageKey);
+
+    //         user.setProfileImage(imageUrl);
+    //         userRepository.save(user);
+    //         return Optional.of(user);
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         return Optional.empty();
+    //     }
+    // }
+
+    // // (선택) URL에서 S3 키를 추출하는 유틸 메서드. 
+    // // S3 URL 형식이 "https://bucket-name.s3.region.amazonaws.com/key" 일 때 key 부분만 뽑는다.
+    // private String extractKeyFromUrl(String url) {
+    //     // 예: https://my-bucket.s3.ap-northeast-2.amazonaws.com/profiles/uuid.png
+    //     // -> "profiles/uuid.png" 만 추출
+    //     if (url == null) return "";
+    //     int idx = url.indexOf(".amazonaws.com/");
+    //     if (idx < 0) return "";
+    //     return url.substring(idx + ".amazonaws.com/".length());
+    // }
+
+    //     public Optional<User> updateProfileImage(Long userId, MultipartFile file) throws IOException {
+    //     Optional<User> userOpt = userRepository.findById(userId);
+    //     if (userOpt.isEmpty()) {
+    //         return Optional.empty();
+    //     }
+
+    //     User user = userOpt.get();
+
+    //     // S3Service를 호출해서 업로드하고, 퍼블릭 URL을 받아온다.
+    //     String imageUrl = s3Service.uploadFile(file, "profiles");
+    //     user.setProfileImage(imageUrl);
+    //     userRepository.save(user);
+    //     return Optional.of(user);
+    // }
+
+        @Transactional
+    public Optional<User> updateProfileImage(Long userId, MultipartFile file) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = userOpt.get();
+        try {
+            // S3에 업로드
+            String imageUrl = s3Service.uploadFile(file, "profiles");
+            user.setProfileImage(imageUrl);
+            userRepository.save(user);
+            return Optional.of(user);
+
+        } catch (Exception e) {
+            // 예외가 발생했을 때 반드시 로그를 남깁니다.
+            logger.error("[UserService.updateProfileImage] 예외 발생", e);
+            return Optional.empty();
+        }
     }
 }

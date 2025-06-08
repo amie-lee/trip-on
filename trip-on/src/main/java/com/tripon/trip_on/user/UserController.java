@@ -1,35 +1,55 @@
 package com.tripon.trip_on.user;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/user")
+// @RequestMapping("/user")
 @RequiredArgsConstructor
 
 public class UserController {
 
+
     @Autowired
     private UserService userService;
 
+    @GetMapping({"/", "/user/"})
+    public String showStartPage(HttpSession session) {
+    Long userId = (Long) session.getAttribute("userId");
+
+    if (userId != null) {
+        // 로그인 된 사용자면 여행 여부에 따라 리다이렉트
+        boolean hasTrip = userService.hasTrips(userId);
+        return hasTrip
+            ? "redirect:/trips/main-past"
+            : "redirect:/trips/main";
+    }
+
+    // 로그인 안 된 사용자면 시작 페이지 보여줌
+    return "auth/home";
+}
+
     // 회원가입 폼
-    @GetMapping("/signup")
+    @GetMapping("/user/signup")
     public String signupForm(Model model) {
+            // model.addAttribute("signupForm", new User());  // 헤더/이름 바꿈
         model.addAttribute("user", new User());
         model.addAttribute("error", null);
         return "auth/signup";
     }
 
     // 회원가입 처리 (유효성 검사 포함)
-    @PostMapping("/signup")
+    @PostMapping("/user/signup")
     public String signup(@ModelAttribute User user,
                      @RequestParam("confirmPassword") String confirmPassword,
                      Model model) {
@@ -68,7 +88,7 @@ public class UserController {
 
 
     // 로그인 폼 
-    @GetMapping("/login")
+    @GetMapping("/user/login")
     public String loginForm(HttpSession session) {
         // 이미 로그인 되어 있으면 마이페이지로
         if (session.getAttribute("userId") != null) {
@@ -78,7 +98,7 @@ public class UserController {
     }
 
     // if 문으로 메인페이지(등록된 여행 있음, 없음) 가는 용 로그인 처리 코드 / userId 저장
-    @PostMapping("/login")
+    @PostMapping("/user/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
                         HttpSession session,
@@ -100,20 +120,21 @@ public class UserController {
     }
 
     // 로그아웃
-    @GetMapping("/logout")
+    @GetMapping("/user/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/user/login";
+        // return "redirect:/auth/home";
+        return "redirect:/";
     }
 
  // 1) 비밀번호 재설정 요청 폼
-  @GetMapping("/find-password")
+  @GetMapping("/user/find-password")
   public String showForgotPasswordForm() {
     return "auth/find-password";
   }
 
   // 2) 이메일로 재설정 링크 발송
-  @PostMapping("/find-password")
+  @PostMapping("/user/find-password")
   public String processForgotPassword(
       @RequestParam String email,
       HttpServletRequest request,
@@ -129,7 +150,7 @@ public class UserController {
   }
 
   // 3) 링크 클릭 → 새 비밀번호 폼
-  @GetMapping("/reset-password")
+  @GetMapping("/user/reset-password")
   public String showResetPasswordForm(
       @RequestParam String token,
       Model model) {
@@ -143,7 +164,7 @@ public class UserController {
   }
 
   // 4) 비밀번호 변경 처리
-  @PostMapping("/reset-password")
+  @PostMapping("/user/reset-password")
   public String processResetPassword(
       @RequestParam String token,
       @RequestParam String newPassword,
@@ -164,50 +185,72 @@ public class UserController {
   }
 
 
-    // // 마이페이지
-    // @GetMapping("/mypage")
-    // public String myPage(HttpSession session, Model model) {
-    //     Long userId = (Long) session.getAttribute("userId");
-
-    //     // 로그인 안 된 사용자 처리
-    //     if (userId == null) {
-    //         return "redirect:/user/login"; 
-    //     }
-        
-    //     Optional<User> userOpt = userService.getUserById(userId);
-
-    //     if (userOpt.isPresent()) {
-    //         model.addAttribute("user", userOpt.get());
-    //         return "users/mypage";
-    //     }
-    //     return "redirect:/user/login";
-    // }
-        // 1) 마이페이지
-    @GetMapping("/mypage")
+    // ──────────────────────────────────────
+    // 마이페이지 GET
+    // ──────────────────────────────────────
+    @GetMapping("/user/mypage")
     public String myPage(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
+
         Optional<User> opt = userService.getUserById(userId);
         if (opt.isEmpty()) {
             session.invalidate();
             return "redirect:/user/login";
         }
+
         model.addAttribute("user", opt.get());
-        // 아래 뷰 경로와 정확히 일치해야 함
         return "users/mypage";
     }
 
+    @PostMapping("/user/mypage")
+    public String updateProfileImage(
+        @RequestParam("imageFile") MultipartFile imageFile,
+        HttpSession session,
+        Model model) {
 
-    // // 비밀번호 변경 폼 (GET)
-    // @GetMapping("/mypage/password")
-    // public String changePasswordForm() {
-    //     return "change-password";
-    // }
+    Long userId = (Long) session.getAttribute("userId");
+    if (userId == null) {
+        return "redirect:/user/login";
+    }
 
+    // 1) 파일 유효성 검사
+    if (imageFile == null || imageFile.isEmpty() ||
+        !imageFile.getContentType().startsWith("image/")) {
+        Optional<User> optUser = userService.getUserById(userId);
+        optUser.ifPresent(u -> model.addAttribute("user", u));
+        model.addAttribute("imageError", "유효한 이미지 파일을 선택해 주세요.");
+        return "users/mypage";
+    }
+
+    // 2) S3 업로드 & DB 저장
+    try {
+        Optional<User> updatedOpt = userService.updateProfileImage(userId, imageFile);
+        if (updatedOpt.isEmpty()) {
+            // updateProfileImage 내부에서 로그를 남겼을 테니, 여기서는 간단히 사용자 메시지
+            Optional<User> optUser = userService.getUserById(userId);
+            optUser.ifPresent(u -> model.addAttribute("user", u));
+            model.addAttribute("imageError", "이미지 업로드 중 오류가 발생했습니다. 콘솔을 확인하세요.");
+            return "users/mypage";
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        Optional<User> optUser = userService.getUserById(userId);
+        optUser.ifPresent(u -> model.addAttribute("user", u));
+        model.addAttribute("imageError", "서버 오류가 발생했습니다. 콘솔을 확인하세요.");
+        return "users/mypage";
+    }
+
+    // 3) 업로드 성공 시 다시 GET /user/mypage 로 리다이렉트
+    return "redirect:/user/mypage";
+}
+
+
+    
     // 비밀번호 변경 폼 (GET)
-    @GetMapping("/mypage/password")
+    @GetMapping("/user/mypage/password")
     public String changePasswordForm(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
 
@@ -216,11 +259,19 @@ public class UserController {
             return "redirect:/user/login";
         }
 
+        // header 위해 user 추가
+        Optional<User> opt = userService.getUserById(userId);
+        if (opt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", opt.get());
+
         return "users/change-password";
     }
 
     // 비밀번호 변경 처리 (POST)
-    @PostMapping("/mypage/password")
+    @PostMapping("/user/mypage/password")
     public String changePassword(@RequestParam String currentPassword,
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
@@ -271,46 +322,27 @@ public class UserController {
         return "users/change-password";
     }
 
-
-    // // 탈퇴 폼 보여주기기
-    // @GetMapping("/mypage/delete")
-    // public String showDeleteForm(HttpSession session) {
-    //     if (session.getAttribute("userId") == null) {
-    //         return "redirect:/user/login";
-    //     }
-    //     return "users/delete";  
-    // }    
-
-    // // 회원 탈퇴 처리
-    // @PostMapping("/mypage/delete")
-    // public String deleteAccount(HttpSession session) {
-    //     Long userId = (Long) session.getAttribute("userId");
-    //     userService.deleteUser(userId);
-    //     session.invalidate();
-    //     return "redirect:/user/login";
-    // }
-        // 4) 실제 탈퇴 처리
-    // @PostMapping("/mypage/delete")
-    // public String deleteAccount(HttpSession session) {
-    //     Long userId = (Long) session.getAttribute("userId");
-    //     if (userId != null) {
-    //         userService.deleteUser(userId);
-    //         session.invalidate();
-    //     }
-    //     return "redirect:/user/login";
-    // }
-
         // 1) 회원 탈퇴 폼 보여주기 (GET /user/mypage/delete)
-        @GetMapping("/mypage/delete")
-    public String showDeleteForm(HttpSession session) {
-        if (session.getAttribute("userId") == null) {
+    @GetMapping("/user/mypage/delete")
+    public String showDeleteForm(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
             return "redirect:/user/login";
         }
-        return "users/delete";  // → /templates/users/delete.html
+
+        // 헤더에서 쓰기 위해 user 추가
+        Optional<User> opt = userService.getUserById(userId);
+        if (opt.isEmpty()) {
+            session.invalidate();
+            return "redirect:/user/login";
+        }
+        model.addAttribute("user", opt.get());
+
+        return "users/delete";
     }
 
     // 2) 회원 탈퇴 처리(POST) 
-    @PostMapping("/mypage/delete")
+    @PostMapping("/user/mypage/delete")
     public String deleteAccount(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId != null) {

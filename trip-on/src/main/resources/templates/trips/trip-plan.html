@@ -428,6 +428,14 @@
             background: #eee;
             color: #222;
         }
+        .member-tag {
+            display: inline-block;
+            background-color: #eee;
+            border-radius: 12px;
+            padding: 4px 10px;
+            margin-right: 6px;
+            font-size: 14px;
+        }
         .invite-modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -440,7 +448,6 @@
         }
         .invite-modal-content {
             background: #ddd;
-            border: 2px solid #444;
             border-radius: 20px;
             padding: 36px 32px 24px 32px;
             min-width: 420px;
@@ -451,7 +458,7 @@
             align-items: center;
         }
         .invite-title {
-            font-size: 24px;
+            font-size: 16px;
             text-align: center;
             margin-bottom: 36px;
             font-weight: 400;
@@ -485,7 +492,7 @@
         }
         .invite-message {
             width: 100%;
-            font-size: 16px;
+            font-size: 13px;
             margin-bottom: 4px;
         }
         .invite-error {
@@ -531,20 +538,43 @@
             overflow-x: auto;
             overflow-y: auto;
             padding-bottom: 10px;
+        }
+        .invite-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .invite-modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            width: 420px;
+        }
+
+    .info-link {
+    color: #0077cc;        /* 필요 시 링크 색상 조정 */
+    text-decoration: none; /* 필요 시 밑줄 제거 */
+    cursor: pointer;       /* 항상 손가락 커서 */
+  }
+  .info-link:hover {
+    text-decoration: underline;
+  }
+  .info-link.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #888;
+  text-decoration: none;
 }
 
     </style>
 </head>
 <body>
-  <!-- 상단 바 -->
-  <div class="top-bar">
-    <div class="logo">TRIP ON</div>
-    <div class="logout-group">
-      <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-      <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
-      <div class="avatar-small"></div>
-    </div>
-  </div>
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
   <!-- 뒤로가기 -->
   <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
@@ -580,16 +610,27 @@
           <div class="info-value">
         <!-- 숙소 텍스트 -->
         <span th:text="${trip.accommodation}">숙소 이름</span>
-        <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-        <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
-       class="info-link">
+        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+       th:href="${trip.accommodationLink}"
+       class="info-link"
+       target="_blank"
+       rel="noopener">
       (지도)
-        </a>
+    </a>
+    <span th:unless="${trip.accommodationLink != null}"
+          class="info-link disabled">
+      (지도)
+    </span>
         </div>
     </div>
         <div class="info-row">
-          <div class="info-label">교통편</div>
-          <div class="info-value" th:text="${trip.transportation}"></div>
+         <div class="info-label">가는 편</div>
+        <div class="info-value" th:text="${trip.departureTrip}"></div>
+        </div>
+        <div class="info-row">
+        <div class="info-label">오는 편</div>
+        <div class="info-value" th:text="${trip.returnTrip}"></div>
         </div>
         <div class="info-row">
           <div class="info-label">태그</div>
@@ -603,19 +644,39 @@
         </div>
         <div class="info-row">
           <div class="info-label">경비</div>
-          <div class="info-value">300원</div>
-          <span class="info-link">더보기</span>
+          <div class="info-value">00원</div>
+          <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
         </div>
-        <div class="info-row">
-          <div class="info-label">동행</div>
-          <div class="info-value"><span class="info-invite">초대</span></div>
+         <div class="info-row">
+            <div class="info-label">동행</div>
+            <div class="info-value">
+                <span th:each="name : ${memberNames}"
+                    th:text="${name}"
+                    class="member-tag"></span>
+                <span class="info-invite" onclick="openInviteModal()">초대</span>
+            </div>
         </div>
       </div>
-
       <div class="side-btns">
         <button class="side-btn selected">계획</button>
         <button class="side-btn">후기</button>
       </div>
+    </div>
+    
+    <!-- ✅ 팝업 구조 -->
+    <div id="inviteModal" class="invite-modal" style="display:none;">
+    <div class="invite-modal-content">
+        <div class="invite-title">초대할 유저의 이메일을 입력해주세요!</div>
+
+        <div class="invite-form-row">
+        <input type="email" id="inviteEmailInput" class="invite-input" placeholder="example@email.com" />
+        <button class="invite-send-btn" onclick="sendInvite()">전송</button>
+        </div>
+
+        <div class="invite-message" id="inviteMessage"></div>
+
+        <button class="invite-close-btn" onclick="closeInviteModal()">닫기</button>
+    </div>
     </div>
     
 <div class="right-content">
@@ -660,11 +721,46 @@
     </div>
   </div>
 </div>
- <script>
+<script th:inline="javascript">
     document.getElementById('menuDotBtn').addEventListener('click', function() {
       const pop = document.getElementById('menuPopup');
       pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
     });
+
+    function openInviteModal() {
+        document.getElementById("inviteModal").style.display = "flex";
+    }
+    function closeInviteModal() {
+        document.getElementById("inviteModal").style.display = "none";
+        document.getElementById("inviteEmailInput").value = "";
+        document.getElementById("inviteMessage").textContent = "";
+    }
+
+    async function sendInvite() {
+        const email = document.getElementById("inviteEmailInput").value;
+        const message = document.getElementById("inviteMessage");
+        const tripId = /*[[${trip.id}]]*/ 0;
+
+        try {
+            const response = await fetch(`/trips/${tripId}/invite`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ email })
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+            message.style.color = "green";
+            message.textContent = `"${result.username}" 님을 초대했어요!`;
+            } else {
+            message.style.color = "red";
+            message.textContent = result.error || "초대 실패";
+            }
+        } catch (e) {
+            message.style.color = "red";
+            message.textContent = "서버 오류가 발생했습니다.";
+        }
+    }
   </script>
 </body>
 </html>

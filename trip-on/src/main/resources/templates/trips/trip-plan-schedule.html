@@ -482,19 +482,24 @@
             text-align: center;
             font-size: 14px;
         }
-
+         .info-link.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #888;
+  text-decoration: none;
+}
     </style>
 </head>
 <body>
-  <!-- 상단 바 -->
-  <div class="top-bar">
-    <div class="logo">TRIP ON</div>
-    <div class="logout-group">
-      <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-      <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
-      <div class="avatar-small"></div>
-    </div>
-  </div>
+  <!-- <div class="top-bar">
+        <div class="logo">TRIP ON</div>
+        <div class="logout-group">
+            <a href="/user/logout" class="logout-text">로그아웃</a>
+            <a href="/user/mypage" class="logout-text">마이페이지</a>
+            <div class="avatar-small"></div>
+        </div>
+    </div> -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
 
   <!-- 뒤로가기 -->
   <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
@@ -531,15 +536,23 @@
         <!-- 숙소 텍스트 -->
         <span th:text="${trip.accommodation}">숙소 이름</span>
         <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-        <a th:href="@{|https://www.google.com/maps/search/${trip.accommodation}|}"
-       class="info-link">
+        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+       th:href="${trip.accommodationLink}"
+       class="info-link"
+       target="_blank"
+       rel="noopener">
       (지도)
-        </a>
+    </a>
         </div>
     </div>
         <div class="info-row">
-          <div class="info-label">교통편</div>
-          <div class="info-value" th:text="${trip.transportation}"></div>
+         <div class="info-label">가는 편</div>
+        <div class="info-value" th:text="${trip.departureTrip}"></div>
+        </div>
+        <div class="info-row">
+        <div class="info-label">오는 편</div>
+        <div class="info-value" th:text="${trip.returnTrip}"></div>
         </div>
         <div class="info-row">
           <div class="info-label">태그</div>

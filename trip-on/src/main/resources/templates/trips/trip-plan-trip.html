@@ -478,121 +478,176 @@
             overflow-y: auto;
             padding-bottom: 10px;
         }
+       /* 숙소 입력 행을 세로로 배치 */
+    .info-row:nth-child(2) .info-value {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    /* “지도로 추가” / “링크 삭제” 버튼 스타일 */
+    #openMapBtn, #removeLinkBtn {
+      background: none;
+      border: none;
+      color: #0077cc;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    /* 기본 숨김 */
+    #removeLinkBtn {
+      display: none;
+    }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="logo">TRIP ON</div>
-        <div class="logout-group">
-            <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
-            <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
-            <div class="avatar-small"></div>
+  <!-- 헤더 -->
+  <div th:replace="~{fragments/header :: header(${user})}"></div>
+  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+
+  <div class="container">
+    <!-- LEFT INFO (편집 폼) -->
+    <div class="left-info">
+      <form th:action="@{/trips/{id}/trip-plan-trip(id=${tripId})}"
+            th:object="${tripUpdateDto}" method="post">
+
+        <!-- 제목 -->
+        <div class="trip-title-row">
+          <input type="text"
+                 th:field="*{title}"
+                 class="trip-title"
+                 placeholder="여행 제목"
+                 required/>
         </div>
+
+        <div class="info-table">
+          <!-- 기간 -->
+          <div class="info-row">
+            <div class="info-label">기간</div>
+            <div class="info-value">
+              <input type="date" th:field="*{startDate}" required/> -
+              <input type="date" th:field="*{endDate}" required/>
+            </div>
+          </div>
+
+          <!-- 숙소 -->
+          <div class="info-row">
+            <div class="info-label">숙소</div>
+            <div class="info-value">
+              <!-- 1) 텍스트 입력 -->
+              <input type="text"
+                     th:field="*{accommodation}"
+                     id="accommodationInput"
+                     placeholder="직접 입력 또는 지도로 추가"/>
+
+              <!-- 2) 숨김 필드: 링크 저장 (폼에서 제거될 수 있음) -->
+              <input type="hidden"
+                     th:field="*{accommodationLink}"
+                     id="accommodationLinkInput"/>
+
+              <!-- 3) 지도로 추가 버튼 -->
+              <button type="button" id="openMapBtn">지도로 추가</button>
+
+              <!-- 4) 링크 삭제 버튼 -->
+              <button type="button" id="removeLinkBtn">링크 삭제</button>
+            </div>
+          </div>
+
+          <!-- 교통편 -->
+          <div class="info-row">
+            <div class="info-label">교통편</div>
+            <div class="info-value">
+              <input type="text" th:field="*{departureTrip}" placeholder="가는 교통편"/>,
+              <input type="text" th:field="*{returnTrip}" placeholder="오는 교통편"/>
+            </div>
+          </div>
+
+          <!-- 태그 -->
+          <div class="info-row">
+            <div class="info-label">태그</div>
+            <div class="info-value">
+              <input type="text" th:field="*{tagsText}" placeholder="a,b,c"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- 저장 / 취소 -->
+        <button class="side-btn selected" type="submit">저장</button>
+        <button class="side-btn" type="button"
+                th:onclick="|location.href='@{/trips/{id}/trip-plan(id=${tripId})}'|">
+          취소
+        </button>
+      </form>
     </div>
 
-    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
-
-    <div class="container">
-        <!-- LEFT INFO (편집 폼) -->
-        <div class="left-info">
-            <form th:action="@{/trips/{id}/trip-plan-trip(id=${tripId})}"
-                  th:object="${tripUpdateDto}" method="post">
-
-                <!-- 제목 입력 바 -->
-                <div class="trip-title-row">
-                    <input type="text" th:field="*{title}" class="trip-title" placeholder="여행 제목" />
+    <!-- RIGHT DAYS & SCHEDULES (기존 그대로) -->
+    <div class="right-content">
+      <div class="plan-box">
+        <div class="scroll-container">
+          <div class="days-row">
+            <div th:each="label, stat : ${dateLabels}"
+                 th:id="|day-${stat.count}|"
+                 class="day-col">
+              <div class="day-title" th:text="${label}">날짜</div>
+              <div class="schedule-list"
+                   th:with="dayList=${scheduleMap[stat.count]}">
+                <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
+                     class="empty-message">
+                  등록된 일정이 없습니다.
                 </div>
-
-                <div class="info-table">
-                    <div class="info-row">
-                        <div class="info-label">기간</div>
-                        <div class="info-value">
-                            <input type="date" th:field="*{startDate}" /> - 
-                            <input type="date" th:field="*{endDate}" />
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">숙소</div>
-                        <div class="info-value">
-                            <input type="text" th:field="*{accommodation}" />
-                            <a th:href="@{|https://www.google.com/maps/search/${tripUpdateDto.accommodation}|}" class="info-link">(지도)</a>
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">교통편</div>
-                        <div class="info-value">
-                            <input type="text" th:field="*{transportationDeparture}" placeholder="출발" />,
-                            <input type="text" th:field="*{transportationReturn}" placeholder="귀환" />
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">태그</div>
-                        <div class="info-value tag-list">
-                            <input type="text" th:field="*{tagsText}" placeholder="a,b,c" />
-                        </div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">경비</div>
-                        <div class="info-value">300원</div>
-                        <span class="info-link">더보기</span>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">동행</div>
-                        <div class="info-value"><span class="info-invite">초대</span></div>
-                    </div>
+                <div th:each="s : ${dayList}"
+                     class="schedule-item">
+                  <span class="schedule-time"
+                        th:text="${#temporals.format(s.time,'HH:mm')}">
+                    --:--
+                  </span>
+                  <span class="schedule-content"
+                        th:text="${s.content}">
+                    내용
+                  </span>
                 </div>
-
-                <button class="side-btn selected" type="submit">저장</button>
-                <button class="side-btn" type="button" th:onclick="|location.href='@{/trips/{id}/trip-plan(id=${tripId})}'|">취소</button>
-            </form>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- RIGHT DAYS & SCHEDULES (원본 그대로) -->
-        <div class="right-content">
-  <!-- 편집 링크 -->
-  <div class="plan-box">
-    <div class="scroll-container">
-      <div class="days-row">
+   <!-- 팝업 제어 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const openMapBtn    = document.getElementById('openMapBtn');
+      const removeLinkBtn = document.getElementById('removeLinkBtn');
+      const accInput      = document.getElementById('accommodationInput');
+      const accLinkInput  = document.getElementById('accommodationLinkInput');
 
-        <!-- 날짜별 컬럼 반복 -->
-        <div th:each="label, stat : ${dateLabels}"
-             th:id="|day-${stat.count}|"
-             class="day-col">
+      // 초기: 기존 링크가 있으면 삭제 버튼 보이기
+      if (accLinkInput.value && accLinkInput.value.trim() !== '') {
+        removeLinkBtn.style.display = 'inline';
+      }
 
-          <!-- 날짜 제목 -->
-          <div class="day-title" th:text="${label}">날짜</div>
+      // 지도로 추가 → 팝업 열기
+      openMapBtn.addEventListener('click', () => {
+        window.open('/map-popup', 'mapPopup', 'width=800,height=600');
+      });
 
-          <!-- 해당 날짜 일정 리스트 -->
-          <div class="schedule-list"
-               th:with="dayList=${scheduleMap[stat.count]}">
+      // 링크 삭제: hidden input 값만 비우고 버튼 숨기기
+      removeLinkBtn.addEventListener('click', () => {
+        accLinkInput.value = '';      // 값을 공백으로 설정
+        removeLinkBtn.style.display = 'none';
+      });
 
-            <!-- 1) 일정이 없으면 -->
-            <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
-                 class="empty-message">
-              등록된 일정이 없습니다.
-            </div>
-
-            <!-- 2) 일정이 있으면 반복 출력 -->
-            <div th:each="s : ${dayList}"
-                 class="schedule-item">
-              <span class="schedule-time"
-                    th:text="${#temporals.format(s.time,'HH:mm')}">
-                --:--
-              </span>
-              <span class="schedule-content"
-                    th:text="${s.content}">
-                내용
-              </span>
-            </div>
-
-          </div> <!-- /.schedule-list -->
-
-        </div> <!-- /.day-col -->
-
-      </div> <!-- /.days-row -->
-    </div> <!-- /.scroll-container -->
-  </div> <!-- /.plan-box -->
-</div> <!-- /.right-content -->
-</div>
+      // 팝업에서 선택 시 호출
+      window.receivePlaceFromPopup = (name, url) => {
+        accInput.value = name;
+        accLinkInput.value = url;
+        removeLinkBtn.style.display = 'inline';
+      };
+    });
+  </script>
 </body>
 </html>
