@@ -12,7 +12,6 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -38,36 +37,41 @@ public class S3Service {
                 .build();
     }
 
+    // 파일 업로드 - 디렉토리명 지정
     public String uploadFile(MultipartFile multipartFile, String dirPath) throws IOException {
-        // 원본 파일 이름과 확장자 분리
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = "";
+
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
         }
 
-        // S3에 저장할 키: 예) "profiles/UUIDxxxxxx.png"
         String key = dirPath + "/" + UUID.randomUUID() + extension;
 
-        // PUT 요청 만들 때, ACL 설정을 제거
         PutObjectRequest por = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .contentType(multipartFile.getContentType())
                 .build();
 
-        // 실제 업로드
         s3.putObject(por, RequestBody.fromBytes(multipartFile.getBytes()));
 
-        // 업로드한 후 URL 반환 (버킷이 버킷 정책으로 public-read 권한을 따로 허용했을 경우)
         return String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName,
-                regionId,
-                key);
+                bucketName, regionId, key);
     }
 
-    // 필요하다면 기존 파일 삭제용
-    public void deleteFile(String key) {
-        s3.deleteObject(builder -> builder.bucket(bucketName).key(key).build());
+    // 파일 업로드 - 랜덤 파일명 생성 (디폴트 dir 없음)
+    public String uploadFile(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        return uploadFile(file, fileName);
+    }
+
+    // S3 URL로부터 파일 삭제
+    public void deleteFileByUrl(String imageUrl) {
+        String key = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + 14 + bucketName.length());
+        if (key.startsWith("/")) key = key.substring(1);
+        final String finalKey = key;
+        s3.deleteObject(builder -> builder.bucket(bucketName).key(finalKey).build());
+
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import com.tripon.trip_on.trips.TripRepository;
 import com.tripon.trip_on.trips.Trip;
 import jakarta.persistence.EntityNotFoundException;
-import com.tripon.trip_on.service.S3Service;
+import com.tripon.trip_on.aws.S3Service;
 
 /**
  * ReviewService 구현체 (비즈니스 로직)
@@ -29,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Object getTripPlan(Long tripId) {
+    public Trip getTripPlan(Long tripId) {
         // Trip 엔티티에서 tripId로 여행 정보 조회
         return tripRepository.findById(tripId).orElse(null);
     }
@@ -81,6 +81,21 @@ public class ReviewServiceImpl implements ReviewService {
         if (!r.getUserId().equals(userId)) {
             throw new RuntimeException("본인의 후기만 삭제할 수 있습니다.");
         }
+
+        // 1. 후기의 모든 사진 조회
+        List<ReviewPhoto> photos = reviewPhotoRepository.findByReviewId(reviewId);
+        for (ReviewPhoto photo : photos) {
+            // 2. S3에서 파일 삭제
+            try {
+                s3Service.deleteFileByUrl(photo.getImageUrl());
+            } catch (Exception e) {
+                System.err.println("S3 파일 삭제 실패: " + e.getMessage());
+            }
+        }
+        // 3. DB에서 사진 삭제
+        reviewPhotoRepository.deleteByReviewId(reviewId);
+
+        // 4. 후기 삭제
         reviewRepository.delete(r);
     }
 
