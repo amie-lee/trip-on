@@ -35,6 +35,18 @@ public class S3Service {
         return fileName;
     }
 
+    public String uploadFile(MultipartFile file, String fileName) throws IOException {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
+
+        amazonS3Client.putObject(
+            new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata)
+        );
+
+        return fileName;
+    }
+
     private String createFileName(String originalFileName) {
         return UUID.randomUUID().toString() + "_" + originalFileName;
     }

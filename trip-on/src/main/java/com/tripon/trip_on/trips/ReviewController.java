@@ -31,6 +31,8 @@ public class ReviewController {
     private final ReviewLikeService likeService;
     private final ReviewPhotoRepository reviewPhotoRepository;
     private final S3Service s3Service;
+    private final TripsService tripsService;
+    private final TripTagRepository tripTagRepository;
 
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
@@ -76,11 +78,17 @@ public class ReviewController {
             List<ReviewPhoto> photos = reviewPhotoRepository.findByReviewId(review.getId());
             reviewPhotosMap.put(review.getId(), photos);
         }
+        // TripUpdateDto, tags 추가 (TripsService, TripTagRepository 활용)
+        TripUpdateDto tripUpdateDto = tripsService.getTripUpdateDto(tripId);
+        List<TripTag> tags = tripTagRepository.findAllByTripId(tripId);
+
         model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("trip", trip);
         model.addAttribute("reviews", reviews);
         model.addAttribute("reviewPhotosMap", reviewPhotosMap);
         model.addAttribute("editReviewId", editReviewId != null ? editReviewId : 0L);
+        model.addAttribute("tripUpdateDto", tripUpdateDto);
+        model.addAttribute("tags", tags);
         return "trips/trip-plan-review";
     }
 
@@ -203,11 +211,55 @@ public class ReviewController {
     public ResponseEntity<Void> updateReview(
             @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            @RequestBody Map<String, Object> body,
+            @RequestParam("content") String content,
+            @RequestParam(value = "file", required = false) MultipartFile[] files,
+            @RequestParam(value = "deletePhotoIds", required = false) List<Long> deletePhotoIds,
             Principal principal) {
         Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
-        String content = (String) body.get("content");
         reviewService.updateReview(reviewId, userId, content);
+
+        // 1. 삭제할 사진 처리
+        if (deletePhotoIds != null) {
+            for (Long photoId : deletePhotoIds) {
+                ReviewPhoto photo = reviewPhotoRepository.findById(photoId)
+                    .orElse(null);
+                if (photo != null) {
+                    s3Service.deleteFileByUrl(photo.getImageUrl());
+                    reviewPhotoRepository.deleteById(photoId);
+                }
+            }
+        }
+
+        // 2. 새로 추가된 파일만 처리 (기존 코드)
+        if (files != null && files.length > 0) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    try {
+                        // 1. DB에 사진 정보 임시 저장 (ID 확보)
+                        ReviewPhoto photoEntity = ReviewPhoto.builder()
+                            .reviewId(reviewId)
+                            .imageUrl("임시값")
+                            .filePath("임시값")
+                            .fileType(file.getContentType().startsWith("image/") ? "image" : "video")
+                            .build();
+                        reviewPhotoRepository.save(photoEntity);
+
+                        // 2. S3에 파일 업로드 (파일명에 photoEntity.getId() 사용)
+                        String fileName = "reviews/" + photoEntity.getId() + "_" + file.getOriginalFilename();
+                        s3Service.uploadFile(file, fileName);
+
+                        // 3. S3 URL로 DB 정보 업데이트
+                        String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
+                        photoEntity.setImageUrl(imageUrl);
+                        photoEntity.setFilePath(fileName);
+                        reviewPhotoRepository.save(photoEntity);
+                    } catch (Exception e) {
+                        log.error("File upload failed: {}", e.getMessage(), e);
+                        throw new RuntimeException("파일 업로드에 실패했습니다: " + e.getMessage());
+                    }
+                }
+            }
+        }
         return ResponseEntity.ok().build();
     }
 

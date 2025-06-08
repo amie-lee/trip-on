@@ -772,14 +772,17 @@
   </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="logo">TRIP ON</div>
-        <div class="logout-group">
-            <div class="logout-text">로그아웃</div>
-            <div class="avatar-small"></div>
-        </div>
+  <div class="top-bar">
+    <div class="logo">TRIP ON</div>
+    <div class="logout-group">
+        <a th:href="@{/users/logout}" class="logout-text">로그아웃</a>
+        <a th:href="@{/users/mypage}" class="logout-text">마이페이지</a>
+        <div class="avatar-small"></div>
     </div>
-    <a href="#" class="back-link">&larr; 이전</a>
+</div>
+
+<a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+
     <div class="container">
       <div class="left-info">
         <div class="trip-title-row">
