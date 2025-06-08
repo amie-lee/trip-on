@@ -6,7 +6,7 @@ import java.util.List;
 import com.tripon.trip_on.trips.TripRepository;
 import com.tripon.trip_on.trips.Trip;
 import jakarta.persistence.EntityNotFoundException;
-import com.tripon.trip_on.service.S3Service;
+import com.tripon.trip_on.aws.S3Service;
 
 /**
  * ReviewService 구현체 (비즈니스 로직)
@@ -29,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Object getTripPlan(Long tripId) {
+    public Trip getTripPlan(Long tripId) {
         // Trip 엔티티에서 tripId로 여행 정보 조회
         return tripRepository.findById(tripId).orElse(null);
     }

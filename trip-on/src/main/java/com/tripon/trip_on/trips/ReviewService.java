@@ -12,7 +12,7 @@ public interface ReviewService {
      * @param tripId 여행 ID
      * @return 여행 정보 객체
      */
-    Object getTripPlan(Long tripId);
+    Trip getTripPlan(Long tripId);
 
     /**
      * 특정 여행에 대한 후기 목록 조회

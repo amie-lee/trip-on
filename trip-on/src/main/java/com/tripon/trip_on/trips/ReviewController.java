@@ -1,6 +1,6 @@
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.service.S3Service;
+import com.tripon.trip_on.aws.S3Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,13 +31,13 @@ public class ReviewController {
     private final ReviewLikeService likeService;
     private final ReviewPhotoRepository reviewPhotoRepository;
     private final S3Service s3Service;
-    private final TripsService tripsService;
+    private final TripService tripService;
     private final TripTagRepository tripTagRepository;
 
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
 
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${aws.s3.bucket-name}")
     private String bucket;
 
     // 리전을 ap-southeast-2로 고정
@@ -57,7 +57,7 @@ public class ReviewController {
     public String showReviewPage(@PathVariable Long tripId,
                                  @RequestParam(value = "editReviewId", required = false) Long editReviewId,
                                  Model model, Principal principal) {
-        Object trip = reviewService.getTripPlan(tripId);
+        Trip trip = reviewService.getTripPlan(tripId);
         if (trip == null) {
             return "error/404"; // 여행이 없으면 404 페이지로 이동
         }
@@ -79,7 +79,7 @@ public class ReviewController {
             reviewPhotosMap.put(review.getId(), photos);
         }
         // TripUpdateDto, tags 추가 (TripsService, TripTagRepository 활용)
-        TripUpdateDto tripUpdateDto = tripsService.getTripUpdateDto(tripId);
+        TripUpdateDto tripUpdateDto = tripService.getTripUpdateDto(tripId);
         List<TripTag> tags = tripTagRepository.findAllByTripId(tripId);
 
         model.addAttribute("currentUserId", currentUserId);
