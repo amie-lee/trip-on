@@ -131,6 +131,18 @@ public String accommodationForm(
     }
 
     */
+    @GetMapping("/register/trip-register")
+public String showTripRegisterPage(Model model, HttpSession session) {
+    // 로그인 여부 확인
+    Long userId = (Long) session.getAttribute("userId");
+    if (userId == null) return "redirect:/user/login";
+
+    // 폼 초기 데이터 설정
+    model.addAttribute("tripRegisterDto", new TripRegisterDto());
+    model.addAttribute("allTags", List.of("#혼자서", "#친구랑", "#가족여행", "#연인과", "#휴식", "#관광"));
+    
+    return "trips/trip-register"; // => templates/trips/trip-register.html
+}
     
 @PostMapping("/register/trip-register")
 public String processUnifiedForm(

@@ -1,6 +1,10 @@
 
 package com.tripon.trip_on.trips;
 
+import com.tripon.trip_on.expenses.Expense;
+import com.tripon.trip_on.expenses.ExpenseParticipant;
+import com.tripon.trip_on.expenses.repository.ExpenseParticipantRepository;
+import com.tripon.trip_on.expenses.repository.ExpenseRepository;
 import com.tripon.trip_on.user.User;
 import com.tripon.trip_on.user.UserRepository;
 
@@ -24,6 +28,11 @@ public class TripService {
     @Autowired private ScheduleRepository scheduleRepository;
     @Autowired private TripMemberRepository tripMemberRepository;
     @Autowired private UserRepository userRepository;
+    @Autowired private ExpenseParticipantRepository expenseParticipantRepository;
+    @Autowired private ExpenseRepository expenseRepository;
+    @Autowired private ReviewRepository reviewRepository;
+    @Autowired private ReviewPhotoRepository reviewPhotoRepository;
+    @Autowired private ReviewLikeRepository reviewLikeRepository;
 
 
     /** 로그인 유저의 Trip 목록 */
@@ -229,4 +238,41 @@ public void updateTrip(Long tripId, TripUpdateDto dto) {
         return invitee.getUsername(); // 프론트에 보여줄 이름
     }
 
+    @Transactional
+public void deleteTripByIdAndUser(Long tripId, Long userId) {
+    Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여행입니다."));
+    if (!trip.getCreatorId().equals(userId)) {
+        throw new SecurityException("삭제 권한이 없습니다.");
+    }
+
+    // 1) Expense 관련 삭제
+    List<Expense> expenses = expenseRepository.findByTripId(tripId);
+    List<Long> expenseIds = expenses.stream()
+            .map(Expense::getId)
+            .toList();
+    if (!expenseIds.isEmpty()) {
+        expenseParticipantRepository.deleteByExpenseIdIn(expenseIds);
+    }
+    expenseRepository.deleteByTripId(tripId);
+
+    // 2) Schedule, Member, Tag 삭제
+    scheduleRepository.deleteByTripId(tripId);
+    tripMemberRepository.deleteByTripId(tripId);
+    tripTagRepository.deleteByTripId(tripId);
+
+    // 3) Review & 연관 Photo/Like 삭제
+    List<Review> reviews = reviewRepository.findByTripId(tripId);
+    List<Long> reviewIds = reviews.stream()
+            .map(Review::getId)
+            .toList();
+    if (!reviewIds.isEmpty()) {
+        reviewPhotoRepository.deleteByReviewIdIn(reviewIds);
+        reviewLikeRepository.deleteByReviewIdIn(reviewIds);
+    }
+    reviewRepository.deleteByTripId(tripId);
+
+    // 4) 마지막으로 Trip 삭제
+    tripRepository.delete(trip);
+}
 }

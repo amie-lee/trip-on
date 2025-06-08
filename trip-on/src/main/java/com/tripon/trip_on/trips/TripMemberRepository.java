@@ -13,4 +13,6 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Long> {
 
     // 특정 사용자와 Trip의 관계 존재 여부
     boolean existsByTripIdAndUserId(Long tripId, Long userId);
+
+    void deleteByTripId(Long tripId);
 }
