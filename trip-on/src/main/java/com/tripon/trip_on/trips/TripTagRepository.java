@@ -16,4 +16,5 @@ public interface TripTagRepository extends JpaRepository<TripTag, Long> {
     // 중복 없는 태그명 조회
     @Query("SELECT DISTINCT t.tagName FROM TripTag t")
     List<String> findDistinctTagNames();
+    void deleteByTripId(Long tripId);
 }

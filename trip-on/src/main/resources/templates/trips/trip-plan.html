@@ -590,10 +590,7 @@
                  th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
             편집
           </button>
-          <button class="menu-btn"
-                  th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
-            삭제
-          </button>
+          <button class="menu-btn" onclick="openDeleteModal()">삭제</button>
         </div>
       </div>
 
@@ -761,6 +758,37 @@
             message.textContent = "서버 오류가 발생했습니다.";
         }
     }
+    function openDeleteModal() {
+  document.getElementById("deleteModal").style.display = "flex";
+}
+function closeDeleteModal() {
+  document.getElementById("deleteModal").style.display = "none";
+}
+async function confirmDelete() {
+  const tripId = /*[[${trip.id}]]*/ 0;
+  try {
+    const response = await fetch(`/trips/${tripId}/delete`, {
+      method: "POST"
+    });
+    if (response.ok) {
+      window.location.href = "/"; // TRIP ON 로고와 동일한 메인페이지 이동
+    } else {
+      alert("삭제에 실패했습니다.");
+    }
+  } catch (e) {
+    alert("서버 오류가 발생했습니다.");
+  }
+}
   </script>
+  <!-- ✅ 삭제 확인 팝업 -->
+<div id="deleteModal" class="invite-modal" style="display: none;">
+  <div class="invite-modal-content">
+    <div class="invite-title">정말 이 여행을 삭제하시겠습니까?</div>
+    <div style="display: flex; gap: 16px;">
+      <button class="invite-send-btn" onclick="confirmDelete()">삭제</button>
+      <button class="invite-close-btn" onclick="closeDeleteModal()">취소</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

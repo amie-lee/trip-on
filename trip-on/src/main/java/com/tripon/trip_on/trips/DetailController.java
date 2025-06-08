@@ -41,7 +41,7 @@ public class DetailController {
     private final TripRepository tripRepository;
     private final ScheduleRepository scheduleRepository;
     private final TripTagRepository tripTagRepository;
-    private final TripService tripsService;
+    private final TripService tripService;
     private final UserService userService;  // ← UserService 추가
 
     public DetailController(TripRepository tripRepository,
@@ -52,7 +52,7 @@ public class DetailController {
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.tripTagRepository = tripTagRepository;
-        this.tripsService = tripService;
+        this.tripService = tripService;
         this.userService = userService;
     }
 
@@ -101,7 +101,7 @@ public class DetailController {
         List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
 
         // 날짜 라벨 생성
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
+        List<String> dateLabels = tripService.generateDateLabels(trip);
 
             // 스케줄 조회 후, 시간(null 포함) 기준 정렬
     schedules.sort(Comparator.comparing(
@@ -133,36 +133,48 @@ public class DetailController {
         return "trips/trip-plan";
     }
 
+    //삭제버튼
+    @PostMapping("/trips/{id}/delete")
+public String deleteTrip(@PathVariable Long id, HttpSession session) {
+    Long userId = (Long) session.getAttribute("userId");
+    if (userId == null) return "redirect:/user/login";
+
+    tripService.deleteTripByIdAndUser(id, userId); // 사용자 확인 후 삭제 처리
+    return "redirect:/";
+}
+    
     // ── (2) 여행 정보 편집 폼 보기 ──
-    @GetMapping("/trips/{tripId}/trip-plan-trip")
-    public String showEditForm(
-            @PathVariable Long tripId,
-            @ModelAttribute("tripUpdateDto") TripUpdateDto dto,
-            HttpSession session,   // ← 세션 파라미터 추가
-            Model model) {
+@GetMapping("/trips/{tripId}/trip-plan-trip")
+public String showEditForm(
+        @PathVariable Long tripId,
+        @ModelAttribute("tripUpdateDto") TripUpdateDto dto,
+        HttpSession session,
+        Model model) {
 
-        // ① 세션에서 로그인 사용자 ID 확인
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/user/login";
-        }
+    // ① 세션에서 로그인 사용자 ID 확인
+    Long userId = (Long) session.getAttribute("userId");
+    if (userId == null) {
+        return "redirect:/user/login";
+    }
 
-        // ② UserService로 User 조회. 없으면 세션 무효화 후 로그인 페이지로
-        Optional<User> optUser = userService.getUserById(userId);
-        if (optUser.isEmpty()) {
-            session.invalidate();
-            return "redirect:/user/login";
-        }
-        // ③ 헤더 표시용 User 객체 모델에 추가
-        model.addAttribute("user", optUser.get());
+    // ② UserService로 User 조회. 없으면 세션 무효화 후 로그인 페이지로
+    Optional<User> optUser = userService.getUserById(userId);
+    if (optUser.isEmpty()) {
+        session.invalidate();
+        return "redirect:/user/login";
+    }
+    // ③ 헤더 표시용 User 객체 모델에 추가
+    model.addAttribute("user", optUser.get());
 
-        // ── 이하 기존 로직 ──
-        Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
-                );
-        List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
-        schedules.sort(Comparator.comparing(
+    // ── 이하 기존 로직 ──
+    Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
+            );
+
+    // 스케줄 조회 후, 시간(null 포함) 기준 정렬
+    List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+    schedules.sort(Comparator.comparing(
         Schedule::getTime,
         Comparator.nullsFirst(Comparator.naturalOrder())
     ));
@@ -175,29 +187,31 @@ public class DetailController {
             Collectors.toList()
         ));
 
-        List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
+    List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
+    List<String>   dateLabels = tripService.generateDateLabels(trip);
 
-        // 기본 모델 데이터
-        model.addAttribute("trip", trip);
-        model.addAttribute("schedules", schedules);
-        model.addAttribute("tags", tags);
-        model.addAttribute("dateLabels", dateLabels);
-        model.addAttribute("tripId", tripId);
-        model.addAttribute("allTags", tripsService.getAllTagNames());
+    // 기본 모델 데이터
+    model.addAttribute("trip", trip);
+    model.addAttribute("schedules", schedules);
+    model.addAttribute("tags", tags);
+    model.addAttribute("dateLabels", dateLabels);
+    model.addAttribute("tripId", tripId);
+    model.addAttribute("allTags", tripService.getAllTagNames());
+    model.addAttribute("scheduleMap", scheduleMap);
 
-        // DTO 채우기
-        TripUpdateDto filled = tripsService.getTripUpdateDto(tripId);
-        dto.setTitle(filled.getTitle());
-        dto.setStartDate(filled.getStartDate());
-        dto.setEndDate(filled.getEndDate());
-        dto.setAccommodation(filled.getAccommodation());
-        dto.setDepartureTrip(filled.getDepartureTrip());
-        dto.setReturnTrip(filled.getReturnTrip());
-        dto.setTagsText(filled.getTagsText());
+    // DTO 채우기
+    TripUpdateDto filled = tripService.getTripUpdateDto(tripId);
+    dto.setTitle(filled.getTitle());
+    dto.setStartDate(filled.getStartDate());
+    dto.setEndDate(filled.getEndDate());
+    dto.setAccommodation(filled.getAccommodation());
+    dto.setAccommodationLink(filled.getAccommodationLink());
+    dto.setDepartureTrip(filled.getDepartureTrip());
+    dto.setReturnTrip(filled.getReturnTrip());
+    dto.setTagsText(filled.getTagsText());
 
-        return "trips/trip-plan-trip";
-    }
+    return "trips/trip-plan-trip";
+}
 
     /** ── (3) 편집 내용 저장 ── */
     @PostMapping("/trips/{tripId}/trip-plan-trip")
@@ -206,10 +220,11 @@ public class DetailController {
             @ModelAttribute("tripUpdateDto") TripUpdateDto dto,
             SessionStatus status) {
 
-        tripsService.updateTrip(tripId, dto);
+        tripService.updateTrip(tripId, dto);
         status.setComplete();
         return "redirect:/trips/" + tripId + "/trip-plan";
     }
+
 
     // ── (4) 일정 편집 폼 보기 ──
     @GetMapping("/trips/{tripId}/trip-plan-schedule")
@@ -239,11 +254,11 @@ public class DetailController {
                 .orElseThrow(() ->
                     new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found: " + tripId)
                 );
-        List<String> dateLabels = tripsService.generateDateLabels(trip);
+        List<String> dateLabels = tripService.generateDateLabels(trip);
         List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
 
         // DTO 목록 로드
-        List<ScheduleUpdateDto> dtos = tripsService.loadSchedules(tripId);
+        List<ScheduleUpdateDto> dtos = tripService.loadSchedules(tripId);
         form.setScheduleDtos(dtos);
 
         model.addAttribute("trip", trip);
@@ -265,7 +280,7 @@ public class DetailController {
         dtos.forEach(dto -> dto.setTripId(tripId));
 
         // 저장
-        tripsService.saveSchedules(dtos);
+        tripService.saveSchedules(dtos);
 
         // 세션에 보관된 scheduleForm 제거
         status.setComplete();
@@ -278,7 +293,7 @@ public class DetailController {
     public ResponseEntity<?> inviteMember(@PathVariable Long tripId,
                                         @RequestBody @Valid TripInviteDto inviteDto) {
         try {
-            String invitedName = tripsService.inviteMember(tripId, inviteDto.getEmail());
+            String invitedName = tripService.inviteMember(tripId, inviteDto.getEmail());
             return ResponseEntity.ok().body(Map.of("username", invitedName));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

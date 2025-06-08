@@ -7,4 +7,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     // 특정 여행(tripId)에 대한 후기 목록 조회
     List<Review> findByTripId(Long tripId);
+
+    void deleteByTripId(Long tripId);
+
 } 
