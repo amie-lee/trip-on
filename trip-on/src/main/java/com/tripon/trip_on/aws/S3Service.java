@@ -86,5 +86,6 @@ public class S3Service {
         if (key.startsWith("/")) key = key.substring(1);
         final String finalKey = key;
         s3.deleteObject(builder -> builder.bucket(bucketName).key(finalKey).build());
+
     }
 }
