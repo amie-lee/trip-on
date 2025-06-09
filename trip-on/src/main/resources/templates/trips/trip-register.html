@@ -9,6 +9,37 @@
     rel="stylesheet"
   />
   <style>
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        font-family: 'Bagel Fat One', cursive;
+        font-size: 40px;
+        color: #000;
+    }
+
+    .logout-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .logout-text {
+        font-size: 15px;
+        color: #000;
+    }
+
+    .avatar-small {
+        width: 36px;
+        height: 36px;
+        background-color: #d9d9d9;
+        border-radius: 50%;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Noto Sans KR', sans-serif;
@@ -73,6 +104,41 @@
       cursor: pointer;
       display: none; /* 기본 숨김 */
     }
+    .tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 40px;
+  justify-content: center;
+  margin-bottom: 40px;
+  max-width: 800px;
+}
+
+.tag-btn {
+  min-width: 120px;
+  padding: 16px 32px;
+  background-color: #fff;
+  border: 1.5px solid #000;
+  border-radius: 30px;
+  font-size: 20px;
+  color: #000;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.tag-btn.selected,
+.tag-btn:hover {
+  background-color: #CBE1ED;
+  color: #000;
+  border: 1.5px solid #CBE1ED;
+}
+
+.tag-btn.selected {
+  border: 2.5px solid #7bb8dd;
+  background: #CBE1ED;
+}
 
     #removeLinkBtn:hover {
       background-color: #c0392b;
@@ -190,5 +256,44 @@
       };
     });
   </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const tagBtns = document.querySelectorAll('.tag-btn');
+    const form = document.querySelector('form');
+
+    // 뒤로 가기 캐시 대응: 모든 선택 초기화
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || window.performance.getEntriesByType('navigation')[0].type === 'back_forward') {
+        form.reset();
+        tagBtns.forEach(btn => btn.classList.remove('selected'));
+      }
+    });
+
+    // 초기 체크 여부에 따라 selected 클래스 붙이기
+    tagBtns.forEach(btn => {
+      const checkbox = btn.querySelector('input[type="checkbox"]');
+      if (checkbox.checked) {
+        btn.classList.add('selected');
+      } else {
+        btn.classList.remove('selected');
+      }
+    });
+
+    // 태그 버튼 클릭 시 선택 토글
+    tagBtns.forEach(btn => {
+      btn.addEventListener('click', function () {
+        btn.classList.toggle('selected');
+      });
+    });
+
+    // 폼 제출 전 selected인 항목만 실제로 checked로 설정
+    form.addEventListener('submit', function () {
+      tagBtns.forEach(btn => {
+        const checkbox = btn.querySelector('input[type="checkbox"]');
+        checkbox.checked = btn.classList.contains('selected');
+      });
+    });
+  });
+</script>
 </body>
 </html>

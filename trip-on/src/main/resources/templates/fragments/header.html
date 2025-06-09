@@ -1,73 +1,4 @@
- <!-- src/main/resources/templates/fragments/header.html
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-  <body>
-    <div th:fragment="header(user)">
-      <style>
-        .top-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-        .logo {
-          font-family: 'Bagel Fat One', cursive;
-          font-size: 40px;
-          color: #000;
-          text-decoration: none;
-        }
-        .logout-group {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .logout-text {
-          font-size: 15px;
-          color: #000;
-          text-decoration: none;
-        }
-        .avatar-small {
-          width: 36px;
-          height: 36px;
-          background-color: #d9d9d9;
-          border-radius: 50%;
-        }
-      </style>
-    -->
 
-     
-      <!-- <div class="top-bar"> -->
-        <!-- 로고 클릭 시 /user/ 로 이동 -->
-        <!-- <a th:href="@{/user/}" class="logo">TRIP ON</a>
-
-        <div class="logout-group">
-          <a th:href="@{/user/logout}" class="logout-text">로그아웃</a> -->
-          
-          <!-- 아바타 이미지를 클릭하면 마이페이지로 -->
-          <!-- <a th:href="@{/user/mypage}">
-            <div class="avatar-small"
-                 th:style="${user.profileImage} != null
-                   ? 'background-image:url(' + @{${user.profileImage}} + '); background-size:cover; background-position:center;'
-                   : ''">
-            </div> -->
-            <!-- <a th:href="@{/user/mypage}">
-              <div class="avatar-small"
-                  th:if="${user != null and user.profileImage != null}"
-                  th:style="'background-image:url(' + @{${user.profileImage}} + '); background-size:cover; background-position:center;'">
-              </div>
-              <div class="avatar-small" th:if="${user == null or user.profileImage == null}"> -->
-                <!-- 기본 이미지일 경우 배경 없이 기본 회색 원형 박스 -->
-              <!-- </div>
-            </a>
-
-          </a>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>  -->
-
-<!-- src/main/resources/templates/fragments/header.html -->
 <div th:fragment="header(user)">
   <style>
     .top-bar {
@@ -101,26 +32,23 @@
   </style>
 
   <div class="top-bar">
-    <!-- 로고 클릭 시 /user/ 로 이동 -->
-    <!-- <a th:href="@{/user/}" class="logo">TRIP ON</a> -->
+
      <a th:href="@{/}" class="logo">TRIP ON</a>
 
-<!-- <div style="background-color: pink; padding: 10px;">헤더 테스트 영역</div> -->
 
     <div class="logout-group">
       <a th:href="@{/user/logout}" class="logout-text">로그아웃</a>
 
-      <!-- 아바타 이미지: 없으면 기본 동그라미 -->
       <a th:href="@{/user/mypage}">
         <div class="avatar-small"
              th:if="${user != null and user.profileImage != null}"
              th:style="'background-image:url(' + @{${user.profileImage}} + '); background-size:cover; background-position:center;'">
         </div>
         <div class="avatar-small" th:if="${user == null or user.profileImage == null}">
-          <!-- 기본 이미지 회색 배경 원 -->
         </div>
       </a>
     </div>
   </div>
 </div>
+
 

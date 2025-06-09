@@ -583,23 +583,81 @@
 <body>
     <div th:replace="~{fragments/header :: header(${user})}"></div>
 
-    <!-- 뒤로가기 -->
-    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+  <!-- 뒤로가기 -->
+  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
-    <div class="container">
-        <!-- LEFT INFO -->
-        <div class="left-info">
-            <div class="trip-title-row">
-                <div class="trip-title" th:text="${trip.title}">여행 제목</div>
-                <button class="menu-dot" id="menuDotBtn">···</button>
-                <div class="menu-popup" id="menuPopup" style="display:none;">
-                    <button class="menu-btn" th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
-                        편집
-                    </button>
-                    <button class="menu-btn" th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
-                        삭제
-                    </button>
-                </div>
+  <div class="container">
+    <!-- LEFT INFO -->
+    <div class="left-info">
+      <div class="trip-title-row">
+        <div class="trip-title" th:text="${trip.title}">여행 제목</div>
+        <button class="menu-dot" id="menuDotBtn">···</button>
+        <div class="menu-popup" id="menuPopup" style="display:none;">
+          <button class="menu-btn"
+                 th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
+            편집
+          </button>
+          <button class="menu-btn" onclick="openDeleteModal()">삭제</button>
+        </div>
+      </div>
+
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-label">일정</div>
+          <div class="info-value"
+               th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+            2025.05.24 - 2025.05.30
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">숙소</div>
+          <div class="info-value">
+        <!-- 숙소 텍스트 -->
+        <span th:text="${trip.accommodation}">숙소 이름</span>
+        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+       th:href="${trip.accommodationLink}"
+       class="info-link"
+       target="_blank"
+       rel="noopener">
+      (지도)
+    </a>
+    <span th:unless="${trip.accommodationLink != null}"
+          class="info-link disabled">
+      (지도)
+    </span>
+        </div>
+    </div>
+        <div class="info-row">
+         <div class="info-label">가는 편</div>
+        <div class="info-value" th:text="${trip.departureTrip}"></div>
+        </div>
+        <div class="info-row">
+        <div class="info-label">오는 편</div>
+        <div class="info-value" th:text="${trip.returnTrip}"></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">태그</div>
+          <div class="info-value tag-list">
+            <span th:each="tripTag : ${tags}"
+                  class="tag"
+                  th:text="${tripTag.tagName}">
+              #태그이름
+            </span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">경비</div>
+          <div class="info-value">00원</div>
+          <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
+        </div>
+         <div class="info-row">
+            <div class="info-label">동행</div>
+            <div class="info-value">
+                <span th:each="name : ${memberNames}"
+                    th:text="${name}"
+                    class="member-tag"></span>
+                <span class="info-invite" onclick="openInviteModal()">초대</span>
             </div>
 
             <div class="info-table">
@@ -720,38 +778,44 @@
             function openInviteModal() {
                 document.getElementById("inviteModal").style.display = "flex";
             }
-            function closeInviteModal() {
-                document.getElementById("inviteModal").style.display = "none";
-                document.getElementById("inviteEmailInput").value = "";
-                document.getElementById("inviteMessage").textContent = "";
-            }
 
-            async function sendInvite() {
-                const email = document.getElementById("inviteEmailInput").value;
-                const message = document.getElementById("inviteMessage");
-                const tripId = /*[[${trip.id}]]*/ 0;
-
-                try {
-                    const response = await fetch(`/trips/${tripId}/invite`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email })
-                    });
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        message.style.color = "green";
-                        message.textContent = `"${result.username}" 님을 초대했어요!`;
-                    } else {
-                        message.style.color = "red";
-                        message.textContent = result.error || "초대 실패";
-                    }
-                } catch (e) {
-                    message.style.color = "red";
-                    message.textContent = "서버 오류가 발생했습니다.";
-                }
-            }
-        </script>
+        } catch (e) {
+            message.style.color = "red";
+            message.textContent = "서버 오류가 발생했습니다.";
+        }
+    }
+    function openDeleteModal() {
+  document.getElementById("deleteModal").style.display = "flex";
+}
+function closeDeleteModal() {
+  document.getElementById("deleteModal").style.display = "none";
+}
+async function confirmDelete() {
+  const tripId = /*[[${trip.id}]]*/ 0;
+  try {
+    const response = await fetch(`/trips/${tripId}/delete`, {
+      method: "POST"
+    });
+    if (response.ok) {
+      window.location.href = "/"; // TRIP ON 로고와 동일한 메인페이지 이동
+    } else {
+      alert("삭제에 실패했습니다.");
+    }
+  } catch (e) {
+    alert("서버 오류가 발생했습니다.");
+  }
+}
+  </script>
+  <!-- ✅ 삭제 확인 팝업 -->
+<div id="deleteModal" class="invite-modal" style="display: none;">
+  <div class="invite-modal-content">
+    <div class="invite-title">정말 이 여행을 삭제하시겠습니까?</div>
+    <div style="display: flex; gap: 16px;">
+      <button class="invite-send-btn" onclick="confirmDelete()">삭제</button>
+      <button class="invite-close-btn" onclick="closeDeleteModal()">취소</button>
+    </div>
+  </div>
+</div>
 </body>
 
 </html>
