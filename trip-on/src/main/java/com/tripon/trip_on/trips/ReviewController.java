@@ -167,24 +167,26 @@ public class ReviewController {
                 for (MultipartFile file : files) {
                     if (!file.isEmpty()) {
                         try {
-                            log.info("Processing file: {}, size: {} bytes", 
-                                file.getOriginalFilename(), file.getSize());
-                            
+                            log.info("파일 업로드 시도: {}, size: {} bytes", file.getOriginalFilename(), file.getSize());
                             String key = s3Service.uploadFile(file);
-                            log.info("File uploaded to S3: {}", key);
-                            
+                            log.info("S3 업로드 성공: {}", key);
+
                             String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
                             String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 
                                 bucket, region, key);
-                            
+
                             reviewService.saveReviewPhoto(review.getId(), imageUrl, imageUrl, fileType);
-                            log.info("ReviewPhoto saved for review ID: {}", review.getId());
+                            log.info("ReviewPhoto 저장 성공: {} (reviewId: {})", imageUrl, review.getId());
                         } catch (Exception e) {
-                            log.error("File upload failed: {}", e.getMessage(), e);
+                            log.error("파일 업로드/DB 저장 실패: {}", e.getMessage(), e);
                             throw new RuntimeException("파일 업로드에 실패했습니다: " + e.getMessage());
                         }
+                    } else {
+                        log.warn("비어있는 파일이 넘어옴: {}", file.getOriginalFilename());
                     }
                 }
+            } else {
+                log.warn("files가 null이거나 비어있음");
             }
 
             return "redirect:/trips/" + tripId + "/review";
