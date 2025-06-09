@@ -1,4 +1,3 @@
-
 package com.tripon.trip_on.trips;
 
 import com.tripon.trip_on.user.User;
@@ -227,6 +226,10 @@ public void updateTrip(Long tripId, TripUpdateDto dto) {
         tripMemberRepository.save(tripMember);
 
         return invitee.getUsername(); // 프론트에 보여줄 이름
+    }
+
+    public Trip getTripPlan(Long tripId) {
+        return tripRepository.findById(tripId).orElse(null);
     }
 
 }
