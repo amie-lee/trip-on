@@ -32,6 +32,7 @@ import com.tripon.trip_on.trips.Trip;
 import com.tripon.trip_on.trips.TripMember;
 import com.tripon.trip_on.trips.TripRepository;
 import com.tripon.trip_on.user.User;
+import com.tripon.trip_on.user.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +46,11 @@ public class ExpenseController {
     private final ExpenseService expenseService;
     private final ExpenseRepository expenseRepository;
     private final SplitService splitService;
+    private final UserRepository userRepository;    // ① UserRepository 주입
+
 
     @GetMapping
-    public String showExpenses(@PathVariable Long tripId, Model model) throws JsonProcessingException {
+    public String showExpenses(@PathVariable Long tripId, Model model, HttpSession session) throws JsonProcessingException {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
 
@@ -79,6 +82,13 @@ public class ExpenseController {
         String categoryTotalsJson = new ObjectMapper().writeValueAsString(categoryTotals);
 
         List<SplitResultDto> splitResults = splitService.calculateSettlement(tripId);
+        
+        Long currentUserId = (Long) session.getAttribute("userId");
+        if (currentUserId != null) {
+            userRepository.findById(currentUserId).ifPresent(u -> model.addAttribute("user", u));
+        } else {
+            model.addAttribute("user", null);
+        }
 
         model.addAttribute("categoryTotals", categoryTotals);
         model.addAttribute("categoryTotalsJson", categoryTotalsJson);
