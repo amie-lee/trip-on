@@ -1,278 +1,191 @@
-
+// --- Controller ---
 package com.tripon.trip_on.trips;
 
-import com.tripon.trip_on.expenses.Expense;
-import com.tripon.trip_on.expenses.ExpenseParticipant;
-import com.tripon.trip_on.expenses.repository.ExpenseParticipantRepository;
-import com.tripon.trip_on.expenses.repository.ExpenseRepository;
-import com.tripon.trip_on.user.User;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
+
 import com.tripon.trip_on.user.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class TripService {
+/**
+ * PlanController
+ * 여행 등록 과정 (4단계 폼) 컨트롤러
+ * - 목적지 → 일정 → 숙소/교통편 → 태그 순으로 입력
+ * - 각 단계에서 @ModelAttribute("trip")에 저장되는 TripRegisterDto로 데이터 누적
+ */
+@Controller
+@RequestMapping("/trips")
+@SessionAttributes("tripRegisterDto")  // TripRegisterDto를 세션에 저장해 단계별 폼에서 공유
+public class TripController {
 
-    @Autowired private TripRepository tripRepository;
-    @Autowired private TripTagRepository tripTagRepository;
-    @Autowired private ScheduleRepository scheduleRepository;
-    @Autowired private TripMemberRepository tripMemberRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private ExpenseParticipantRepository expenseParticipantRepository;
-    @Autowired private ExpenseRepository expenseRepository;
-    @Autowired private ReviewRepository reviewRepository;
-    @Autowired private ReviewPhotoRepository reviewPhotoRepository;
-    @Autowired private ReviewLikeRepository reviewLikeRepository;
+    @Autowired
+    private TripService planService;
+
+    @Autowired
+    private UserRepository userRepository;  // ← UserRepository 주입
 
 
-    /** 로그인 유저의 Trip 목록 */
-    public List<Trip> findByCreatorId(Long userId) {
-        return tripRepository.findByCreatorId(userId);
+
+    // 초기 trip DTO 생성 (세션에 등록됨)
+    @ModelAttribute("tripRegisterDto")
+    public TripRegisterDto tripRegisterDto() {
+        return new TripRegisterDto();
+    }
+/*
+   @GetMapping("/register/trip-place")
+    public String showPlaceForm(
+        @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
+        Model model) {
+    model.addAttribute("tripRegisterDto", dto);
+    return "trips/trip-place";
+}
+
+    // 1단계: 여행지 입력 처리
+    @PostMapping("/register/trip-place")
+    public String processPlace(@ModelAttribute("tripRegisterDto") TripRegisterDto dto) {
+        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
+            return "trips/trip-place"; // 여행지(title) 미입력 시 다시 해당 페이지
+        }
+        return "redirect:/trips/register/trip-schedule";
     }
 
-    /** 특정 Trip의 태그명 리스트 */
-    public List<String> getTags(Long tripId) {
-        return tripTagRepository.findByTripIdOrderById(tripId).stream()
-                .map(TripTag::getTagName)
-                .collect(Collectors.toList());
+    @GetMapping("/register/trip-schedule")
+    public String scheduleForm(
+        @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
+        Model model) {
+    // Spring이 세션에 보관된 tripRegisterDto를 꺼내서 dto에 주입해 줍니다.
+    model.addAttribute("tripRegisterDto", dto);
+    return "trips/trip-schedule";
+}
+
+    // 2단계: 일정 입력 처리
+    @PostMapping("/register/trip-schedule")
+    public String processSchedule(@ModelAttribute("tripRegisterDto") TripRegisterDto dto) {
+        // 시작일과 종료일이 유효할 경우 다음 단계로
+        if (dto.getStartDate() != null && dto.getEndDate() != null && !dto.getEndDate().isBefore(dto.getStartDate())) {
+            return "redirect:/trips/register/trip-trans";
+        }
+        return "trips/trip-schedule";
     }
 
-    /** 전체 사용 가능한 태그명 */
-    public List<String> getAllTagNames() {
-        return tripTagRepository.findDistinctTagNames();
+  @GetMapping("/register/trip-trans")
+public String accommodationForm(
+        @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
+        Model model) {
+    model.addAttribute("tripRegisterDto", dto);
+    return "trips/trip-trans";
+}
+
+    @PostMapping("/register/trip-trans")
+    public String processAccommodation(
+            @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
+            @RequestParam(required = false) String skip) {
+    
+        // 건너뛰기 눌렀다면 null 처리
+        if (skip != null) {
+            dto.setAccommodation(null);
+            dto.setDepartureTrip(null);
+            dto.setReturnTrip(null);
+        }
+        // Trip 저장하지 않고 바로 태그 단계로 이동
+        return "redirect:/trips/register/trip-tags";
     }
 
-     /** 새로운 Trip 저장 */
-    @Transactional
-    public Trip saveTrip(Long userId, TripRegisterDto dto) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    // 4단계: 태그 선택 폼
+    @GetMapping("/register/trip-tags")
+    public String tagForm(Model model) {
+        model.addAttribute("allTags", List.of(
+            "#혼자서", "#친구랑", "#가족여행",
+            "#연인과", "#휴식",   "#관광"
+        ));
+        return "trips/trip-tags";
+    }
 
-         Trip trip = new Trip();
-        trip.setTitle(dto.getTitle());
-        trip.setStartDate(dto.getStartDate());
-        trip.setEndDate(dto.getEndDate());
-        trip.setAccommodation(dto.getAccommodation());
-        trip.setDepartureTrip(dto.getDepartureTrip());
-        trip.setReturnTrip(dto.getReturnTrip());
-        trip.setCreatorId(userId);
-        trip.setAccommodationLink(dto.getAccommodationLink());
+    @PostMapping("/register/trip-tags")
+    public String submitTags(
+        //체크박스에서 선택된 태그들이 배열로 넘어옴.
+            @RequestParam(required = false, name = "selectedTags") String[] selectedTags,
+            @ModelAttribute("tripRegisterDto") TripRegisterDto dto,
+            //세션에서 로그인된 사용자 ID 꺼내기 위해 필요
+            HttpSession session,  SessionStatus sessionStatus) {
 
-        Trip savedTrip = tripRepository.save(trip);
+        // 1) 로그인 사용자 ID 가져옴.
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
 
-        TripMember tripMember = new TripMember();
-        tripMember.setTrip(savedTrip);
-        tripMember.setUser(user);
-        tripMemberRepository.save(tripMember);
+        // 2) Trip 엔티티 저장 (여기서 ID 생성)
+        Trip savedTrip = planService.saveTrip(userId, dto);
+
+
+        // 3) 선택된 태그가 있으면 TripTag 저장
+        if (selectedTags != null) {
+            planService.saveTags(savedTrip, Arrays.asList(selectedTags));
+        }
         
-        return tripRepository.save(trip);
+        // 4) 세션에 남은 임시 DTO 정리 (선택)
+         sessionStatus.setComplete();
+
+        // 5) 저장 후 상세 페이지로 이동
+        return "redirect:/trips/main-past";
     }
 
-    /** TripTag 저장 */
-    public void saveTags(Trip trip, List<String> tags) {
-        tags.forEach(tagName -> {
-            TripTag tag = new TripTag();
-            tag.setTrip(trip);
-            tag.setTagName(tagName);
-            tripTagRepository.save(tag);
-        });
-    }
+    */
 
-    /**
-     * Trip의 시작일과 종료일을 이용해 날짜 라벨 리스트 생성
-     * 예: "4/1 (1일차)", "4/2 (2일차)", ...
-     * @param trip Trip 엔티티
-     * @return 날짜 라벨 리스트
-     */
-    public List<String> generateDateLabels(Trip trip) {
-        LocalDate start = trip.getStartDate();
-        LocalDate end   = trip.getEndDate();
 
-        List<String> dateLabels = new ArrayList<>();
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-            int dayNumber = (int) ChronoUnit.DAYS.between(start, date) + 1;
-            String label = date.getMonthValue() + "/" + date.getDayOfMonth()
-                    + " (" + dayNumber + "일차)";
-            dateLabels.add(label);
+    @GetMapping("/register/trip-register")
+    public String showTripRegisterPage(Model model, HttpSession session) {
+        // 1) 로그인 여부 확인
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
         }
-        return dateLabels;
+
+        // — 여기에 user 모델 추가 —
+        userRepository.findById(userId).ifPresent(u -> model.addAttribute("user", u));
+
+        // 2) 폼 초기 데이터 설정
+        model.addAttribute("tripRegisterDto", new TripRegisterDto());
+        model.addAttribute("allTags", List.of("#혼자서", "#친구랑", "#가족여행", "#연인과", "#휴식", "#관광"));
+        return "trips/trip-register";
+    }
+    
+@PostMapping("/register/trip-register")
+public String processUnifiedForm(
+        @ModelAttribute TripRegisterDto dto,
+        HttpSession session,
+        Model model) {
+
+    Long userId = (Long) session.getAttribute("userId");
+    if (userId == null) return "redirect:/user/login";
+
+    // 필수값 체크
+    if (dto.getTitle() == null || dto.getTitle().isBlank()
+            || dto.getStartDate() == null || dto.getEndDate() == null
+            || dto.getEndDate().isBefore(dto.getStartDate())) {
+
+        model.addAttribute("tripRegisterDto", dto); // 기존 값 유지
+        model.addAttribute("allTags", List.of("#혼자서", "#친구랑", "#가족여행", "#연인과", "#휴식", "#관광"));
+        model.addAttribute("error", true); // 에러 메시지 출력용
+        return "trips/trip-register";     // redirect X
     }
 
-    /** 편집 폼용 DTO 생성 */
-    @Transactional(readOnly = true)
-    public TripUpdateDto getTripUpdateDto(Long tripId) {
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
+    Trip savedTrip = planService.saveTrip(userId, dto);
 
-        // 기존 태그들에서 '#' 빼고 콤마로 합침
-        String tagsText = tripTagRepository.findAllByTripId(tripId).stream()
-            .map(TripTag::getTagName)
-            .map(name -> name.startsWith("#") ? name.substring(1) : name)
-            .collect(Collectors.joining(","));
-
-        return TripUpdateDto.builder()
-            .title(trip.getTitle())
-            .startDate(trip.getStartDate())
-            .endDate(trip.getEndDate())
-            .accommodation(trip.getAccommodation())
-            .accommodationLink(trip.getAccommodationLink()) 
-            .departureTrip(trip.getDepartureTrip())
-            .returnTrip(trip.getReturnTrip())
-            .tagsText(tagsText)
-            .build();
+    if (dto.getSelectedTags() != null && !dto.getSelectedTags().isEmpty()) {
+        planService.saveTags(savedTrip, dto.getSelectedTags());
     }
-     /** 수정 처리: 엔티티와 태그, 숙소 링크 업데이트 */
-@Transactional
-public void updateTrip(Long tripId, TripUpdateDto dto) {
-    Trip trip = tripRepository.findById(tripId)
-        .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + tripId));
 
-    // 기본 필드 업데이트
-    trip.setTitle(dto.getTitle());
-    trip.setStartDate(dto.getStartDate());
-    trip.setEndDate(dto.getEndDate());
-    trip.setAccommodation(dto.getAccommodation());
-    // ★ 숙소 링크 필드 업데이트 추가 ★
-    trip.setAccommodationLink(dto.getAccommodationLink());
-    trip.setDepartureTrip(dto.getDepartureTrip());
-    trip.setReturnTrip(dto.getReturnTrip());
-
-    // 기존 태그 삭제
-    tripTagRepository.deleteAllByTrip(trip);
-
-    // 새 태그 저장
-    if (dto.getTagsText() != null && !dto.getTagsText().isBlank()) {
-        Arrays.stream(dto.getTagsText().split(","))
-              .map(String::trim)
-              .filter(s -> !s.isEmpty())
-              .map(s -> s.startsWith("#") ? s : "#" + s)
-              .forEach(tagName -> {
-                  TripTag tag = new TripTag();
-                  tag.setTrip(trip);
-                  tag.setTagName(tagName);
-                  tripTagRepository.save(tag);
-              });
-    }
+    return "redirect:/trips/main-past";
 }
 
-   /** 특정 여행의 기존 일정 DTO 리스트 로드 (day/time으로 정렬) */
-    public List<ScheduleUpdateDto> loadSchedules(Long tripId) {
-        return scheduleRepository.findAllByTripIdOrderByDayNumberAscTimeAsc(tripId).stream()
-            .map(s -> ScheduleUpdateDto.builder()
-                .id(s.getId())
-                .tripId(tripId)
-                .dayNumber(s.getDayNumber())
-                .time(s.getTime())
-                .content(s.getContent())
-                .toDelete(false)
-                .build())
-            .collect(Collectors.toList());
-    }
 
-    /** ScheduleUpdateDto 리스트를 DB에 반영 (생성·삭제·수정) */
-    @Transactional
-    public void saveSchedules(List<ScheduleUpdateDto> dtos) {
-        for (ScheduleUpdateDto dto : dtos) {
-            if (dto.getId() != null) {
-                // ── 기존 일정 ──
-                if (dto.isToDelete()) {
-                    // 삭제 플래그가 세팅된 항목 삭제
-                    scheduleRepository.deleteById(dto.getId());
-                } else {
-                    // 수정: 엔티티 로드 후 필드 업데이트
-                    Schedule existing = scheduleRepository.findById(dto.getId())
-                        .orElseThrow(() -> new EntityNotFoundException(
-                             "Schedule not found: " + dto.getId()));
-                    existing.setDayNumber(dto.getDayNumber());
-                    existing.setTime(dto.getTime());
-                    existing.setContent(dto.getContent());
-                    // 별도 save() 호출 없이, 트랜잭션 커밋 시 변경 반영됨
-                }
-            } else {
-                // ── 신규 일정 ──
-                if (!dto.isToDelete()) {
-                    Schedule s = new Schedule();
-                    // 프록시 참조로 Trip 세팅
-                    Trip t = tripRepository.getReferenceById(dto.getTripId());
-                    s.setTrip(t);
-                    s.setDayNumber(dto.getDayNumber());
-                    s.setTime(dto.getTime());
-                    s.setContent(dto.getContent());
-                    scheduleRepository.save(s);
-                }
-            }
-        }
-    }
-
-    @Transactional
-    public String inviteMember(Long tripId, String email) {
-        // 1. 초대받을 사용자 존재 확인
-        User invitee = userRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 없습니다."));
-
-        // 2. 여행이 존재하는지 (내가 만든 여행이든, 내가 초대할 수 있는 여행이든)
-        Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 여행이 존재하지 않습니다."));
-
-        // 3. 이미 초대된 사용자라면 중복 방지
-        if (tripMemberRepository.existsByTripIdAndUserId(tripId, invitee.getId())) {
-            throw new IllegalStateException("이미 초대된 사용자입니다.");
-        }
-
-        // 4. TripMember 생성
-        TripMember tripMember = new TripMember();
-        tripMember.setTrip(trip);
-        tripMember.setUser(invitee);
-        tripMemberRepository.save(tripMember);
-
-        return invitee.getUsername(); // 프론트에 보여줄 이름
-    }
-
-    @Transactional
-public void deleteTripByIdAndUser(Long tripId, Long userId) {
-    Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여행입니다."));
-    if (!trip.getCreatorId().equals(userId)) {
-        throw new SecurityException("삭제 권한이 없습니다.");
-    }
-
-    // 1) Expense 관련 삭제
-    List<Expense> expenses = expenseRepository.findByTripId(tripId);
-    List<Long> expenseIds = expenses.stream()
-            .map(Expense::getId)
-            .toList();
-    if (!expenseIds.isEmpty()) {
-        expenseParticipantRepository.deleteByExpenseIdIn(expenseIds);
-    }
-    expenseRepository.deleteByTripId(tripId);
-
-    // 2) Schedule, Member, Tag 삭제
-    scheduleRepository.deleteByTripId(tripId);
-    tripMemberRepository.deleteByTripId(tripId);
-    tripTagRepository.deleteByTripId(tripId);
-
-    // 3) Review & 연관 Photo/Like 삭제
-    List<Review> reviews = reviewRepository.findByTripId(tripId);
-    List<Long> reviewIds = reviews.stream()
-            .map(Review::getId)
-            .toList();
-    if (!reviewIds.isEmpty()) {
-        reviewPhotoRepository.deleteByReviewIdIn(reviewIds);
-        reviewLikeRepository.deleteByReviewIdIn(reviewIds);
-    }
-    reviewRepository.deleteByTripId(tripId);
-
-    // 4) 마지막으로 Trip 삭제
-    tripRepository.delete(trip);
-}
 }

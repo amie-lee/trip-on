@@ -56,14 +56,28 @@ public class S3Service {
 
         s3.putObject(por, RequestBody.fromBytes(multipartFile.getBytes()));
 
-        return String.format("https://%s.s3.%s.amazonaws.com/%s",
-                bucketName, regionId, key);
+        return key;
     }
 
     // 파일 업로드 - 랜덤 파일명 생성 (디폴트 dir 없음)
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        return uploadFile(file, fileName);
+        String extension = "";
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        }
+        String key = "uploads/" + UUID.randomUUID() + extension;
+
+        PutObjectRequest por = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .build();
+
+        s3.putObject(por, RequestBody.fromBytes(file.getBytes()));
+
+        // key만 반환하고 URL은 Controller에서 생성하도록 수정
+        return key;
     }
 
     // S3 URL로부터 파일 삭제

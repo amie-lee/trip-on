@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>여행 상세 | TRIP ON</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet" />
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background: #fff;
             font-family: 'Noto Sans KR', sans-serif;
             min-height: 100vh;
             padding: 20px 60px;
         }
+
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -45,6 +54,7 @@
             background-color: #d9d9d9;
             border-radius: 50%;
         }
+
         /* 메인 콘텐츠 */
 
         .container {
@@ -53,6 +63,7 @@
             margin-top: 40px;
             position: relative;
         }
+
         .left-info {
             width: 370px;
             min-width: 320px;
@@ -78,7 +89,7 @@
             border-radius: 8px;
             box-sizing: border-box;
         }
-        
+
         .trip-menu-box {
             display: flex;
             gap: 8px;
@@ -103,11 +114,13 @@
         .info-table {
             margin-bottom: 16px;
         }
+
         .info-row {
             display: flex;
             margin-bottom: 16px;
             font-size: 18px;
         }
+
         .info-label {
             width: 70px;
             color: #000;
@@ -124,11 +137,16 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        
+
         .tag {
-            display: inline-block; border: 1.5px solid #888; border-radius: 30px;
-            padding: 4px 16px; font-size: 16px; color: #222; 
-            background: #f5f5f5; border-color: #888; 
+            display: inline-block;
+            border: 1.5px solid #888;
+            border-radius: 30px;
+            padding: 4px 16px;
+            font-size: 16px;
+            color: #222;
+            background: #f5f5f5;
+            border-color: #888;
         }
 
         .info-link {
@@ -137,20 +155,20 @@
             cursor: pointer;
             margin-left: 8px;
         }
-        
+
         .info-invite {
             color: #000;
             text-decoration: underline;
             cursor: pointer;
         }
-        
+
         .side-btns {
             margin-top: 40px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-        
+
         .side-btn {
             width: 100%;
             border-radius: 8px;
@@ -164,6 +182,7 @@
             text-align: center;
             transition: background 0.2s, color 0.2s;
         }
+
         .side-btn.selected {
             background: #000;
             color: #fff;
@@ -174,7 +193,7 @@
             background: #000;
             color: #fff;
         }
-        
+
         .right-content {
             flex: 1;
             min-width: 0;
@@ -186,6 +205,7 @@
             justify-content: flex-end;
             margin-bottom: 20px;
         }
+
         .edit-label {
             background: #DBDBDB;
             border-radius: 30px;
@@ -201,7 +221,7 @@
             color: #fff;
         }
 
-         .plan-box {
+        .plan-box {
             width: 100%;
             max-width: 900px;
             min-width: 320px;
@@ -214,6 +234,7 @@
             align-items: stretch;
             position: relative;
         }
+
         .days-row {
             display: flex;
             gap: 40px;
@@ -268,9 +289,17 @@
         }
 
         .schedule-remove {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #666; font-size: 20px; cursor: pointer;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
         }
+
         .schedule-input-row {
             display: flex;
             border-radius: 8px;
@@ -280,7 +309,7 @@
             gap: 0;
             margin-bottom: 8px;
         }
-        
+
         .schedule-add-btn {
             background: #fff;
             border: 1.5px solid #bbb;
@@ -293,10 +322,12 @@
             margin-bottom: 8px;
             width: 100%;
         }
+
         .schedule-add-btn:hover {
             background: #000;
             color: #fff;
         }
+
         .plan-save-btn {
             position: absolute;
             right: 32px;
@@ -312,33 +343,95 @@
             align-items: center;
             justify-content: center;
         }
+
         .back-link {
             position: absolute;
-            right: 18PX; top: -40px; 
-            font-size: 16Px; color: #222; 
+            right: 18PX;
+            top: -40px;
+            font-size: 16Px;
+            color: #222;
             text-decoration: none;
         }
+
         @media (max-width: 1100px) {
-            .container { flex-direction: column; gap: 40px; }
-            .left-info { width: 100%; min-width: 0; border-right: none; padding-right: 0; }
-            .plan-box { min-width: 0; }
-            .days-row { gap: 20px; flex-direction: column; }
-            .day-col { gap: 8px; }
-            
+            .container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .left-info {
+                width: 100%;
+                min-width: 0;
+                border-right: none;
+                padding-right: 0;
+            }
+
+            .plan-box {
+                min-width: 0;
+            }
+
+            .days-row {
+                gap: 20px;
+                flex-direction: column;
+            }
+
+            .day-col {
+                gap: 8px;
+            }
+
         }
+
         @media (max-width: 700px) {
-            body { padding: 20px; }
-            .logo { font-size: 32px; left: 20px; top: 20px; }
-            .top-bar { margin-bottom: 16px; }
-            .container { gap: 20px; }
-            .trip-title { font-size: 22px; }
-            .info-row { font-size: 15px; }
-            .side-btn { width: 100%; height: 40px; font-size: 15px; }
-            .plan-box { padding: 20px 8px 16px 8px; }
-            .days-row { flex-direction: column; gap: 16px; }
-            .day-col { gap: 6px; }
-            .day-title { font-size: 16px; }
+            body {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 32px;
+                left: 20px;
+                top: 20px;
+            }
+
+            .top-bar {
+                margin-bottom: 16px;
+            }
+
+            .container {
+                gap: 20px;
+            }
+
+            .trip-title {
+                font-size: 22px;
+            }
+
+            .info-row {
+                font-size: 15px;
+            }
+
+            .side-btn {
+                width: 100%;
+                height: 40px;
+                font-size: 15px;
+            }
+
+            .plan-box {
+                padding: 20px 8px 16px 8px;
+            }
+
+            .days-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .day-col {
+                gap: 6px;
+            }
+
+            .day-title {
+                font-size: 16px;
+            }
         }
+
         .menu-dot {
             background: none;
             border: none;
@@ -351,6 +444,7 @@
             padding: 0;
             vertical-align: middle;
         }
+
         .menu-popup {
             position: absolute;
             top: 40px;
@@ -358,13 +452,14 @@
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 12px 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             z-index: 10;
         }
+
         .menu-popup .menu-btn {
             background: #f5f5f5;
             border: 1.5px solid #888;
@@ -379,16 +474,22 @@
             color: #222;
             text-align: center;
         }
+
         .invite-modal {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.08);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
+
         .invite-modal-content {
             background: #ddd;
             border: 2px solid #444;
@@ -396,23 +497,26 @@
             padding: 36px 32px 24px 32px;
             min-width: 420px;
             max-width: 90vw;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .invite-title {
             font-size: 24px;
             text-align: center;
             margin-bottom: 36px;
             font-weight: 400;
         }
+
         .invite-form-row {
             display: flex;
             width: 100%;
             gap: 16px;
             margin-bottom: 16px;
         }
+
         .invite-input {
             flex: 1 1 0;
             border: none;
@@ -422,6 +526,7 @@
             background: #fff;
             outline: none;
         }
+
         .invite-send-btn {
             border: none;
             border-radius: 12px;
@@ -431,20 +536,25 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-send-btn:hover {
             background: #eee;
         }
+
         .invite-message {
             width: 100%;
             font-size: 16px;
             margin-bottom: 4px;
         }
+
         .invite-error {
             color: #c44;
         }
+
         .invite-success {
             color: #c44;
         }
+
         .invite-close-btn {
             margin-top: 24px;
             border: none;
@@ -455,9 +565,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-close-btn:hover {
             background: #eee;
         }
+
         #saveInfoBtn {
             display: none;
             margin-top: 0px;
@@ -478,176 +590,168 @@
             overflow-y: auto;
             padding-bottom: 10px;
         }
-       /* 숙소 입력 행을 세로로 배치 */
-    .info-row:nth-child(2) .info-value {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
 
-    /* “지도로 추가” / “링크 삭제” 버튼 스타일 */
-    #openMapBtn, #removeLinkBtn {
-      background: none;
-      border: none;
-      color: #0077cc;
-      text-decoration: underline;
-      cursor: pointer;
-      padding: 0;
-      margin-top: 4px;
-      font-size: 14px;
-    }
+        /* 숙소 입력 행을 세로로 배치 */
+        .info-row:nth-child(2) .info-value {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-    /* 기본 숨김 */
-    #removeLinkBtn {
-      display: none;
-    }
+        /* "지도로 추가" / "링크 삭제" 버튼 스타일 */
+        #openMapBtn,
+        #removeLinkBtn {
+            background: none;
+            border: none;
+            color: #0077cc;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            margin-top: 4px;
+            font-size: 14px;
+        }
+
+        /* 기본 숨김 */
+        #removeLinkBtn {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
-  <!-- 헤더 -->
-  <div th:replace="~{fragments/header :: header(${user})}"></div>
-  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+    <!-- 헤더 -->
+    <div th:replace="~{fragments/header :: header(${user})}"></div>
+    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
-  <div class="container">
-    <!-- LEFT INFO (편집 폼) -->
-    <div class="left-info">
-      <form th:action="@{/trips/{id}/trip-plan-trip(id=${tripId})}"
-            th:object="${tripUpdateDto}" method="post">
+    <div class="container">
+        <!-- LEFT INFO (편집 폼) -->
+        <div class="left-info">
+            <form th:action="@{/trips/{id}/trip-plan-trip(id=${tripId})}" th:object="${tripUpdateDto}" method="post">
 
-        <!-- 제목 -->
-        <div class="trip-title-row">
-          <input type="text"
-                 th:field="*{title}"
-                 class="trip-title"
-                 placeholder="여행 제목"
-                 required/>
+                <!-- 제목 -->
+                <div class="trip-title-row">
+                    <input type="text" th:field="*{title}" class="trip-title" placeholder="여행 제목" required />
+                </div>
+
+                <div class="info-table">
+                    <!-- 기간 -->
+                    <div class="info-row">
+                        <div class="info-label">기간</div>
+                        <div class="info-value">
+                            <input type="date" th:field="*{startDate}" required /> -
+                            <input type="date" th:field="*{endDate}" required />
+                        </div>
+                    </div>
+
+                    <!-- 숙소 -->
+                    <div class="info-row">
+                        <div class="info-label">숙소</div>
+                        <div class="info-value">
+                            <!-- 1) 텍스트 입력 -->
+                            <input type="text" th:field="*{accommodation}" id="accommodationInput"
+                                placeholder="직접 입력 또는 지도로 추가" />
+
+                            <!-- 2) 숨김 필드: 링크 저장 (폼에서 제거될 수 있음) -->
+                            <input type="hidden" th:field="*{accommodationLink}" id="accommodationLinkInput" />
+
+                            <!-- 3) 지도로 추가 버튼 -->
+                            <button type="button" id="openMapBtn">지도로 추가</button>
+
+                            <!-- 4) 링크 삭제 버튼 -->
+                            <button type="button" id="removeLinkBtn">링크 삭제</button>
+                        </div>
+                    </div>
+
+                    <!-- 교통편 -->
+                    <div class="info-row">
+                        <div class="info-label">교통편</div>
+                        <div class="info-value">
+                            <input type="text" th:field="*{departureTrip}" placeholder="가는 교통편" />,
+                            <input type="text" th:field="*{returnTrip}" placeholder="오는 교통편" />
+                        </div>
+                    </div>
+
+                    <!-- 태그 -->
+                    <div class="info-row">
+                        <div class="info-label">태그</div>
+                        <div class="info-value">
+                            <input type="text" th:field="*{tagsText}" placeholder="a,b,c" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 저장 / 취소 -->
+                <button class="side-btn selected" type="submit">저장</button>
+                <button class="side-btn" type="button"
+                    th:onclick="|location.href='@{/trips/{id}/trip-plan(id=${tripId})}'|">
+                    취소
+                </button>
+            </form>
+            <div class="side-btns" style="margin-top:24px;">
+                <button class="side-btn selected" type="button">계획</button>
+                <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn">후기</a>
+            </div>
         </div>
 
-        <div class="info-table">
-          <!-- 기간 -->
-          <div class="info-row">
-            <div class="info-label">기간</div>
-            <div class="info-value">
-              <input type="date" th:field="*{startDate}" required/> -
-              <input type="date" th:field="*{endDate}" required/>
+        <!-- RIGHT DAYS & SCHEDULES (기존 그대로) -->
+        <div class="right-content">
+            <div class="plan-box">
+                <div class="scroll-container">
+                    <div class="days-row">
+                        <div th:each="label, stat : ${dateLabels}" th:id="|day-${stat.count}|" class="day-col">
+                            <div class="day-title" th:text="${label}">날짜</div>
+                            <div class="schedule-list" th:with="dayList=${scheduleMap[stat.count]}">
+                                <div th:if="${dayList == null or #lists.isEmpty(dayList)}" class="empty-message">
+                                    등록된 일정이 없습니다.
+                                </div>
+                                <div th:each="s : ${dayList}" class="schedule-item">
+                                    <span class="schedule-time" th:text="${#temporals.format(s.time,'HH:mm')}">
+                                        --:--
+                                    </span>
+                                    <span class="schedule-content" th:text="${s.content}">
+                                        내용
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <!-- 숙소 -->
-          <div class="info-row">
-            <div class="info-label">숙소</div>
-            <div class="info-value">
-              <!-- 1) 텍스트 입력 -->
-              <input type="text"
-                     th:field="*{accommodation}"
-                     id="accommodationInput"
-                     placeholder="직접 입력 또는 지도로 추가"/>
-
-              <!-- 2) 숨김 필드: 링크 저장 (폼에서 제거될 수 있음) -->
-              <input type="hidden"
-                     th:field="*{accommodationLink}"
-                     id="accommodationLinkInput"/>
-
-              <!-- 3) 지도로 추가 버튼 -->
-              <button type="button" id="openMapBtn">지도로 추가</button>
-
-              <!-- 4) 링크 삭제 버튼 -->
-              <button type="button" id="removeLinkBtn">링크 삭제</button>
-            </div>
-          </div>
-
-          <!-- 교통편 -->
-          <div class="info-row">
-            <div class="info-label">교통편</div>
-            <div class="info-value">
-              <input type="text" th:field="*{departureTrip}" placeholder="가는 교통편"/>,
-              <input type="text" th:field="*{returnTrip}" placeholder="오는 교통편"/>
-            </div>
-          </div>
-
-          <!-- 태그 -->
-          <div class="info-row">
-            <div class="info-label">태그</div>
-            <div class="info-value">
-              <input type="text" th:field="*{tagsText}" placeholder="a,b,c"/>
-            </div>
-          </div>
         </div>
-
-        <!-- 저장 / 취소 -->
-        <button class="side-btn selected" type="submit">저장</button>
-        <button class="side-btn" type="button"
-                th:onclick="|location.href='@{/trips/{id}/trip-plan(id=${tripId})}'|">
-          취소
-        </button>
-      </form>
     </div>
 
-    <!-- RIGHT DAYS & SCHEDULES (기존 그대로) -->
-    <div class="right-content">
-      <div class="plan-box">
-        <div class="scroll-container">
-          <div class="days-row">
-            <div th:each="label, stat : ${dateLabels}"
-                 th:id="|day-${stat.count}|"
-                 class="day-col">
-              <div class="day-title" th:text="${label}">날짜</div>
-              <div class="schedule-list"
-                   th:with="dayList=${scheduleMap[stat.count]}">
-                <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
-                     class="empty-message">
-                  등록된 일정이 없습니다.
-                </div>
-                <div th:each="s : ${dayList}"
-                     class="schedule-item">
-                  <span class="schedule-time"
-                        th:text="${#temporals.format(s.time,'HH:mm')}">
-                    --:--
-                  </span>
-                  <span class="schedule-content"
-                        th:text="${s.content}">
-                    내용
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    <!-- 팝업 제어 스크립트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openMapBtn = document.getElementById('openMapBtn');
+            const removeLinkBtn = document.getElementById('removeLinkBtn');
+            const accInput = document.getElementById('accommodationInput');
+            const accLinkInput = document.getElementById('accommodationLinkInput');
 
-   <!-- 팝업 제어 스크립트 -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const openMapBtn    = document.getElementById('openMapBtn');
-      const removeLinkBtn = document.getElementById('removeLinkBtn');
-      const accInput      = document.getElementById('accommodationInput');
-      const accLinkInput  = document.getElementById('accommodationLinkInput');
+            // 초기: 기존 링크가 있으면 삭제 버튼 보이기
+            if (accLinkInput.value && accLinkInput.value.trim() !== '') {
+                removeLinkBtn.style.display = 'inline';
+            }
 
-      // 초기: 기존 링크가 있으면 삭제 버튼 보이기
-      if (accLinkInput.value && accLinkInput.value.trim() !== '') {
-        removeLinkBtn.style.display = 'inline';
-      }
+            // 지도로 추가 → 팝업 열기
+            openMapBtn.addEventListener('click', () => {
+                window.open('/map-popup', 'mapPopup', 'width=800,height=600');
+            });
 
-      // 지도로 추가 → 팝업 열기
-      openMapBtn.addEventListener('click', () => {
-        window.open('/map-popup', 'mapPopup', 'width=800,height=600');
-      });
+            // 링크 삭제: hidden input 값만 비우고 버튼 숨기기
+            removeLinkBtn.addEventListener('click', () => {
+                accLinkInput.value = '';      // 값을 공백으로 설정
+                removeLinkBtn.style.display = 'none';
+            });
 
-      // 링크 삭제: hidden input 값만 비우고 버튼 숨기기
-      removeLinkBtn.addEventListener('click', () => {
-        accLinkInput.value = '';      // 값을 공백으로 설정
-        removeLinkBtn.style.display = 'none';
-      });
-
-      // 팝업에서 선택 시 호출
-      window.receivePlaceFromPopup = (name, url) => {
-        accInput.value = name;
-        accLinkInput.value = url;
-        removeLinkBtn.style.display = 'inline';
-      };
-    });
-  </script>
+            // 팝업에서 선택 시 호출
+            window.receivePlaceFromPopup = (name, url) => {
+                accInput.value = name;
+                accLinkInput.value = url;
+                removeLinkBtn.style.display = 'inline';
+            };
+        });
+    </script>
 </body>
+
 </html>
