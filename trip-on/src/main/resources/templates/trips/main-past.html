@@ -29,13 +29,21 @@
     color: #fff;
 }
 
+.trip-card:hover .trip-tags {
+    color: #fff;
+}
+
+.trip-card.past:hover .trip-tags {
+    color: #fff;
+}
+
         body {
             background-color: #fff;
             font-family: 'Noto Sans KR', sans-serif;
-            padding: 20px 60px;
-            height: 100vh;
+            padding: 20px 60px 40px 60px;
+            min-height: 100vh;
             position: relative;
-            overflow: hidden;
+            overflow: auto;
         }
 
         /* 헤더 영역 */
@@ -155,6 +163,7 @@
         /* 컨텐츠 영역 */
         .content {
             padding-top: 60px;
+            margin-bottom: 40px;
         }
    </style>
 </head>
