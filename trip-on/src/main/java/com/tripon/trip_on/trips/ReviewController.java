@@ -23,6 +23,12 @@ import java.security.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.servlet.http.HttpSession;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tripon.trip_on.user.UserService;
+import com.tripon.trip_on.user.User;
+
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
@@ -33,6 +39,7 @@ public class ReviewController {
     private final S3Service s3Service;
     private final TripService tripService;
     private final TripTagRepository tripTagRepository;
+    private final UserService userService;
 
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
@@ -54,42 +61,62 @@ public class ReviewController {
      * @return 후기 페이지 뷰 이름
      */
     @GetMapping("/trips/{tripId}/review")
-    public String showReviewPage(@PathVariable Long tripId,
-                                 @RequestParam(value = "editReviewId", required = false) Long editReviewId,
-                                 Model model, Principal principal) {
-        Trip trip = reviewService.getTripPlan(tripId);
-        if (trip == null) {
-            return "error/404"; // 여행이 없으면 404 페이지로 이동
-        }
-        
-        Long currentUserId = 0L;
-        if (principal != null) {
-            try {
-                currentUserId = Long.valueOf(principal.getName());
-            } catch (Exception e) {
-                currentUserId = 0L;
+    public String showReviewPage(
+            @PathVariable Long tripId,
+            @RequestParam(value = "editReviewId", required = false) Long editReviewId,
+            Model model,
+            HttpSession session) {
+        try {
+            log.info("Showing review page for tripId: {}", tripId);
+            
+            // 세션에서 userId 가져오기
+            Long userId = (Long) session.getAttribute("userId");
+            if (userId == null) {
+                log.warn("User not logged in, redirecting to login page");
+                return "redirect:/user/login";
             }
-            model.addAttribute("user", principal);
+            
+            // 사용자 정보 조회 및 model에 추가
+            User user = userService.getUserById(userId).orElse(null);
+            model.addAttribute("user", user);
+            
+            Trip trip = reviewService.getTripPlan(tripId);
+            if (trip == null) {
+                log.error("Trip not found for id: {}", tripId);
+                return "error/404";
+            }
+            
+            log.debug("Trip details - id: {}, title: {}, accommodation: {}", 
+                trip.getId(), trip.getTitle(), trip.getAccommodation());
+            
+            List<Review> reviews = reviewService.getReviews(tripId);
+            log.debug("Found {} reviews for tripId: {}", reviews.size(), tripId);
+            
+            Map<Long, List<ReviewPhoto>> reviewPhotosMap = new HashMap<>();
+            for (Review review : reviews) {
+                List<ReviewPhoto> photos = reviewPhotoRepository.findByReviewId(review.getId());
+                reviewPhotosMap.put(review.getId(), photos);
+                log.debug("Review {} has {} photos", review.getId(), photos.size());
+            }
+            
+            TripUpdateDto tripUpdateDto = tripService.getTripUpdateDto(tripId);
+            List<TripTag> tags = tripTagRepository.findAllByTripId(tripId);
+            log.debug("Found {} tags for tripId: {}", tags.size(), tripId);
+            
+            model.addAttribute("currentUserId", userId);
+            model.addAttribute("trip", trip);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("reviewPhotosMap", reviewPhotosMap);
+            model.addAttribute("editReviewId", editReviewId != null ? editReviewId : 0L);
+            model.addAttribute("tripUpdateDto", tripUpdateDto);
+            model.addAttribute("tags", tags);
+            model.addAttribute("tripId", tripId);
+            
+            return "trips/trip-plan-review";
+        } catch (Exception e) {
+            log.error("Error showing review page: {}", e.getMessage(), e);
+            return "error/500";
         }
-        List<Review> reviews = reviewService.getReviews(tripId);
-        // 각 후기별 첨부파일 리스트 맵 생성
-        Map<Long, List<ReviewPhoto>> reviewPhotosMap = new HashMap<>();
-        for (Review review : reviews) {
-            List<ReviewPhoto> photos = reviewPhotoRepository.findByReviewId(review.getId());
-            reviewPhotosMap.put(review.getId(), photos);
-        }
-        // TripUpdateDto, tags 추가 (TripsService, TripTagRepository 활용)
-        TripUpdateDto tripUpdateDto = tripService.getTripUpdateDto(tripId);
-        List<TripTag> tags = tripTagRepository.findAllByTripId(tripId);
-
-        model.addAttribute("currentUserId", currentUserId);
-        model.addAttribute("trip", trip);
-        model.addAttribute("reviews", reviews);
-        model.addAttribute("reviewPhotosMap", reviewPhotosMap);
-        model.addAttribute("editReviewId", editReviewId != null ? editReviewId : 0L);
-        model.addAttribute("tripUpdateDto", tripUpdateDto);
-        model.addAttribute("tags", tags);
-        return "trips/trip-plan-review";
     }
 
     /**
@@ -103,18 +130,29 @@ public class ReviewController {
     @PostMapping("/trips/{tripId}/review")
     public String submitReview(
             @PathVariable Long tripId,
-            @RequestParam(value = "userId", required = false) Long userId,
             @RequestParam("content") String content,
-            @RequestParam(value = "file", required = false) MultipartFile[] files
-    ) throws IOException {
+            @RequestParam(value = "file", required = false) MultipartFile[] files,
+            HttpSession session) throws IOException {
         try {
+            Long userId = (Long) session.getAttribute("userId");
+            if (userId == null) {
+                log.warn("User not logged in, redirecting to login page");
+                return "redirect:/user/login";
+            }
+
+            // 최근 1분 이내 동일 내용 중복 저장 방지
+            List<Review> recent = reviewService.getReviews(tripId);
+            for (Review r : recent) {
+                if (r.getUserId().equals(userId) && r.getContent().equals(content)) {
+                    if (r.getCreatedAt() != null && java.time.Duration.between(r.getCreatedAt(), java.time.LocalDateTime.now()).toMinutes() < 1) {
+                        log.warn("중복 후기 저장 시도 감지: userId={}, tripId={}, content={}", userId, tripId, content);
+                        return "redirect:/trips/" + tripId + "/review";
+                    }
+                }
+            }
+
             log.info("Submit Review - tripId: {}, userId: {}, content: {}", tripId, userId, content);
             log.info("Files count: {}", files != null ? files.length : 0);
-            
-            if (userId == null) {
-                userId = 0L;
-                log.info("userId was null, set to default: {}", userId);
-            }
             
             // 1. Review 저장
             Review review = reviewService.saveReviewAndReturn(tripId, userId, content);
@@ -129,29 +167,26 @@ public class ReviewController {
                 for (MultipartFile file : files) {
                     if (!file.isEmpty()) {
                         try {
-                            log.info("Processing file: {}, size: {} bytes", 
-                                file.getOriginalFilename(), file.getSize());
-                            
-                            // S3에 파일 업로드
-                            String fileName = s3Service.uploadFile(file);
-                            log.info("File uploaded to S3: {}", fileName);
-                            
+                            log.info("파일 업로드 시도: {}, size: {} bytes", file.getOriginalFilename(), file.getSize());
+                            String key = s3Service.uploadFile(file);
+                            log.info("S3 업로드 성공: {}", key);
+
                             String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
-                            
-                            // S3 URL 생성
                             String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 
-                                bucket, region, fileName);
-                            log.info("Generated S3 URL: {}", imageUrl);
-                            
-                            // ReviewPhoto DB에 저장
+                                bucket, region, key);
+
                             reviewService.saveReviewPhoto(review.getId(), imageUrl, imageUrl, fileType);
-                            log.info("ReviewPhoto saved for review ID: {}", review.getId());
+                            log.info("ReviewPhoto 저장 성공: {} (reviewId: {})", imageUrl, review.getId());
                         } catch (Exception e) {
-                            log.error("File upload failed: {}", e.getMessage(), e);
+                            log.error("파일 업로드/DB 저장 실패: {}", e.getMessage(), e);
                             throw new RuntimeException("파일 업로드에 실패했습니다: " + e.getMessage());
                         }
+                    } else {
+                        log.warn("비어있는 파일이 넘어옴: {}", file.getOriginalFilename());
                     }
                 }
+            } else {
+                log.warn("files가 null이거나 비어있음");
             }
 
             return "redirect:/trips/" + tripId + "/review";
@@ -206,23 +241,38 @@ public class ReviewController {
     /**
      * 후기 수정(REST)
      */
-    @PutMapping("/trips/{tripId}/review/{reviewId}")
+    @PostMapping("/trips/{tripId}/review/{reviewId}/edit")
     @ResponseBody
     public ResponseEntity<Void> updateReview(
             @PathVariable Long tripId,
             @PathVariable Long reviewId,
             @RequestParam("content") String content,
             @RequestParam(value = "file", required = false) MultipartFile[] files,
-            @RequestParam(value = "deletePhotoIds", required = false) List<Long> deletePhotoIds,
-            Principal principal) {
-        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
+            @RequestParam(value = "deletePhotoIds", required = false) String deletePhotoIdsStr,
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        // 1. 글 수정
         reviewService.updateReview(reviewId, userId, content);
 
-        // 1. 삭제할 사진 처리
+        // 2. 삭제할 사진 파싱
+        List<Long> deletePhotoIds = new ArrayList<>();
+        if (deletePhotoIdsStr != null && !deletePhotoIdsStr.isEmpty()) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                deletePhotoIds = mapper.readValue(deletePhotoIdsStr, new TypeReference<List<Long>>() {});
+            } catch (Exception e) {
+                log.error("deletePhotoIds 파싱 실패: {}", e.getMessage());
+            }
+        }
+
+        // 3. 사진 삭제
         if (deletePhotoIds != null) {
             for (Long photoId : deletePhotoIds) {
-                ReviewPhoto photo = reviewPhotoRepository.findById(photoId)
-                    .orElse(null);
+                ReviewPhoto photo = reviewPhotoRepository.findById(photoId).orElse(null);
                 if (photo != null) {
                     s3Service.deleteFileByUrl(photo.getImageUrl());
                     reviewPhotoRepository.deleteById(photoId);
@@ -230,31 +280,16 @@ public class ReviewController {
             }
         }
 
-        // 2. 새로 추가된 파일만 처리 (기존 코드)
+        // 4. 새로 추가된 파일 저장
         if (files != null && files.length > 0) {
             for (MultipartFile file : files) {
                 if (!file.isEmpty()) {
                     try {
-                        // 1. DB에 사진 정보 임시 저장 (ID 확보)
-                        ReviewPhoto photoEntity = ReviewPhoto.builder()
-                            .reviewId(reviewId)
-                            .imageUrl("임시값")
-                            .filePath("임시값")
-                            .fileType(file.getContentType().startsWith("image/") ? "image" : "video")
-                            .build();
-                        reviewPhotoRepository.save(photoEntity);
-
-                        // 2. S3에 파일 업로드 (파일명에 photoEntity.getId() 사용)
-                        String fileName = "reviews/" + photoEntity.getId() + "_" + file.getOriginalFilename();
-                        s3Service.uploadFile(file, fileName);
-
-                        // 3. S3 URL로 DB 정보 업데이트
-                        String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
-                        photoEntity.setImageUrl(imageUrl);
-                        photoEntity.setFilePath(fileName);
-                        reviewPhotoRepository.save(photoEntity);
+                        String key = s3Service.uploadFile(file);
+                        String fileType = file.getContentType().startsWith("image/") ? "image" : "video";
+                        String imageUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key);
+                        reviewService.saveReviewPhoto(reviewId, imageUrl, imageUrl, fileType);
                     } catch (Exception e) {
-                        log.error("File upload failed: {}", e.getMessage(), e);
                         throw new RuntimeException("파일 업로드에 실패했습니다: " + e.getMessage());
                     }
                 }
@@ -271,8 +306,12 @@ public class ReviewController {
     public ResponseEntity<Void> deleteReview(
             @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            Principal principal) {
-        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        
         reviewService.deleteReview(reviewId, userId);
         return ResponseEntity.ok().build();
     }
@@ -304,8 +343,12 @@ public class ReviewController {
     public ResponseEntity<Void> toggleLike(
             @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            Principal principal) {
-        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        
         likeService.like(reviewId, userId);
         return ResponseEntity.ok().build();
     }
@@ -315,8 +358,12 @@ public class ReviewController {
     public ResponseEntity<Void> unlike(
             @PathVariable Long tripId,
             @PathVariable Long reviewId,
-            Principal principal) {
-        Long userId = principal != null ? Long.valueOf(principal.getName()) : 0L;
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        
         likeService.unlike(reviewId, userId);
         return ResponseEntity.ok().build();
     }
@@ -326,7 +373,12 @@ public class ReviewController {
     public ResponseEntity<Void> deleteReviewPhoto(
             @PathVariable Long tripId,
             @PathVariable Long photoId,
-            Principal principal) {
+            HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        
         ReviewPhoto photo = reviewPhotoRepository.findById(photoId)
             .orElseThrow(() -> new RuntimeException("사진을 찾을 수 없습니다."));
         s3Service.deleteFileByUrl(photo.getImageUrl());

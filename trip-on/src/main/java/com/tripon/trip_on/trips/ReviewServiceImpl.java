@@ -52,6 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void saveReview(Long tripId, Long userId, String content, List<String> filePaths) {
+        // 중복 저장 방지: 이 메서드는 saveReviewAndReturn 등 다른 저장 메서드를 호출하지 않음
         Review review = Review.builder()
                 .tripId(tripId)
                 .userId(userId)
@@ -149,13 +150,12 @@ public class ReviewServiceImpl implements ReviewService {
             if (!tripRepository.existsById(tripId)) {
                 throw new EntityNotFoundException("여행을 찾을 수 없습니다.");
             }
-
+            // 중복 저장 방지: 이 메서드는 saveReview 등 다른 저장 메서드를 호출하지 않음
             Review review = Review.builder()
                     .tripId(tripId)
                     .userId(userId)
                     .content(content)
                     .build();
-            
             return reviewRepository.save(review);
         } catch (Exception e) {
             System.err.println("Review save failed: " + e.getMessage());

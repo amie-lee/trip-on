@@ -1,11 +1,14 @@
 <!-- 4-1 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${trip.title} + ' | TRIP ON'">여행 상세 | TRIP ON</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet" />
     <style>
         * {
             box-sizing: border-box;
@@ -19,54 +22,6 @@
             padding: 20px 60px;
             min-height: 100vh;
             position: relative;
-        }
-
-        /* 헤더 영역 */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .plan-box {
-            width: 100%;
-            max-width: 900px;
-            min-width: 320px;
-            border: 2px solid #bbb;
-            border-radius: 20px;
-            padding: 40px 32px 32px 32px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            position: relative;
-        }
-        
-        .logo {
-            font-family: 'Bagel Fat One', cursive;
-            font-size: 40px;
-            color: #000;
-            text-decoration: none;
-        }
-
-        .logout-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logout-text {
-            font-size: 15px;
-            color: #000;
-            text-decoration: none;
-        }
-
-        .avatar-small {
-            width: 30px;
-            height: 30px;
-            background-color: #d9d9d9;
-            border-radius: 50%;
         }
 
         /* 메인 콘텐츠 */
@@ -148,9 +103,14 @@
         }
 
         .tag {
-            display: inline-block; border: 1.5px solid #888; border-radius: 30px;
-            padding: 4px 16px; font-size: 16px; color: #222; 
-            background: #f5f5f5; border-color: #888; 
+            display: inline-block;
+            border: 1.5px solid #888;
+            border-radius: 30px;
+            padding: 4px 16px;
+            font-size: 16px;
+            color: #222;
+            background: #f5f5f5;
+            border-color: #888;
         }
 
         .info-link {
@@ -303,6 +263,7 @@
             cursor: pointer;
             transition: color 0.2s;
         }
+
         .edit-day-link:hover {
             color: #666;
         }
@@ -312,12 +273,14 @@
                 flex-direction: column;
                 gap: 40px;
             }
+
             .left-info {
                 width: 100%;
                 min-width: 0;
                 border-right: none;
                 padding-right: 0;
             }
+
             .days-row {
                 gap: 20px;
             }
@@ -327,38 +290,48 @@
             body {
                 padding: 20px;
             }
+
             .top-bar {
                 flex-direction: column;
                 gap: 10px;
             }
+
             .logo {
                 font-size: 28px;
             }
+
             .container {
                 gap: 30px;
             }
+
             .trip-title {
                 font-size: 24px;
             }
+
             .trip-menu-box {
                 font-size: 14px;
                 padding: 6px 12px;
             }
+
             .info-row {
                 font-size: 16px;
             }
+
             .side-btn {
                 width: 100%;
                 height: 40px;
                 font-size: 14px;
             }
+
             .days-row {
                 flex-direction: column;
                 gap: 20px;
             }
+
             .day-col {
                 min-width: 0;
             }
+
             .back-link {
                 top: 20px;
                 right: 20px;
@@ -382,6 +355,7 @@
             padding: 0;
             vertical-align: middle;
         }
+
         .menu-popup {
             position: absolute;
             top: 40px;
@@ -389,13 +363,14 @@
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 12px 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             z-index: 10;
         }
+
         .menu-popup .menu-btn {
             background: #f5f5f5;
             border: 1.5px solid #888;
@@ -410,6 +385,7 @@
             color: #222;
             text-align: center;
         }
+
         .schedule-add-btn {
             background: #fff;
             border: 1.5px solid #bbb;
@@ -424,10 +400,12 @@
             width: 100%;
             text-align: center;
         }
+
         .schedule-add-btn:hover {
             background: #eee;
             color: #222;
         }
+
         .member-tag {
             display: inline-block;
             background-color: #eee;
@@ -436,39 +414,48 @@
             margin-right: 6px;
             font-size: 14px;
         }
+
         .invite-modal {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.08);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
+
         .invite-modal-content {
             background: #ddd;
             border-radius: 20px;
             padding: 36px 32px 24px 32px;
             min-width: 420px;
             max-width: 90vw;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .invite-title {
             font-size: 16px;
             text-align: center;
             margin-bottom: 36px;
             font-weight: 400;
         }
+
         .invite-form-row {
             display: flex;
             width: 100%;
             gap: 16px;
             margin-bottom: 16px;
         }
+
         .invite-input {
             flex: 1 1 0;
             border: none;
@@ -478,6 +465,7 @@
             background: #fff;
             outline: none;
         }
+
         .invite-send-btn {
             border: none;
             border-radius: 12px;
@@ -487,20 +475,25 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-send-btn:hover {
             background: #eee;
         }
+
         .invite-message {
             width: 100%;
             font-size: 13px;
             margin-bottom: 4px;
         }
+
         .invite-error {
             color: #c44;
         }
+
         .invite-success {
             color: #c44;
         }
+
         .invite-close-btn {
             margin-top: 24px;
             border: none;
@@ -511,9 +504,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-close-btn:hover {
             background: #eee;
         }
+
         #saveInfoBtn {
             display: none;
             margin-top: 8px;
@@ -527,57 +522,69 @@
             cursor: pointer;
             margin-left: auto;
         }
+
         /* 1. 태그 스타일 */
         .tag-list .tag {
             margin-right: 8px;
             font-size: 14px;
             color: #555;
         }
+
         /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
         .scroll-container {
             overflow-x: auto;
             overflow-y: auto;
             padding-bottom: 10px;
         }
+
         .invite-modal {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.3);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
+
         .invite-modal-content {
             background: #fff;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
             width: 420px;
         }
 
-    .info-link {
-    color: #0077cc;        /* 필요 시 링크 색상 조정 */
-    text-decoration: none; /* 필요 시 밑줄 제거 */
-    cursor: pointer;       /* 항상 손가락 커서 */
-  }
-  .info-link:hover {
-    text-decoration: underline;
-  }
-  .info-link.disabled {
-  pointer-events: none;
-  cursor: default;
-  color: #888;
-  text-decoration: none;
-}
+        .info-link {
+            color: #0077cc;
+            /* 필요 시 링크 색상 조정 */
+            text-decoration: none;
+            /* 필요 시 밑줄 제거 */
+            cursor: pointer;
+            /* 항상 손가락 커서 */
+        }
 
+        .info-link:hover {
+            text-decoration: underline;
+        }
+
+        .info-link.disabled {
+            pointer-events: none;
+            cursor: default;
+            color: #888;
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
     <div th:replace="~{fragments/header :: header(${user})}"></div>
 
-  <!-- 뒤로가기 -->
-  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+    <!-- 뒤로가기 -->
+    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
   <div class="container">
     <!-- LEFT INFO -->
@@ -594,157 +601,142 @@
         </div>
       </div>
 
-      <div class="info-table">
-        <div class="info-row">
-          <div class="info-label">일정</div>
-          <div class="info-value"
-               th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
-            2025.05.24 - 2025.05.30
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">숙소</div>
-          <div class="info-value">
-        <!-- 숙소 텍스트 -->
-        <span th:text="${trip.accommodation}">숙소 이름</span>
-        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
-     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
-       th:href="${trip.accommodationLink}"
-       class="info-link"
-       target="_blank"
-       rel="noopener">
-      (지도)
-    </a>
-    <span th:unless="${trip.accommodationLink != null}"
-          class="info-link disabled">
-      (지도)
-    </span>
-        </div>
-    </div>
-        <div class="info-row">
-         <div class="info-label">가는 편</div>
-        <div class="info-value" th:text="${trip.departureTrip}"></div>
-        </div>
-        <div class="info-row">
-        <div class="info-label">오는 편</div>
-        <div class="info-value" th:text="${trip.returnTrip}"></div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">태그</div>
-          <div class="info-value tag-list">
-            <span th:each="tripTag : ${tags}"
-                  class="tag"
-                  th:text="${tripTag.tagName}">
-              #태그이름
-            </span>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">경비</div>
-          <div class="info-value">00원</div>
-          <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
-        </div>
-         <div class="info-row">
-            <div class="info-label">동행</div>
-            <div class="info-value">
-                <span th:each="name : ${memberNames}"
-                    th:text="${name}"
-                    class="member-tag"></span>
-                <span class="info-invite" onclick="openInviteModal()">초대</span>
+            <div class="info-table">
+                <div class="info-row">
+                    <div class="info-label">일정</div>
+                    <div class="info-value"
+                        th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+                        2025.05.24 - 2025.05.30
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">숙소</div>
+                    <div class="info-value">
+                        <!-- 숙소 텍스트 -->
+                        <span th:text="${trip.accommodation}">숙소 이름</span>
+                        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+                        <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+                            th:href="${trip.accommodationLink}" class="info-link" target="_blank" rel="noopener">
+                            (지도)
+                        </a>
+                        <span th:unless="${trip.accommodationLink != null}" class="info-link disabled">
+                            (지도)
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">가는 편</div>
+                    <div class="info-value" th:text="${trip.departureTrip}"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">오는 편</div>
+                    <div class="info-value" th:text="${trip.returnTrip}"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">태그</div>
+                    <div class="info-value tag-list">
+                        <span th:each="tripTag : ${tags}" class="tag" th:text="${tripTag.tagName}">
+                            #태그이름
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">경비</div>
+                    <div class="info-value">00원</div>
+                    <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">동행</div>
+                    <div class="info-value">
+                        <span th:each="name : ${memberNames}" th:text="${name}" class="member-tag"></span>
+                        <span class="info-invite" onclick="openInviteModal()">초대</span>
+                    </div>
+                </div>
+            </div>
+            <div class="side-btns">
+                <button class="side-btn selected">계획</button>
+                <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn">후기</a>
             </div>
         </div>
-      </div>
-      <div class="side-btns">
-        <button class="side-btn selected">계획</button>
-        <button class="side-btn">후기</button>
-      </div>
-    </div>
-    
-    <!-- ✅ 팝업 구조 -->
-    <div id="inviteModal" class="invite-modal" style="display:none;">
-    <div class="invite-modal-content">
-        <div class="invite-title">초대할 유저의 이메일을 입력해주세요!</div>
 
-        <div class="invite-form-row">
-        <input type="email" id="inviteEmailInput" class="invite-input" placeholder="example@email.com" />
-        <button class="invite-send-btn" onclick="sendInvite()">전송</button>
+        <!-- ✅ 팝업 구조 -->
+        <div id="inviteModal" class="invite-modal" style="display:none;">
+            <div class="invite-modal-content">
+                <div class="invite-title">초대할 유저의 이메일을 입력해주세요!</div>
+
+                <div class="invite-form-row">
+                    <input type="email" id="inviteEmailInput" class="invite-input" placeholder="example@email.com" />
+                    <button class="invite-send-btn" onclick="sendInvite()">전송</button>
+                </div>
+
+                <div class="invite-message" id="inviteMessage"></div>
+
+                <button class="invite-close-btn" onclick="closeInviteModal()">닫기</button>
+            </div>
         </div>
 
-        <div class="invite-message" id="inviteMessage"></div>
+        <div class="right-content">
+            <a th:href="@{/trips/{id}/trip-plan-schedule(id=${trip.id})}"
+                style="color: #000; text-decoration: underline; cursor: pointer;">
+                편집
+            </a>
+            <div class="plan-box">
+                <div class="scroll-container">
+                    <div class="days-row">
+                        <div th:each="label, stat : ${dateLabels}" th:id="|day-${stat.count}|" class="day-col">
 
-        <button class="invite-close-btn" onclick="closeInviteModal()">닫기</button>
-    </div>
-    </div>
-    
-<div class="right-content">
-    <a th:href="@{/trips/{id}/trip-plan-schedule(id=${trip.id})}"
-    style="color: #000; text-decoration: underline; cursor: pointer;">
-    편집
-    </a>
-  <div class="plan-box">
-    <div class="scroll-container">
-      <div class="days-row">
-        <div th:each="label, stat : ${dateLabels}"
-             th:id="|day-${stat.count}|"
-             class="day-col">
+                            <div class="day-title" th:text="${label}">날짜</div>
 
-          <div class="day-title" th:text="${label}">날짜</div>
+                            <div class="schedule-list" th:with="dayList=${scheduleMap[stat.count]}">
 
-          <div class="schedule-list" 
-               th:with="dayList=${scheduleMap[stat.count]}">
+                                <!-- 1) 해당 날짜에 일정이 없으면 -->
+                                <div th:if="${dayList == null or #lists.isEmpty(dayList)}" class="empty-message">
+                                    등록된 일정이 없습니다.
+                                </div>
 
-            <!-- 1) 해당 날짜에 일정이 없으면 -->
-            <div th:if="${dayList == null or #lists.isEmpty(dayList)}"
-                 class="empty-message">
-              등록된 일정이 없습니다.
+                                <!-- 2) 있으면 쭉 나열 -->
+                                <div th:each="s : ${dayList}" class="schedule-item">
+                                    <span class="schedule-time" th:text="${#temporals.format(s.time,'HH:mm')}">
+                                        --:--
+                                    </span>
+                                    <span class="schedule-content" th:text="${s.content}">
+                                        내용
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- 2) 있으면 쭉 나열 -->
-            <div th:each="s : ${dayList}"
-                 class="schedule-item">
-              <span class="schedule-time"
-                    th:text="${#temporals.format(s.time,'HH:mm')}">
-                --:--
-              </span>
-              <span class="schedule-content"
-                    th:text="${s.content}">
-                내용
-              </span>
-            </div>
-
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-<script th:inline="javascript">
-    document.getElementById('menuDotBtn').addEventListener('click', function() {
-      const pop = document.getElementById('menuPopup');
-      pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
-    });
-
-    function openInviteModal() {
-        document.getElementById("inviteModal").style.display = "flex";
-    }
-    function closeInviteModal() {
-        document.getElementById("inviteModal").style.display = "none";
-        document.getElementById("inviteEmailInput").value = "";
-        document.getElementById("inviteMessage").textContent = "";
-    }
-
-    async function sendInvite() {
-        const email = document.getElementById("inviteEmailInput").value;
-        const message = document.getElementById("inviteMessage");
-        const tripId = /*[[${trip.id}]]*/ 0;
-
-        try {
-            const response = await fetch(`/trips/${tripId}/invite`, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ email })
+        <script th:inline="javascript">
+            document.getElementById('menuDotBtn').addEventListener('click', function () {
+                const pop = document.getElementById('menuPopup');
+                pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
             });
-            const result = await response.json();
+
+            function openInviteModal() {
+                document.getElementById("inviteModal").style.display = "flex";
+            }
+            function closeInviteModal() {
+                document.getElementById("inviteModal").style.display = "none";
+                document.getElementById("inviteEmailInput").value = "";
+                document.getElementById("inviteMessage").textContent = "";
+            }
+
+            async function sendInvite() {
+                const email = document.getElementById("inviteEmailInput").value;
+                const message = document.getElementById("inviteMessage");
+                const tripId = /*[[${trip.id}]]*/ 0;
+
+                try {
+                    const response = await fetch(`/trips/${tripId}/invite`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email })
+                    });
+                    const result = await response.json();
 
             if (response.ok) {
             message.style.color = "green";
@@ -791,4 +783,5 @@ async function confirmDelete() {
   </div>
 </div>
 </body>
+
 </html>
