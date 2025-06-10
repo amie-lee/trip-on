@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tripon.trip_on.user.User;
+
 /**
  * 여행 후기 엔티티
  * 여행에 대한 사용자의 후기와 관련된 정보를 저장하는 엔티티 클래스
@@ -27,6 +29,10 @@ public class Review {
 
     @Column(name = "user_id", nullable = false) // JPA: user_id 컬럼으로 매핑, null 값 허용하지 않음 (FK)
     private Long userId; // 후기 작성자(유저) ID (FK)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Column(columnDefinition = "TEXT", nullable = false) // JPA: TEXT 타입으로 매핑, null 값 허용하지 않음 (글)
     private String content; // 후기 내용 (글)

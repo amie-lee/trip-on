@@ -978,8 +978,11 @@
         <!-- 후기 목록 -->
         <div th:each="review : ${reviews}" class="review-card">
           <div class="review-header" style="position:relative;">
-            <div class="review-author"
-              th:text="${review.userId != null and review.userId == 0 ? '비회원' : review.userId}">작성자</div>
+            <!-- <div class="review-author"
+              th:text="${review.userId != null and review.userId == 0 ? '비회원' : review.userId}">작성자</div> -->
+
+              <div class="review-author" th:text="${review.user.username}">작성자</div>
+
             <button class="menu-dot review">&hellip;</button>
             <div class="review-menu-popup" style="display:none;">
               <button class="review-menu-btn review-edit-btn"
