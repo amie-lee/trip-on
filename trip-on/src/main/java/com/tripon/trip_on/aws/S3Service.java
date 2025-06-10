@@ -37,55 +37,74 @@ public class S3Service {
                 .build();
     }
 
-    // 파일 업로드 - 디렉토리명 지정
-    public String uploadFile(MultipartFile multipartFile, String dirPath) throws IOException {
-        String originalFilename = multipartFile.getOriginalFilename();
-        String extension = "";
-
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-        }
-
-        String key = dirPath + "/" + UUID.randomUUID() + extension;
-
-        PutObjectRequest por = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentType(multipartFile.getContentType())
-                .build();
-
-        s3.putObject(por, RequestBody.fromBytes(multipartFile.getBytes()));
-
-        return key;
-    }
-
-    // 파일 업로드 - 랜덤 파일명 생성 (디폴트 dir 없음)
+    /**
+     * 리뷰 업로드용 (default dir="uploads/"), 키만 반환
+     */
     public String uploadFile(MultipartFile file) throws IOException {
-        String extension = "";
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-        }
-        String key = "uploads/" + UUID.randomUUID() + extension;
+        // 확장자 추출
+        String original = file.getOriginalFilename();
+        String ext = (original != null && original.contains("."))
+                     ? original.substring(original.lastIndexOf('.'))
+                     : "";
 
+        // 키 생성
+        String key = "uploads/" + UUID.randomUUID() + ext;
+
+        // S3에 업로드
         PutObjectRequest por = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .contentType(file.getContentType())
                 .build();
-
         s3.putObject(por, RequestBody.fromBytes(file.getBytes()));
 
-        // key만 반환하고 URL은 Controller에서 생성하도록 수정
         return key;
     }
 
-    // S3 URL로부터 파일 삭제
-    public void deleteFileByUrl(String imageUrl) {
-        String key = imageUrl.substring(imageUrl.indexOf(".amazonaws.com/") + 14 + bucketName.length());
-        if (key.startsWith("/")) key = key.substring(1);
-        final String finalKey = key;
-        s3.deleteObject(builder -> builder.bucket(bucketName).key(finalKey).build());
+    /**
+     * 프로필 업로드용 (dirPath 지정), 전체 퍼블릭 URL을 반환
+     */
+    public String uploadFile(MultipartFile file, String dirPath) throws IOException {
+        // 확장자 추출
+        String original = file.getOriginalFilename();
+        String ext = (original != null && original.contains("."))
+                     ? original.substring(original.lastIndexOf('.'))
+                     : "";
 
+        // 키 생성 (예: "profiles/UUID.png")
+        String key = dirPath + "/" + UUID.randomUUID() + ext;
+
+        // S3에 업로드
+        PutObjectRequest por = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .build();
+        s3.putObject(por, RequestBody.fromBytes(file.getBytes()));
+
+        // 전체 URL 조립
+        return String.format(
+            "https://%s.s3.%s.amazonaws.com/%s",
+            bucketName, regionId, key
+        );
+    }
+
+    /**
+     * 키로 삭제
+     */
+    public void deleteFile(String key) {
+        s3.deleteObject(b -> b.bucket(bucketName).key(key).build());
+    }
+
+    /**
+     * URL로 삭제
+     */
+    public void deleteFileByUrl(String imageUrl) {
+        // https://{bucket}.s3.{region}.amazonaws.com/{key} 에서 key만
+        String prefix = String.format("https://%s.s3.%s.amazonaws.com/", bucketName, regionId);
+        String key = imageUrl.startsWith(prefix)
+                   ? imageUrl.substring(prefix.length())
+                   : imageUrl;  // (fallback)
+        s3.deleteObject(b -> b.bucket(bucketName).key(key).build());
     }
 }
