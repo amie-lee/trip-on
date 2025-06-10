@@ -14,12 +14,6 @@ import com.tripon.trip_on.user.UserRepository;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * PlanController
- * 여행 등록 과정 (4단계 폼) 컨트롤러
- * - 목적지 → 일정 → 숙소/교통편 → 태그 순으로 입력
- * - 각 단계에서 @ModelAttribute("trip")에 저장되는 TripRegisterDto로 데이터 누적
- */
 @Controller
 @RequestMapping("/trips")
 @SessionAttributes("tripRegisterDto")  // TripRegisterDto를 세션에 저장해 단계별 폼에서 공유
@@ -30,8 +24,6 @@ public class TripController {
 
     @Autowired
     private UserRepository userRepository;  // ← UserRepository 주입
-
-
 
     // 초기 trip DTO 생성 (세션에 등록됨)
     @ModelAttribute("tripRegisterDto")

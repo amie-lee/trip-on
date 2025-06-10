@@ -253,8 +253,10 @@ public String showEditForm(
             session.invalidate();
             return "redirect:/user/login";
         }
-        // ③ 헤더 표시용 User 객체 모델에 추가
-        model.addAttribute("user", optUser.get());
+
+        // ③ 헤더에 표시할 User 객체를 모델에 추가
+        User loginUser = optUser.get();
+        model.addAttribute("user", loginUser);
 
         // ── 이하 기존 로직 ──
         Trip trip = tripRepository.findById(tripId)
@@ -264,6 +266,15 @@ public String showEditForm(
         List<String> dateLabels = tripService.generateDateLabels(trip);
         List<TripTag> tags      = tripTagRepository.findAllByTripId(tripId);
 
+        List<String> memberNames = trip.getTripMembers().stream()
+            .map(TripMember::getUser)
+            .filter(Objects::nonNull)
+            .filter(u -> u.getId() != loginUser.getId())
+            .map(User::getUsername)
+            .collect(Collectors.toList());
+
+        int totalExpenseAmount = expenseService.getTotalAmountByTripId(tripId);
+
         // DTO 목록 로드
         List<ScheduleUpdateDto> dtos = tripService.loadSchedules(tripId);
         form.setScheduleDtos(dtos);
@@ -271,6 +282,9 @@ public String showEditForm(
         model.addAttribute("trip", trip);
         model.addAttribute("tags", tags);
         model.addAttribute("dateLabels", dateLabels);
+
+        model.addAttribute("memberNames", memberNames);
+        model.addAttribute("totalExpenseAmount", totalExpenseAmount);
 
         return "trips/trip-plan-schedule";
     }

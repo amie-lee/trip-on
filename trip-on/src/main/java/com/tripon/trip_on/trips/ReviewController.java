@@ -1,6 +1,8 @@
 package com.tripon.trip_on.trips;
 
 import com.tripon.trip_on.aws.S3Service;
+import com.tripon.trip_on.expenses.ExpenseService;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.HashMap;
 
 import lombok.RequiredArgsConstructor;
@@ -40,6 +45,7 @@ public class ReviewController {
     private final TripService tripService;
     private final TripTagRepository tripTagRepository;
     private final UserService userService;
+    private final ExpenseService expenseService;
 
     @Value("${upload.dir:${user.home}/uploads}")
     private String uploadDir;
@@ -77,8 +83,14 @@ public class ReviewController {
             }
             
             // 사용자 정보 조회 및 model에 추가
-            User user = userService.getUserById(userId).orElse(null);
-            model.addAttribute("user", user);
+            Optional<User> optUser = userService.getUserById(userId);
+            if (optUser.isEmpty()) {
+                session.invalidate();
+                return "redirect:/user/login";
+            }
+            // ③ 헤더에 표시할 User 객체를 모델에 추가
+            User loginUser = optUser.get();
+            model.addAttribute("user", loginUser);
             
             Trip trip = reviewService.getTripPlan(tripId);
             if (trip == null) {
@@ -103,6 +115,15 @@ public class ReviewController {
             List<TripTag> tags = tripTagRepository.findAllByTripId(tripId);
             log.debug("Found {} tags for tripId: {}", tags.size(), tripId);
             
+            int totalExpenseAmount = expenseService.getTotalAmountByTripId(tripId);
+
+            List<String> memberNames = trip.getTripMembers().stream()
+            .map(TripMember::getUser)
+            .filter(Objects::nonNull)
+            .filter(u -> u.getId() != loginUser.getId())
+            .map(User::getUsername)
+            .collect(Collectors.toList());
+
             model.addAttribute("currentUserId", userId);
             model.addAttribute("trip", trip);
             model.addAttribute("reviews", reviews);
@@ -111,6 +132,8 @@ public class ReviewController {
             model.addAttribute("tripUpdateDto", tripUpdateDto);
             model.addAttribute("tags", tags);
             model.addAttribute("tripId", tripId);
+            model.addAttribute("totalExpenseAmount", totalExpenseAmount);
+            model.addAttribute("memberNames", memberNames);
             
             return "trips/trip-plan-review";
         } catch (Exception e) {

@@ -481,101 +481,6 @@
             text-align: center;
         }
 
-        .invite-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .invite-modal-content {
-            background: #ddd;
-            border: 2px solid #444;
-            border-radius: 20px;
-            padding: 36px 32px 24px 32px;
-            min-width: 420px;
-            max-width: 90vw;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .invite-title {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 36px;
-            font-weight: 400;
-        }
-
-        .invite-form-row {
-            display: flex;
-            width: 100%;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .invite-input {
-            flex: 1 1 0;
-            border: none;
-            border-radius: 12px;
-            padding: 10px 12px;
-            font-size: 15px;
-            background: #fff;
-            outline: none;
-        }
-
-        .invite-send-btn {
-            border: none;
-            border-radius: 12px;
-            background: #fff;
-            font-size: 15px;
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .invite-send-btn:hover {
-            background: #eee;
-        }
-
-        .invite-message {
-            width: 100%;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .invite-error {
-            color: #c44;
-        }
-
-        .invite-success {
-            color: #c44;
-        }
-
-        .invite-close-btn {
-            margin-top: 24px;
-            border: none;
-            border-radius: 12px;
-            background: #fff;
-            font-size: 15px;
-            padding: 6px 32px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .invite-close-btn:hover {
-            background: #eee;
-        }
-
         #saveInfoBtn {
             display: none;
             margin-top: 0px;
@@ -603,24 +508,25 @@
             font-size: 14px;
         }
 
-        .info-link.disabled {
+        .info-link.disabled,
+        .info-invite.disabled {
             pointer-events: none;
             cursor: default;
             color: #888;
             text-decoration: none;
         }
+        .member-tag {
+            display: inline-block;
+            background-color: #eee;
+            border-radius: 12px;
+            padding: 4px 10px;
+            margin-right: 6px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
 <body>
-    <!-- <div class="top-bar">
-        <div class="logo">TRIP ON</div>
-        <div class="logout-group">
-            <a href="/user/logout" class="logout-text">로그아웃</a>
-            <a href="/user/mypage" class="logout-text">마이페이지</a>
-            <div class="avatar-small"></div>
-        </div>
-    </div> -->
     <div th:replace="~{fragments/header :: header(${user})}"></div>
 
     <!-- 뒤로가기 -->
@@ -676,19 +582,22 @@
                 <div class="info-row">
                     <div class="info-label">태그</div>
                     <div class="info-value tag-list">
-                        <span th:each="tripTag : ${tags}" class="tag" th:text="${tripTag.tagName}">
+                        <span th:each="tripTag : ${tags}" class="member-tag" th:text="${tripTag.tagName}">
                             #태그이름
                         </span>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">경비</div>
-                    <div class="info-value">300원</div>
-                    <span class="info-link">더보기</span>
+                    <div class="info-value" th:text="${#numbers.formatInteger(totalExpenseAmount, 3, 'COMMA')} + 원">0원</div>
+                    <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link disabled">더보기</a>
                 </div>
                 <div class="info-row">
                     <div class="info-label">동행</div>
-                    <div class="info-value"><span class="info-invite">초대</span></div>
+                    <div class="info-value">
+                        <span th:each="name : ${memberNames}" th:text="${name}" class="member-tag"></span>
+                        <span class="info-invite disabled">초대</span>
+                    </div>
                 </div>
             </div>
 

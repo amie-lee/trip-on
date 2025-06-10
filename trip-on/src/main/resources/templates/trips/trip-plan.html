@@ -713,14 +713,14 @@
                 <div class="info-row">
                     <div class="info-label">태그</div>
                     <div class="info-value tag-list">
-                        <span th:each="tripTag : ${tags}" class="tag" th:text="${tripTag.tagName}">
+                        <span th:each="tripTag : ${tags}" class="member-tag" th:text="${tripTag.tagName}">
                             #태그이름
                         </span>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-label">경비</div>
-                    <div class="info-value" th:text="${#numbers.formatInteger(totalExpenseAmount, 3, 'COMMA')} + 원">00원</div>
+                    <div class="info-value" th:text="${#numbers.formatInteger(totalExpenseAmount, 3, 'COMMA')} + 원">0원</div>
                     <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
                 </div>
                 <div class="info-row">
@@ -829,26 +829,26 @@
         }
     }
     function openDeleteModal() {
-  document.getElementById("deleteModal").style.display = "flex";
-}
-function closeDeleteModal() {
-  document.getElementById("deleteModal").style.display = "none";
-}
-async function confirmDelete() {
-  const tripId = /*[[${trip.id}]]*/ 0;
-  try {
-    const response = await fetch(`/trips/${tripId}/delete`, {
-      method: "POST"
-    });
-    if (response.ok) {
-      window.location.href = "/"; // TRIP ON 로고와 동일한 메인페이지 이동
-    } else {
-      alert("삭제에 실패했습니다.");
+    document.getElementById("deleteModal").style.display = "flex";
     }
-  } catch (e) {
-    alert("서버 오류가 발생했습니다.");
-  }
-}
+    function closeDeleteModal() {
+    document.getElementById("deleteModal").style.display = "none";
+    }
+    async function confirmDelete() {
+    const tripId = /*[[${trip.id}]]*/ 0;
+    try {
+        const response = await fetch(`/trips/${tripId}/delete`, {
+        method: "POST"
+        });
+        if (response.ok) {
+        window.location.href = "/"; // TRIP ON 로고와 동일한 메인페이지 이동
+        } else {
+        alert("삭제에 실패했습니다.");
+        }
+    } catch (e) {
+        alert("서버 오류가 발생했습니다.");
+    }
+    }
   </script>
  <!--  삭제 확인 팝업 -->
 <div id="deleteModal" class="delete-modal" style="display: none;">
