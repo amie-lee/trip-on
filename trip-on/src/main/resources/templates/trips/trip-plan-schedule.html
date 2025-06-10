@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
+
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${trip.title} + ' | TRIP ON'">여행 상세 | TRIP ON</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet" />
     <style>
-       * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background: #fff;
             font-family: 'Noto Sans KR', sans-serif;
             min-height: 100vh;
             padding: 20px 60px;
         }
+
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -45,6 +54,7 @@
             background-color: #d9d9d9;
             border-radius: 50%;
         }
+
         /* 메인 콘텐츠 */
 
         .container {
@@ -53,6 +63,7 @@
             margin-top: 40px;
             position: relative;
         }
+
         .left-info {
             width: 370px;
             min-width: 320px;
@@ -74,7 +85,7 @@
             font-size: 32px;
             margin-right: 16px;
         }
-        
+
         .trip-menu-box {
             display: flex;
             gap: 8px;
@@ -99,11 +110,13 @@
         .info-table {
             margin-bottom: 16px;
         }
+
         .info-row {
             display: flex;
             margin-bottom: 16px;
             font-size: 18px;
         }
+
         .info-label {
             width: 70px;
             color: #000;
@@ -120,33 +133,38 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        
+
         .tag {
-            display: inline-block; border: 1.5px solid #888; border-radius: 30px;
-            padding: 4px 16px; font-size: 16px; color: #222; 
-            background: #f5f5f5; border-color: #888; 
+            display: inline-block;
+            border: 1.5px solid #888;
+            border-radius: 30px;
+            padding: 4px 16px;
+            font-size: 16px;
+            color: #222;
+            background: #f5f5f5;
+            border-color: #888;
         }
 
         .info-link {
             color: #000;
-            text-decoration: underline;
+            text-decoration: none;
             cursor: pointer;
             margin-left: 8px;
         }
-        
+
         .info-invite {
             color: #000;
             text-decoration: underline;
             cursor: pointer;
         }
-        
+
         .side-btns {
             margin-top: 40px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-        
+
         .side-btn {
             width: 100%;
             border-radius: 8px;
@@ -160,6 +178,7 @@
             text-align: center;
             transition: background 0.2s, color 0.2s;
         }
+
         .side-btn.selected {
             background: #000;
             color: #fff;
@@ -170,7 +189,7 @@
             background: #000;
             color: #fff;
         }
-        
+
         .right-content {
             flex: 1;
             min-width: 0;
@@ -182,6 +201,7 @@
             justify-content: flex-end;
             margin-bottom: 20px;
         }
+
         .edit-label {
             background: #DBDBDB;
             border-radius: 30px;
@@ -210,6 +230,7 @@
             align-items: stretch;
             position: relative;
         }
+
         .days-row {
             display: flex;
             gap: 40px;
@@ -228,6 +249,7 @@
             text-align: center;
             margin-bottom: 20px;
         }
+
         .schedule-list {
             display: flex;
             flex-direction: column;
@@ -237,18 +259,30 @@
             max-height: 360px;
             overflow-y: auto;
         }
+
         .schedule-item {
             background: #d9d9d9;
-            border-radius: 12px; 
+            border-radius: 12px;
             padding: 12px 44px 12px 16px;
-            font-size: 17px; color: #222; 
-            position: relative; display: flex; 
+            font-size: 17px;
+            color: #222;
+            position: relative;
+            display: flex;
             align-items: center;
         }
+
         .schedule-remove {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: #666; font-size: 20px; cursor: pointer;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
         }
+
         .schedule-input-row {
             display: flex;
             border-radius: 8px;
@@ -258,6 +292,7 @@
             gap: 0;
             margin-bottom: 8px;
         }
+
         .schedule-time {
             border: none;
             outline: none;
@@ -268,6 +303,7 @@
             width: 60px;
             flex: 0 0 60px;
         }
+
         .schedule-content {
             border: none;
             outline: none;
@@ -279,6 +315,7 @@
             min-width: 0;
             text-align: left;
         }
+
         .schedule-add-btn {
             background: #fff;
             border: 1.5px solid #bbb;
@@ -291,14 +328,16 @@
             margin-bottom: 8px;
             width: 100%;
         }
+
         .schedule-add-btn:hover {
             background: #000;
             color: #fff;
         }
+
         .plan-save-btn {
             position: absolute;
             right: 32px;
-            bottom: 10px;
+            bottom: -2px;
             background: none;
             border: none;
             color: #222;
@@ -310,33 +349,95 @@
             align-items: center;
             justify-content: center;
         }
+
         .back-link {
             position: absolute;
-            right: 18PX; top: -40px; 
-            font-size: 16Px; color: #222; 
+            right: 18PX;
+            top: -40px;
+            font-size: 16Px;
+            color: #222;
             text-decoration: none;
         }
+
         @media (max-width: 1100px) {
-            .container { flex-direction: column; gap: 40px; }
-            .left-info { width: 100%; min-width: 0; border-right: none; padding-right: 0; }
-            .plan-box { min-width: 0; }
-            .days-row { gap: 20px; flex-direction: column; }
-            .day-col { gap: 8px; }
-            
+            .container {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .left-info {
+                width: 100%;
+                min-width: 0;
+                border-right: none;
+                padding-right: 0;
+            }
+
+            .plan-box {
+                min-width: 0;
+            }
+
+            .days-row {
+                gap: 20px;
+                flex-direction: column;
+            }
+
+            .day-col {
+                gap: 8px;
+            }
+
         }
+
         @media (max-width: 700px) {
-            body { padding: 20px; }
-            .logo { font-size: 32px; left: 20px; top: 20px; }
-            .top-bar { margin-bottom: 16px; }
-            .container { gap: 20px; }
-            .trip-title { font-size: 22px; }
-            .info-row { font-size: 15px; }
-            .side-btn { width: 100%; height: 40px; font-size: 15px; }
-            .plan-box { padding: 20px 8px 16px 8px; }
-            .days-row { flex-direction: column; gap: 16px; }
-            .day-col { gap: 6px; }
-            .day-title { font-size: 16px; }
+            body {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 32px;
+                left: 20px;
+                top: 20px;
+            }
+
+            .top-bar {
+                margin-bottom: 16px;
+            }
+
+            .container {
+                gap: 20px;
+            }
+
+            .trip-title {
+                font-size: 22px;
+            }
+
+            .info-row {
+                font-size: 15px;
+            }
+
+            .side-btn {
+                width: 100%;
+                height: 40px;
+                font-size: 15px;
+            }
+
+            .plan-box {
+                padding: 20px 8px 16px 8px;
+            }
+
+            .days-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .day-col {
+                gap: 6px;
+            }
+
+            .day-title {
+                font-size: 16px;
+            }
         }
+
         .menu-dot {
             background: none;
             border: none;
@@ -349,6 +450,7 @@
             padding: 0;
             vertical-align: middle;
         }
+
         .menu-popup {
             position: absolute;
             top: 40px;
@@ -356,13 +458,14 @@
             background: #fff;
             border: 1px solid #ccc;
             border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 12px 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             z-index: 10;
         }
+
         .menu-popup .menu-btn {
             background: #f5f5f5;
             border: 1.5px solid #888;
@@ -377,16 +480,22 @@
             color: #222;
             text-align: center;
         }
+
         .invite-modal {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.08);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.08);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
         }
+
         .invite-modal-content {
             background: #ddd;
             border: 2px solid #444;
@@ -394,23 +503,26 @@
             padding: 36px 32px 24px 32px;
             min-width: 420px;
             max-width: 90vw;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+
         .invite-title {
             font-size: 24px;
             text-align: center;
             margin-bottom: 36px;
             font-weight: 400;
         }
+
         .invite-form-row {
             display: flex;
             width: 100%;
             gap: 16px;
             margin-bottom: 16px;
         }
+
         .invite-input {
             flex: 1 1 0;
             border: none;
@@ -420,6 +532,7 @@
             background: #fff;
             outline: none;
         }
+
         .invite-send-btn {
             border: none;
             border-radius: 12px;
@@ -429,20 +542,25 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-send-btn:hover {
             background: #eee;
         }
+
         .invite-message {
             width: 100%;
             font-size: 16px;
             margin-bottom: 4px;
         }
+
         .invite-error {
             color: #c44;
         }
+
         .invite-success {
             color: #c44;
         }
+
         .invite-close-btn {
             margin-top: 24px;
             border: none;
@@ -453,9 +571,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+
         .invite-close-btn:hover {
             background: #eee;
         }
+
         #saveInfoBtn {
             display: none;
             margin-top: 0px;
@@ -470,7 +590,7 @@
             margin-left: auto;
         }
 
-          /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
+        /* RIGHT DAYS & SCHEDULES 섹션만 가로·세로 스크롤 가능하게 */
         .scroll-container {
             overflow-x: auto;
             overflow-y: auto;
@@ -482,16 +602,18 @@
             text-align: center;
             font-size: 14px;
         }
-         .info-link.disabled {
-  pointer-events: none;
-  cursor: default;
-  color: #888;
-  text-decoration: none;
-}
+
+        .info-link.disabled {
+            pointer-events: none;
+            cursor: default;
+            color: #888;
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
-  <!-- <div class="top-bar">
+    <!-- <div class="top-bar">
         <div class="logo">TRIP ON</div>
         <div class="logout-group">
             <a href="/user/logout" class="logout-text">로그아웃</a>
@@ -501,170 +623,170 @@
     </div> -->
     <div th:replace="~{fragments/header :: header(${user})}"></div>
 
-  <!-- 뒤로가기 -->
-  <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
+    <!-- 뒤로가기 -->
+    <a th:href="@{/trips/main-past}" class="back-link">&larr; 이전</a>
 
-  <div class="container">
-    <!-- LEFT INFO -->
-    <div class="left-info">
-      <div class="trip-title-row">
-        <div class="trip-title" th:text="${trip.title}"></div>
-        <button class="menu-dot" id="menuDotBtn">···</button>
-        <div class="menu-popup" id="menuPopup" style="display:none;">
-          <button class="menu-btn"
-                 th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
-            편집
-          </button>
-          <button class="menu-btn"
-                  th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
-            삭제
-          </button>
-        </div>
-      </div>
-
-      <div class="info-table">
-        <div class="info-row">
-          <div class="info-label">일정</div>
-          <div class="info-value"
-               th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
-            2025.05.24 - 2025.05.30
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">숙소</div>
-          <div class="info-value">
-        <!-- 숙소 텍스트 -->
-        <span th:text="${trip.accommodation}">숙소 이름</span>
-        <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
-        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
-     <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
-       th:href="${trip.accommodationLink}"
-       class="info-link"
-       target="_blank"
-       rel="noopener">
-      (지도)
-    </a>
-        </div>
-    </div>
-        <div class="info-row">
-         <div class="info-label">가는 편</div>
-        <div class="info-value" th:text="${trip.departureTrip}"></div>
-        </div>
-        <div class="info-row">
-        <div class="info-label">오는 편</div>
-        <div class="info-value" th:text="${trip.returnTrip}"></div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">태그</div>
-          <div class="info-value tag-list">
-            <span th:each="tripTag : ${tags}"
-                  class="tag"
-                  th:text="${tripTag.tagName}">
-              #태그이름
-            </span>
-          </div>
-        </div>
-        <div class="info-row">
-          <div class="info-label">경비</div>
-          <div class="info-value">300원</div>
-          <span class="info-link">더보기</span>
-        </div>
-        <div class="info-row">
-          <div class="info-label">동행</div>
-          <div class="info-value"><span class="info-invite">초대</span></div>
-        </div>
-      </div>
-
-      <div class="side-btns">
-        <button class="side-btn selected">계획</button>
-        <button class="side-btn">후기</button>
-      </div>
-    </div>
-
-  <div class="right-content">
-  <div class="plan-box">
-    <div class="scroll-container">
-      <form th:object="${scheduleForm}"
-            th:action="@{/trips/{tripId}/trip-plan-schedule(tripId=${trip.id})}" 
-            method="post">
-        
-        <div class="days-row">
-          <div th:each="label,stat : ${dateLabels}"
-               th:id="|day-${stat.count}|"
-               class="day-col">
-
-            <div class="day-title">
-              <span th:text="${label}"></span>
+    <div class="container">
+        <!-- LEFT INFO -->
+        <div class="left-info">
+            <div class="trip-title-row">
+                <div class="trip-title" th:text="${trip.title}"></div>
+                <button class="menu-dot" id="menuDotBtn">···</button>
+                <div class="menu-popup" id="menuPopup" style="display:none;">
+                    <button class="menu-btn" th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan-trip\''">
+                        편집
+                    </button>
+                    <button class="menu-btn" th:onclick="|location.href='@{/trips/{id}/delete(id=${trip.id})}'|">
+                        삭제
+                    </button>
+                </div>
             </div>
 
-           <div class="schedule-list">
-              <!-- 🔄 idx → stat2.index 로 변경 -->
-              <div th:each="dto,stat2 : *{scheduleDtos}"
-                   th:if="${dto.dayNumber} == ${stat.count}"
-                   class="schedule-item">
-                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].id|"        th:value="${dto.id}" />
-                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].dayNumber|" th:value="${dto.dayNumber}" />
-                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].time|"      th:value="${#temporals.format(dto.time,'HH:mm')}" />
-                <input type="hidden" th:name="|scheduleDtos[${stat2.index}].content|"   th:value="${dto.content}" />
-                <input type="hidden" th:id="|toDel${stat2.index}|" th:name="|scheduleDtos[${stat2.index}].toDelete|" value="false" />
-
-                <span class="schedule-time" th:text="${#temporals.format(dto.time,'HH:mm')}">--:--</span>
-                <span class="schedule-content" th:text="${dto.content}">내용을 입력하세요</span>
-
-                <button type="button" class="schedule-remove" th:attr="data-idx=${stat2.index}">×</button>
-              </div>
+            <div class="info-table">
+                <div class="info-row">
+                    <div class="info-label">일정</div>
+                    <div class="info-value"
+                        th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
+                        2025.05.24 - 2025.05.30
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">숙소</div>
+                    <div class="info-value">
+                        <!-- 숙소 텍스트 -->
+                        <span th:text="${trip.accommodation}">숙소 이름</span>
+                        <!-- (지도) 링크: 구글맵 검색 URL, info-link 클래스로 스타일 재활용 -->
+                        <!-- 링크가 있으면 클릭 가능한 a, 없으면 span.disabled -->
+                        <a th:if="${trip.accommodationLink != null and trip.accommodationLink != ''}"
+                            th:href="${trip.accommodationLink}" class="info-link" target="_blank" rel="noopener">
+                            📍
+                        </a>
+                        <span th:unless="${trip.accommodationLink != null}" class="info-link disabled">
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">가는 편</div>
+                    <div class="info-value" th:text="${trip.departureTrip}"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">오는 편</div>
+                    <div class="info-value" th:text="${trip.returnTrip}"></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">태그</div>
+                    <div class="info-value tag-list">
+                        <span th:each="tripTag : ${tags}" class="tag" th:text="${tripTag.tagName}">
+                            #태그이름
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">경비</div>
+                    <div class="info-value">300원</div>
+                    <span class="info-link">더보기</span>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">동행</div>
+                    <div class="info-value"><span class="info-invite">초대</span></div>
+                </div>
             </div>
 
-            <div class="schedule-input-row">
-              <input class="schedule-time" type="time" th:id="'newTime_' + ${stat.count}" />
-              <input class="schedule-content" type="text" th:id="'newContent_' + ${stat.count}" placeholder="내용을 입력하세요" />
+            <div class="side-btns">
+                <button class="side-btn selected">계획</button>
+                <button class="side-btn">후기</button>
             </div>
+        </div>
 
-            <button type="button" class="schedule-add-btn" th:attr="data-day=${stat.count}">＋</button>
-          </div> <!-- day-col 닫음 -->
-        </div> <!-- days-row 닫음 -->
+        <div class="right-content">
+            <div class="plan-box">
+                <div class="scroll-container">
+                    <form th:object="${scheduleForm}"
+                        th:action="@{/trips/{tripId}/trip-plan-schedule(tripId=${trip.id})}" method="post">
 
-        <button type="submit" class="plan-save-btn">저장</button>
-      </form> <!-- form 닫음 -->
-    </div> <!-- scroll-container 닫음 -->
+                        <div class="days-row">
+                            <div th:each="label,stat : ${dateLabels}" th:id="|day-${stat.count}|" class="day-col">
 
-  </div> <!-- plan-box 닫음 -->
-</div> <!-- right-content 닫음 -->
+                                <div class="day-title">
+                                    <span th:text="${label}"></span>
+                                </div>
 
-<script th:inline="javascript">
-/*<![CDATA[*/
-  // 1) 초기 인덱스 세팅
-  let nextIdx = /*[[${scheduleForm.scheduleDtos.size()}]]*/ 0;
+                                <div class="schedule-list">
+                                    <!-- 🔄 idx → stat2.index 로 변경 -->
+                                    <div th:each="dto,stat2 : *{scheduleDtos}" th:if="${dto.dayNumber} == ${stat.count}"
+                                        class="schedule-item">
+                                        <input type="hidden" th:name="|scheduleDtos[${stat2.index}].id|"
+                                            th:value="${dto.id}" />
+                                        <input type="hidden" th:name="|scheduleDtos[${stat2.index}].dayNumber|"
+                                            th:value="${dto.dayNumber}" />
+                                        <input type="hidden" th:name="|scheduleDtos[${stat2.index}].time|"
+                                            th:value="${#temporals.format(dto.time,'HH:mm')}" />
+                                        <input type="hidden" th:name="|scheduleDtos[${stat2.index}].content|"
+                                            th:value="${dto.content}" />
+                                        <input type="hidden" th:id="|toDel${stat2.index}|"
+                                            th:name="|scheduleDtos[${stat2.index}].toDelete|" value="false" />
 
-  // 2) 이벤트 위임: scroll-container 내부 클릭 모두 처리
-  document.querySelector('.scroll-container')
-    .addEventListener('click', function(e) {
-      // ＋ 버튼 클릭 시
-      if (e.target.matches('.schedule-add-btn')) {
-        const dayNumber = e.target.getAttribute('data-day');
-        addTemp(dayNumber);
-      }
-      // × 버튼 클릭 시
-      else if (e.target.matches('.schedule-remove')) {
-        const idx = e.target.getAttribute('data-idx');
-        removeRow(e.target, idx);
-      }
-    });
+                                        <span class="schedule-time"
+                                            th:text="${#temporals.format(dto.time,'HH:mm')}">--:--</span>
+                                        <span class="schedule-content" th:text="${dto.content}">내용을 입력하세요</span>
 
-  // 3) addTemp 함수
-  function addTemp(dayNumber) {
-    const timeInput    = document.getElementById('newTime_' + dayNumber);
-    const contentInput = document.getElementById('newContent_' + dayNumber);
-    const time    = timeInput.value.trim();
-    const content = contentInput.value.trim();
-    if (!content) { alert('내용을 입력해주세요.'); return; }
+                                        <button type="button" class="schedule-remove"
+                                            th:attr="data-idx=${stat2.index}">×</button>
+                                    </div>
+                                </div>
 
-    const list = document.querySelector('#day-' + dayNumber + ' .schedule-list');
-    const idx  = nextIdx++;
+                                <div class="schedule-input-row">
+                                    <input class="schedule-time" type="time" th:id="'newTime_' + ${stat.count}" />
+                                    <input class="schedule-content" type="text" th:id="'newContent_' + ${stat.count}"
+                                        placeholder="내용을 입력하세요" />
+                                </div>
 
-    const container = document.createElement('div');
-    container.className = 'schedule-item';
-    container.innerHTML = `
+                                <button type="button" class="schedule-add-btn"
+                                    th:attr="data-day=${stat.count}">＋</button>
+                            </div> <!-- day-col 닫음 -->
+                        </div> <!-- days-row 닫음 -->
+
+                        <button type="submit" class="plan-save-btn">저장</button>
+                    </form> <!-- form 닫음 -->
+                </div> <!-- scroll-container 닫음 -->
+
+            </div> <!-- plan-box 닫음 -->
+        </div> <!-- right-content 닫음 -->
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // 1) 초기 인덱스 세팅
+            let nextIdx = /*[[${scheduleForm.scheduleDtos.size()}]]*/ 0;
+
+            // 2) 이벤트 위임: scroll-container 내부 클릭 모두 처리
+            document.querySelector('.scroll-container')
+                .addEventListener('click', function (e) {
+                    // ＋ 버튼 클릭 시
+                    if (e.target.matches('.schedule-add-btn')) {
+                        const dayNumber = e.target.getAttribute('data-day');
+                        addTemp(dayNumber);
+                    }
+                    // × 버튼 클릭 시
+                    else if (e.target.matches('.schedule-remove')) {
+                        const idx = e.target.getAttribute('data-idx');
+                        removeRow(e.target, idx);
+                    }
+                });
+
+            // 3) addTemp 함수
+            function addTemp(dayNumber) {
+                const timeInput = document.getElementById('newTime_' + dayNumber);
+                const contentInput = document.getElementById('newContent_' + dayNumber);
+                const time = timeInput.value.trim();
+                const content = contentInput.value.trim();
+                if (!content) { alert('내용을 입력해주세요.'); return; }
+
+                const list = document.querySelector('#day-' + dayNumber + ' .schedule-list');
+                const idx = nextIdx++;
+
+                const container = document.createElement('div');
+                container.className = 'schedule-item';
+                container.innerHTML = `
       <input type="hidden" name="scheduleDtos[${idx}].dayNumber" value="${dayNumber}" />
       <input type="hidden" name="scheduleDtos[${idx}].time"       value="${time}" />
       <input type="hidden" name="scheduleDtos[${idx}].content"    value="${content}" />
@@ -674,36 +796,37 @@
       <span class="schedule-content">${content}</span>
       <button type="button" class="schedule-remove" data-idx="${idx}">×</button>
     `;
-    list.appendChild(container);
+                list.appendChild(container);
 
-    timeInput.value    = '';
-    contentInput.value = '';
-    const emptyMsg = list.querySelector('.empty-message');
-    if (emptyMsg) emptyMsg.remove();
-  }
+                timeInput.value = '';
+                contentInput.value = '';
+                const emptyMsg = list.querySelector('.empty-message');
+                if (emptyMsg) emptyMsg.remove();
+            }
 
-  // 4) removeRow 함수
-  function removeRow(btn, idx) {
-    const delInput = document.getElementById('toDel' + idx);
-    if (delInput) delInput.value = 'true';
+            // 4) removeRow 함수
+            function removeRow(btn, idx) {
+                const delInput = document.getElementById('toDel' + idx);
+                if (delInput) delInput.value = 'true';
 
-     const item = btn.closest('.schedule-item');
-    if (item) {
-        // item.remove(); // 이 부분을 주석처리!
-        item.style.display = 'none'; // 화면에만 안 보이게 처리
-    }
+                const item = btn.closest('.schedule-item');
+                if (item) {
+                    // item.remove(); // 이 부분을 주석처리!
+                    item.style.display = 'none'; // 화면에만 안 보이게 처리
+                }
 
-    const dayCol = btn.closest('.day-col');
-    if (!dayCol) return;
-    const list = dayCol.querySelector('.schedule-list');
-    if (list && list.querySelectorAll('.schedule-item').length === 0) {
-      const msg = document.createElement('div');
-      msg.className = 'empty-message';
-      msg.textContent = '등록된 일정이 없습니다.';
-      list.appendChild(msg);
-    }
-  }
-/*]]>*/
-</script>
+                const dayCol = btn.closest('.day-col');
+                if (!dayCol) return;
+                const list = dayCol.querySelector('.schedule-list');
+                if (list && list.querySelectorAll('.schedule-item').length === 0) {
+                    const msg = document.createElement('div');
+                    msg.className = 'empty-message';
+                    msg.textContent = '등록된 일정이 없습니다.';
+                    list.appendChild(msg);
+                }
+            }
+            /*]]>*/
+        </script>
 </body>
+
 </html>

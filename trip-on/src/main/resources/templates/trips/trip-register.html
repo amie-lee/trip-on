@@ -1,43 +1,51 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>여행 등록 | TRIP ON</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+    rel="stylesheet" />
   <style>
     .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
 
     .logo {
-        font-family: 'Bagel Fat One', cursive;
-        font-size: 40px;
-        color: #000;
+      font-family: 'Bagel Fat One', cursive;
+      font-size: 40px;
+      color: #000;
     }
 
     .logout-group {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .logout-text {
-        font-size: 15px;
-        color: #000;
+      font-size: 15px;
+      color: #000;
     }
 
     .avatar-small {
-        width: 36px;
-        height: 36px;
-        background-color: #d9d9d9;
-        border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      background-color: #d9d9d9;
+      border-radius: 50%;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Noto Sans KR', sans-serif;
       background-color: #fff;
@@ -52,6 +60,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding-bottom: 80px;
     }
 
     h2 {
@@ -132,7 +141,7 @@
       color: #0077cc;
       cursor: pointer;
       display: inline-block;
-      align-self:  flex-end;
+      align-self: flex-end;
     }
 
     #removeLinkBtn {
@@ -142,7 +151,7 @@
       color: red;
       cursor: pointer;
       display: none;
-      align-self:  flex-end;
+      align-self: flex-end;
     }
 
     .submit-btn {
@@ -164,29 +173,30 @@
     }
 
     /* 모든 label 다음 input 사이 여백 */
-.form-section label + input {
-  margin-top: 6px;
-  margin-bottom: 20px;
-}
+    .form-section label + input {
+      margin-top: 6px;
+      margin-bottom: 20px;
+    }
 
-/* 날짜 두 label 사이 간격 확보 */
-#startDate + label {
-  margin-top: 20px;
-  display: inline-block;
-}
+    /* 날짜 두 label 사이 간격 확보 */
+    #startDate + label {
+      margin-top: 20px;
+      display: inline-block;
+    }
 
-/* 가는/오는 교통편 label 간 간격 확보 */
-input[th\\:field="*{departureTrip}"] + label {
-  margin-top: 20px;
-  display: inline-block;
-}
+    /* 가는/오는 교통편 label 간 간격 확보 */
+    input[name="departureTrip"] + label {
+      margin-top: 20px;
+      display: inline-block;
+    }
 
-/* 여유 간격을 위해 교통편 input 아래 margin도 추가 */
-input[th\\:field="*{returnTrip}"] {
-  margin-bottom: 20px;
-}
+    /* 여유 간격을 위해 교통편 input 아래 margin도 추가 */
+    input[name="returnTrip"] {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
+
 <body>
   <div th:replace="~{fragments/header :: header(${user})}"></div>
 
@@ -238,7 +248,8 @@ input[th\\:field="*{returnTrip}"] {
   </div>
 
   <!-- Google Maps API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEy6nlvaa8tF6QlhdMvwiI1AW_rIBLT38&libraries=places&language=ko"></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEy6nlvaa8tF6QlhdMvwiI1AW_rIBLT38&libraries=places&language=ko"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -260,7 +271,7 @@ input[th\\:field="*{returnTrip}"] {
         removeLinkBtn.style.display = 'none';
       });
 
-      window.receivePlaceFromPopup = function(placeName, placeMapUrl) {
+      window.receivePlaceFromPopup = function (placeName, placeMapUrl) {
         accommodationInput.value = placeName;
         accommodationLinkInput.value = placeMapUrl;
         removeLinkBtn.style.display = 'inline-block';
@@ -273,7 +284,7 @@ input[th\\:field="*{returnTrip}"] {
       const tagBtns = document.querySelectorAll('.tag-btn');
       const form = document.querySelector('form');
 
-      window.addEventListener('pageshow', function(event) {
+      window.addEventListener('pageshow', function (event) {
         if (event.persisted || window.performance.getEntriesByType('navigation')[0].type === 'back_forward') {
           form.reset();
           tagBtns.forEach(btn => btn.classList.remove('selected'));
@@ -302,4 +313,5 @@ input[th\\:field="*{returnTrip}"] {
     });
   </script>
 </body>
+
 </html>
