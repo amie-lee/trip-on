@@ -1,6 +1,7 @@
 // --- DetailController.java (login 체크 추가 버전) ---
 package com.tripon.trip_on.trips;
 
+import com.tripon.trip_on.expenses.ExpenseService;
 import com.tripon.trip_on.user.User;         // ← User 엔티티
 import com.tripon.trip_on.user.UserService;  // ← UserService
 
@@ -42,18 +43,21 @@ public class DetailController {
     private final ScheduleRepository scheduleRepository;
     private final TripTagRepository tripTagRepository;
     private final TripService tripService;
-    private final UserService userService;  // ← UserService 추가
+    private final UserService userService; 
+    private final ExpenseService expenseService;
 
     public DetailController(TripRepository tripRepository,
                             ScheduleRepository scheduleRepository,
                             TripTagRepository tripTagRepository,
                             TripService tripService,
-                            UserService userService) { // ← 생성자에 UserService 추가
+                            UserService userService,
+                            ExpenseService expenseService) { 
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.tripTagRepository = tripTagRepository;
         this.tripService = tripService;
         this.userService = userService;
+        this.expenseService = expenseService;
     }
 
     @ModelAttribute("tripUpdateDto")
@@ -123,12 +127,15 @@ public class DetailController {
             .filter(u -> u.getId() != loginUser.getId())
             .map(User::getUsername)
             .collect(Collectors.toList());
+
+        int totalExpenseAmount = expenseService.getTotalAmountByTripId(tripId);
         
         model.addAttribute("memberNames", memberNames);
         model.addAttribute("trip", trip);
         model.addAttribute("tags", tags);
         model.addAttribute("dateLabels", dateLabels);
         model.addAttribute("scheduleMap", scheduleMap);
+        model.addAttribute("totalExpenseAmount", totalExpenseAmount);
 
         return "trips/trip-plan";
     }

@@ -692,7 +692,7 @@
                 </div>
                 <div class="info-row">
                     <div class="info-label">경비</div>
-                    <div class="info-value">00원</div>
+                    <div class="info-value" th:text="${#numbers.formatInteger(totalExpenseAmount, 3, 'COMMA')} + 원">00원</div>
                     <a th:href="@{'/trips/' + ${trip.id} + '/expenses'}" class="info-link">더보기</a>
                 </div>
                 <div class="info-row">

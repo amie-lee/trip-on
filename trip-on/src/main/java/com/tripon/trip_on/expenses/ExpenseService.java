@@ -136,4 +136,10 @@ public class ExpenseService {
             return dto;
         }).toList();
     }
+
+    public int getTotalAmountByTripId(Long tripId) {
+        List<Expense> expenses = expenseRepository.findAllByTripId(tripId);
+        return expenses.stream().mapToInt(Expense::getAmount).sum();
+    }
+
 }
