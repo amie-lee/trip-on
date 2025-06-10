@@ -34,19 +34,29 @@
       background-color: #d9d9d9; border-radius: 50%;
     }
     .center-wrapper {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      flex: 1; margin-top: -40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      margin-top: -40px;
+      width: 100%;
     }
     .profile-section {
-      display: flex; align-items: center; gap: 24px;
-      margin-bottom: 40px; width: 100%; max-width: 700px;
-        /* align-self: flex-start; */
-
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 40px;
+      width: 100%;
+      max-width: 700px;
+      position: relative;
+      left: -230px;
     }
     .avatar-large {
-      width: 100px; height: 100px;
-      background-color: #d9d9d9; border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      background-color: #d9d9d9;
+      border-radius: 50%;
       position: relative;
       cursor: pointer;
     }
@@ -65,7 +75,10 @@
     }
     .user-name { font-weight: bold; font-size: 18px; margin-bottom: 4px; }
     .user-email { font-size: 15px; color: #555; }
-    .menu { width: 100%; max-width: 700px; }
+    .menu {
+      width: 100%;
+      max-width: 700px;
+    }
     .menu-item-btn {
       width: 100%; background: none; border: none;
       padding: 20px 0; font-size: 16px;

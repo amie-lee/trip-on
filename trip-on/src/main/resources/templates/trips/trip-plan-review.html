@@ -184,11 +184,12 @@
     }
 
     .side-btn {
+      text-decoration: none !important;
+      border: 1.5px solid #bbb;
       width: 100%;
       border-radius: 8px;
       padding: 6px 18px;
       background: #fff;
-      border: 1.5px solid #bbb;
       color: #222;
       font-size: 16px;
       cursor: pointer;
@@ -967,8 +968,8 @@
         </div>
       </div>
       <div class="side-btns">
-        <button class="side-btn selected">계획</button>
-        <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn">후기</a>
+        <a th:href="@{/trips/{tripId}/trip-plan(tripId=${tripId})}" class="side-btn">계획</a>
+        <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn selected">후기</a>
       </div>
     </div>
 
