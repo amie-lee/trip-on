@@ -600,22 +600,79 @@
         }
 
         /* "지도로 추가" / "링크 삭제" 버튼 스타일 */
-        #openMapBtn,
-        #removeLinkBtn {
-            background: none;
-            border: none;
-            color: #0077cc;
-            text-decoration: underline;
-            cursor: pointer;
-            padding: 0;
-            margin-top: 4px;
-            font-size: 14px;
-        }
+       #openMapBtn {
+  background: none;
+  border: none;
+  color: #0077cc;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+  font-size: 12px;
+  align-self: flex-end;  /* 추가된 속성: 입력창 기준 오른쪽 정렬 */
+}
+#removeLinkBtn {
+  background: none;
+  border: none;
+  color: red;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+  font-size: 12px;
+  align-self: flex-end;  /* 추가된 속성: 입력창 기준 오른쪽 정렬 */
+}
 
         /* 기본 숨김 */
         #removeLinkBtn {
             display: none;
         }
+        .left-info input[type="text"],
+.left-info input[type="text"],
+.left-info input[type="date"] {
+  height: 35px;
+  padding: 0 12px;
+  font-size: 12px;
+  border: 1px solid #000;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.left-info .info-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.left-info .info-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.left-info .trip-title {
+  font-size: 14px;
+  padding: 4px 10px;
+  height: 35px;
+  border: 1px solid #000;
+  border-radius: 6px;
+}
+
+/* 저장, 취소 버튼은 원래 크기 */
+.left-info .side-btn {
+  padding: 6px 18px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+/* 나머지 버튼은 축소 */
+.left-info .menu-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
     </style>
 </head>
 
@@ -645,32 +702,25 @@
                     </div>
 
                     <!-- 숙소 -->
-                    <div class="info-row">
-                        <div class="info-label">숙소</div>
-                        <div class="info-value">
-                            <!-- 1) 텍스트 입력 -->
-                            <input type="text" th:field="*{accommodation}" id="accommodationInput"
-                                placeholder="직접 입력 또는 지도로 추가" />
-
-                            <!-- 2) 숨김 필드: 링크 저장 (폼에서 제거될 수 있음) -->
-                            <input type="hidden" th:field="*{accommodationLink}" id="accommodationLinkInput" />
-
-                            <!-- 3) 지도로 추가 버튼 -->
-                            <button type="button" id="openMapBtn">지도로 추가</button>
-
-                            <!-- 4) 링크 삭제 버튼 -->
-                            <button type="button" id="removeLinkBtn">링크 삭제</button>
-                        </div>
-                    </div>
+<div class="info-row">
+  <label class="info-label">숙소</label>
+  <input type="text" th:field="*{accommodation}" id="accommodationInput" placeholder="직접 입력 또는 지도로 추가" />
+  <input type="hidden" th:field="*{accommodationLink}" id="accommodationLinkInput" />
+  <button type="button" id="openMapBtn">지도로 추가</button>
+  <button type="button" id="removeLinkBtn">링크 삭제</button>
+</div>
 
                     <!-- 교통편 -->
-                    <div class="info-row">
-                        <div class="info-label">교통편</div>
-                        <div class="info-value">
-                            <input type="text" th:field="*{departureTrip}" placeholder="가는 교통편" />,
-                            <input type="text" th:field="*{returnTrip}" placeholder="오는 교통편" />
-                        </div>
-                    </div>
+<!-- 교통편 -->
+<div class="info-row">
+  <label class="info-label">가는 교통편</label>
+  <input type="text" th:field="*{departureTrip}" placeholder="가는 교통편" />
+</div>
+
+<div class="info-row">
+  <label class="info-label">오는 교통편</label>
+  <input type="text" th:field="*{returnTrip}" placeholder="오는 교통편" />
+</div>
 
                     <!-- 태그 -->
                     <div class="info-row">
@@ -688,12 +738,7 @@
                     취소
                 </button>
             </form>
-            <div class="side-btns" style="margin-top:24px;">
-                <a th:href="@{/trips/{tripId}/trip-plan(tripId=${tripId})}" class="side-btn">계획</a>
-                <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn">후기</a>
-            </div>
         </div>
-
         <!-- RIGHT DAYS & SCHEDULES (기존 그대로) -->
         <div class="right-content">
             <div class="plan-box">
