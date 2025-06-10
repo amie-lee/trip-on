@@ -145,6 +145,7 @@
             margin-bottom: 16px;
             text-align: center;
             transition: background 0.2s, color 0.2s;
+            text-decoration: none !important;
         }
 
         .side-btn.selected {
@@ -654,7 +655,7 @@
                 </div>
             </div>
             <div class="side-btns">
-                <button class="side-btn selected">계획</button>
+                <a th:href="@{/trips/{tripId}/trip-plan(tripId=${tripId})}" class="side-btn selected">계획</a>
                 <a th:href="@{/trips/{tripId}/review(tripId=${tripId})}" class="side-btn">후기</a>
             </div>
         </div>
