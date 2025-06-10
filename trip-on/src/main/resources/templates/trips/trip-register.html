@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>여행 등록 | TRIP ON</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     .top-bar {
         display: flex;
@@ -92,59 +89,102 @@
       border-radius: 8px;
     }
 
-    /* “링크 삭제” 버튼 스타일 */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 40px;
+      justify-content: center;
+      margin-bottom: 40px;
+      max-width: 800px;
+    }
+
+    .tag-btn {
+      min-width: 120px;
+      padding: 16px 32px;
+      background-color: #fff;
+      border: 1.5px solid #000;
+      border-radius: 30px;
+      font-size: 20px;
+      color: #000;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tag-btn.selected {
+      background-color: #000;
+      color: #fff;
+      border: 2.5px solid #000;
+    }
+
+    .tag-btn:hover {
+      background-color: #000;
+      color: #fff;
+      border: 1.5px solid #000;
+    }
+
+    #openMapBtn {
+      margin-top: 4px;
+      font-size: 14px;
+      text-decoration: underline;
+      color: #0077cc;
+      cursor: pointer;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
     #removeLinkBtn {
       margin-top: 8px;
-      padding: 6px 10px;
-      background-color: #e74c3c;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
       font-size: 14px;
+      text-decoration: underline;
+      color: red;
       cursor: pointer;
-      display: none; /* 기본 숨김 */
-    }
-    .tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px 40px;
-  justify-content: center;
-  margin-bottom: 40px;
-  max-width: 800px;
-}
-
-.tag-btn {
-  min-width: 120px;
-  padding: 16px 32px;
-  background-color: #fff;
-  border: 1.5px solid #000;
-  border-radius: 30px;
-  font-size: 20px;
-  color: #000;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-}
-
-.tag-btn.selected,
-.tag-btn:hover {
-  background-color: #CBE1ED;
-  color: #000;
-  border: 1.5px solid #CBE1ED;
-}
-
-.tag-btn.selected {
-  border: 2.5px solid #7bb8dd;
-  background: #CBE1ED;
-}
-
-    #removeLinkBtn:hover {
-      background-color: #c0392b;
+      display: none;
+      align-self: flex-start;
     }
 
-    /* 태그, 기타 스타일 생략… */
+    .submit-btn {
+      width: 250px;
+      height: 50px;
+      background-color: #DBDBDB;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      align-self: center;
+    }
+
+    .submit-btn:hover {
+      background-color: #000;
+      color: #fff;
+    }
+
+    /* 모든 label 다음 input 사이 여백 */
+.form-section label + input {
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+/* 날짜 두 label 사이 간격 확보 */
+#startDate + label {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+/* 가는/오는 교통편 label 간 간격 확보 */
+input[th\\:field="*{departureTrip}"] + label {
+  margin-top: 20px;
+  display: inline-block;
+}
+
+/* 여유 간격을 위해 교통편 input 아래 margin도 추가 */
+input[th\\:field="*{returnTrip}"] {
+  margin-bottom: 20px;
+}
   </style>
 </head>
 <body>
@@ -155,56 +195,35 @@
     <form th:action="@{/trips/register/trip-register}" th:object="${tripRegisterDto}" method="post" autocomplete="off">
       <!-- 여행지 -->
       <div class="form-section">
-        <label for="title">여행지 (필수)</label>
-        <input type="text" th:field="*{title}" id="title" required />
+        <label for="title">어디로 떠나시나요? <span style="color: red;">*</span></label>
+        <input type="text" th:field="*{title}" id="title" required placeholder="여행지" />
       </div>
 
       <!-- 날짜 -->
       <div class="form-section">
-        <label for="startDate">시작일 (필수)</label>
+        <label for="startDate">시작일 <span style="color: red;">*</span></label>
         <input type="date" th:field="*{startDate}" id="startDate" required />
-        <label for="endDate">종료일 (필수)</label>
+        <label for="endDate">종료일 <span style="color: red;">*</span></label>
         <input type="date" th:field="*{endDate}" id="endDate" required />
       </div>
 
-      <!-- 숙소/교통편 (선택) -->
+      <!-- 숙소/교통편 -->
       <div class="form-section">
-        <label for="accommodation">숙소 (선택)</label>
-        <!-- 1) 숙소명 텍스트 입력 -->
-        <input
-          type="text"
-          th:field="*{accommodation}"
-          id="accommodationInput"
-          placeholder="직접 입력하거나, '지도로 추가' 버튼을 눌러 선택"
-        />
+        <label for="accommodation">숙소</label>
+        <input type="text" th:field="*{accommodation}" id="accommodationInput" placeholder="직접 입력하거나, '지도로 추가' 클릭" />
+        <input type="hidden" th:field="*{accommodationLink}" id="accommodationLinkInput" />
+        <span id="openMapBtn">지도로 추가</span>
+        <span id="removeLinkBtn">링크 삭제</span>
 
-        <!-- 2) 숨겨진 필드: 구글 지도 링크 저장 -->
-        <input
-          type="hidden"
-          th:field="*{accommodationLink}"
-          id="accommodationLinkInput"
-        />
-
-        <!-- 3) 지도로 추가 버튼 -->
-        <button type="button" id="openMapBtn" style="margin-top: 8px; padding: 8px 12px;">
-          지도로 추가
-        </button>
-
-        <!-- 4) 링크가 있을 때만 보이는 '링크 삭제' 버튼 -->
-        <button type="button" id="removeLinkBtn">
-          링크 삭제
-        </button>
-
-        <!-- 교통편(기존 코드) -->
-        <label style="margin-top: 16px;">가는 교통편 (선택)</label>
+        <label style="margin-top: 16px;">가는 교통편</label>
         <input type="text" th:field="*{departureTrip}" />
-        <label>오는 교통편 (선택)</label>
+        <label>오는 교통편</label>
         <input type="text" th:field="*{returnTrip}" />
       </div>
 
-      <!-- 태그 선택 (생략) -->
+      <!-- 태그 -->
       <div class="form-section">
-        <label>태그 선택 (선택)</label>
+        <label>태그</label>
         <div class="tag-list">
           <div th:each="tag : ${allTags}" class="tag-btn">
             <input type="checkbox" name="selectedTags" th:value="${tag}" style="display: none;" />
@@ -214,14 +233,12 @@
       </div>
 
       <!-- 제출 -->
-      <button type="submit" class="submit-btn">여행 등록 완료</button>
+      <button type="submit" class="submit-btn btn">여행 등록 완료</button>
     </form>
   </div>
 
-  <!-- Google Maps JS API (Places 라이브러리 포함) -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEy6nlvaa8tF6QlhdMvwiI1AW_rIBLT38&libraries=places&language=ko"
-  ></script>
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEy6nlvaa8tF6QlhdMvwiI1AW_rIBLT38&libraries=places&language=ko"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -230,25 +247,19 @@
       const accommodationInput = document.getElementById('accommodationInput');
       const accommodationLinkInput = document.getElementById('accommodationLinkInput');
 
-      // 팝업에서 이미 값을 받았다면, 링크가 있을 때 removeLinkBtn 보이기
       if (accommodationLinkInput.value) {
         removeLinkBtn.style.display = 'inline-block';
       }
 
-      // 1) “지도로 추가” 버튼 클릭 → map-popup.html 팝업 띄우기
       openMapBtn.addEventListener('click', function () {
         window.open('/map-popup', 'mapPopup', 'width=800,height=600');
       });
 
-      // ★ 2) 사용자 입력 시 링크 삭제 기능 제거하여 이 블록 삭제 ★
-
-      // 3) “링크 삭제” 버튼 클릭 → 링크 공백, 버튼 숨김
       removeLinkBtn.addEventListener('click', function () {
         accommodationLinkInput.value = '';
         removeLinkBtn.style.display = 'none';
       });
 
-      // 4) 팝업에서 장소를 선택했을 때 부모 창에서 호출될 함수
       window.receivePlaceFromPopup = function(placeName, placeMapUrl) {
         accommodationInput.value = placeName;
         accommodationLinkInput.value = placeMapUrl;
@@ -256,44 +267,39 @@
       };
     });
   </script>
+
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const tagBtns = document.querySelectorAll('.tag-btn');
-    const form = document.querySelector('form');
+    document.addEventListener('DOMContentLoaded', function () {
+      const tagBtns = document.querySelectorAll('.tag-btn');
+      const form = document.querySelector('form');
 
-    // 뒤로 가기 캐시 대응: 모든 선택 초기화
-    window.addEventListener('pageshow', function(event) {
-      if (event.persisted || window.performance.getEntriesByType('navigation')[0].type === 'back_forward') {
-        form.reset();
-        tagBtns.forEach(btn => btn.classList.remove('selected'));
-      }
-    });
-
-    // 초기 체크 여부에 따라 selected 클래스 붙이기
-    tagBtns.forEach(btn => {
-      const checkbox = btn.querySelector('input[type="checkbox"]');
-      if (checkbox.checked) {
-        btn.classList.add('selected');
-      } else {
-        btn.classList.remove('selected');
-      }
-    });
-
-    // 태그 버튼 클릭 시 선택 토글
-    tagBtns.forEach(btn => {
-      btn.addEventListener('click', function () {
-        btn.classList.toggle('selected');
+      window.addEventListener('pageshow', function(event) {
+        if (event.persisted || window.performance.getEntriesByType('navigation')[0].type === 'back_forward') {
+          form.reset();
+          tagBtns.forEach(btn => btn.classList.remove('selected'));
+        }
       });
-    });
 
-    // 폼 제출 전 selected인 항목만 실제로 checked로 설정
-    form.addEventListener('submit', function () {
       tagBtns.forEach(btn => {
         const checkbox = btn.querySelector('input[type="checkbox"]');
-        checkbox.checked = btn.classList.contains('selected');
+        if (checkbox.checked) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+
+        btn.addEventListener('click', function () {
+          btn.classList.toggle('selected');
+        });
+      });
+
+      form.addEventListener('submit', function () {
+        tagBtns.forEach(btn => {
+          const checkbox = btn.querySelector('input[type="checkbox"]');
+          checkbox.checked = btn.classList.contains('selected');
+        });
       });
     });
-  });
-</script>
+  </script>
 </body>
 </html>

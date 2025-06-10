@@ -578,6 +578,56 @@
             color: #888;
             text-decoration: none;
         }
+        .delete-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-modal-content {
+  background: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  width: 420px;
+  text-align: center;
+}
+
+.delete-title {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 32px;
+}
+
+.delete-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.delete-btn,
+.cancel-btn {
+  padding: 10px 24px;
+  font-size: 15px;
+  border: none; 
+  border-radius: 8px;
+  background-color: #fff; 
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.delete-btn:hover,
+.cancel-btn:hover {
+  background-color: #eee;
+}
     </style>
 </head>
 
@@ -621,7 +671,6 @@
                             (지도)
                         </a>
                         <span th:unless="${trip.accommodationLink != null}" class="info-link disabled">
-                            (지도)
                         </span>
                     </div>
                 </div>
@@ -660,7 +709,7 @@
             </div>
         </div>
 
-        <!-- ✅ 팝업 구조 -->
+        <!-- 팝업 구조 -->
         <div id="inviteModal" class="invite-modal" style="display:none;">
             <div class="invite-modal-content">
                 <div class="invite-title">초대할 유저의 이메일을 입력해주세요!</div>
@@ -773,13 +822,13 @@ async function confirmDelete() {
   }
 }
   </script>
-  <!-- ✅ 삭제 확인 팝업 -->
-<div id="deleteModal" class="invite-modal" style="display: none;">
-  <div class="invite-modal-content">
-    <div class="invite-title">정말 이 여행을 삭제하시겠습니까?</div>
-    <div style="display: flex; gap: 16px;">
-      <button class="invite-send-btn" onclick="confirmDelete()">삭제</button>
-      <button class="invite-close-btn" onclick="closeDeleteModal()">취소</button>
+ <!--  삭제 확인 팝업 -->
+<div id="deleteModal" class="delete-modal" style="display: none;">
+  <div class="delete-modal-content">
+    <div class="delete-title">정말 이 여행을 삭제하시겠습니까?</div>
+    <div class="delete-buttons">
+      <button class="delete-btn" onclick="confirmDelete()">삭제</button>
+      <button class="cancel-btn" onclick="closeDeleteModal()">취소</button>
     </div>
   </div>
 </div>
