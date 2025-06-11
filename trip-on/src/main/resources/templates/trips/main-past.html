@@ -11,31 +11,6 @@
             margin: 0;
             padding: 0;
         }
-        /* 클릭 가능하다는 시각적 힌트를 위해 포인터 커서 */
-.trip-card {
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* 호버 시 배경·글자색 반전 */
-.trip-card:hover {
-    background-color: #000;
-    color: #fff;
-}
-
-/* 지난 여행 카드 호버 시 약간 다른 색을 원한다면 */
-.trip-card.past:hover {
-    background-color: #444;
-    color: #fff;
-}
-
-.trip-card:hover .trip-tags {
-    color: #fff;
-}
-
-.trip-card.past:hover .trip-tags {
-    color: #fff;
-}
 
         body {
             background-color: #fff;
@@ -108,18 +83,60 @@
             font-weight: 400;
         }
 
-        /* 여행 카드 */
+        /* 클릭 가능하다는 시각적 힌트를 위해 포인터 커서 */
         .trip-card {
-            width: 300px;
-            height: 130px;
-            background-color: #fff;
-            border: 1px solid #000;
-            border-radius: 20px;
-            padding: 25px;
+            position: relative;
+            min-height: 0;
             display: flex;
+            width: 100%;
+            max-width: 260px;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            gap: 6px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform .1s ease, background-color .1s ease;
+        }
+        .trip__badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: #e6f7ff;
+            color: #444;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            box-shadow: none; 
+        }
+
+        /* 호버 시 배경·글자색 반전 */
+        .trip-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #e6e6e6;
+        }
+
+        /* 지난 여행 카드 호버 시 약간 다른 색을 원한다면 */
+        .trip-card.past:hover {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .trip-card.past:hover .trip-tags {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+        .trip-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        }
+        @media (max-width: 480px) {
+        .trip-grid {
+            grid-template-columns: 1fr;
+        }
         }
 
         .trip-card.past {
@@ -127,36 +144,40 @@
         }
 
         .trip-location {
-            font-size: 24px;
+            font-size: 1.25rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .trip-date {
-            font-size: 16px;
-            margin-bottom: 5px;
-            font-weight: 400;
+            font-size: 1rem;
+            margin-bottom: 4px;
         }
 
         .trip-tags {
-            font-size: 16px;
-            color: #000;
-            font-weight: 300;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 6px;           /* 기존 12px → 6px */
+            line-height: 1.2; 
         }
 
         /* 여행 카드 그리드 */
         .trip-grid {
             display: grid;
-            grid-template-columns: repeat(4, 300px);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
+            justify-content: start;  
+        }
+        .content .trip-grid {
+            margin: 0;           /* 좌우 중앙 정렬 */
         }
 
         /* 구분선 */
         .divider {
             width: 100%;
             height: 1px;
-            background-color: #000;
+            background-color: #ccc;
             margin: 40px 0;
         }
 
@@ -192,6 +213,7 @@
                 <div class="trip-card"
                      th:each="trip : ${upcomingTrips}"
                      th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan\''">
+                    <small th:if="${trip.invited}" class="trip__badge">초대된 여행</small>
                     <div class="trip-location" th:text="${trip.title}">여행 제목</div>
                     <div class="trip-date"
                          th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
@@ -199,7 +221,7 @@
                     </div>
                     <div class="trip-tags">
                         <span th:each="tag : ${trip.tags}"
-                              th:text="${tag}"></span>
+                              th:text="${tag} + ' '"></span>
                     </div>
                 </div>
                 <div th:if="${#lists.isEmpty(upcomingTrips)}" class="empty-message">
@@ -217,6 +239,7 @@
                 <div class="trip-card past"
                      th:each="trip : ${pastTrips}"
                      th:onclick="'location.href=\'/trips/' + ${trip.id} + '/trip-plan\''">
+                    <small th:if="${trip.invited}" class="trip__badge">초대된 여행</small>
                     <div class="trip-location" th:text="${trip.title}">여행 제목</div>
                     <div class="trip-date"
                          th:text="${#temporals.format(trip.startDate,'yyyy.MM.dd') + ' - ' + #temporals.format(trip.endDate,'yyyy.MM.dd')}">
