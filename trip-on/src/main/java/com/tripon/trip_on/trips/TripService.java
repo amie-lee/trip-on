@@ -241,41 +241,46 @@ public void updateTrip(Long tripId, TripUpdateDto dto) {
         return tripRepository.findById(tripId).orElse(null);
     }
 
+    public List<Trip> getTripsForUser(Long userId) {
+        // 한 번에 creator 또는 member 기준으로 모두 가져오기
+        return tripRepository.findAllByCreatorOrMember(userId);
+    }
+
     @Transactional
-public void deleteTripByIdAndUser(Long tripId, Long userId) {
-    Trip trip = tripRepository.findById(tripId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여행입니다."));
-    if (!trip.getCreatorId().equals(userId)) {
-        throw new SecurityException("삭제 권한이 없습니다.");
+    public void deleteTripByIdAndUser(Long tripId, Long userId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 여행입니다."));
+        if (!trip.getCreatorId().equals(userId)) {
+            throw new SecurityException("삭제 권한이 없습니다.");
+        }
+
+        // 1) Expense 관련 삭제
+        List<Expense> expenses = expenseRepository.findByTripId(tripId);
+        List<Long> expenseIds = expenses.stream()
+                .map(Expense::getId)
+                .toList();
+        if (!expenseIds.isEmpty()) {
+            expenseParticipantRepository.deleteByExpenseIdIn(expenseIds);
+        }
+        expenseRepository.deleteByTripId(tripId);
+
+        // 2) Schedule, Member, Tag 삭제
+        scheduleRepository.deleteByTripId(tripId);
+        tripMemberRepository.deleteByTripId(tripId);
+        tripTagRepository.deleteByTripId(tripId);
+
+        // 3) Review & 연관 Photo/Like 삭제
+        List<Review> reviews = reviewRepository.findByTripId(tripId);
+        List<Long> reviewIds = reviews.stream()
+                .map(Review::getId)
+                .toList();
+        if (!reviewIds.isEmpty()) {
+            reviewPhotoRepository.deleteByReviewIdIn(reviewIds);
+            reviewLikeRepository.deleteByReviewIdIn(reviewIds);
+        }
+        reviewRepository.deleteByTripId(tripId);
+
+        // 4) 마지막으로 Trip 삭제
+        tripRepository.delete(trip);
     }
-
-    // 1) Expense 관련 삭제
-    List<Expense> expenses = expenseRepository.findByTripId(tripId);
-    List<Long> expenseIds = expenses.stream()
-            .map(Expense::getId)
-            .toList();
-    if (!expenseIds.isEmpty()) {
-        expenseParticipantRepository.deleteByExpenseIdIn(expenseIds);
-    }
-    expenseRepository.deleteByTripId(tripId);
-
-    // 2) Schedule, Member, Tag 삭제
-    scheduleRepository.deleteByTripId(tripId);
-    tripMemberRepository.deleteByTripId(tripId);
-    tripTagRepository.deleteByTripId(tripId);
-
-    // 3) Review & 연관 Photo/Like 삭제
-    List<Review> reviews = reviewRepository.findByTripId(tripId);
-    List<Long> reviewIds = reviews.stream()
-            .map(Review::getId)
-            .toList();
-    if (!reviewIds.isEmpty()) {
-        reviewPhotoRepository.deleteByReviewIdIn(reviewIds);
-        reviewLikeRepository.deleteByReviewIdIn(reviewIds);
-    }
-    reviewRepository.deleteByTripId(tripId);
-
-    // 4) 마지막으로 Trip 삭제
-    tripRepository.delete(trip);
-}
 }

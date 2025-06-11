@@ -49,4 +49,18 @@ public class Trip {
     //             .map(TripMember::getUser)
     //             .toList();
     // }
+
+    /**
+     * 뷰에서만 쓰는 transient 프로퍼티.
+     * creatorId != currentUserId 이면 true
+     */
+    @Transient
+    private boolean invited;
+
+    public boolean isInvited() {
+        return invited;
+    }
+    public void setInvited(boolean invited) {
+        this.invited = invited;
+    }
 }

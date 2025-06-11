@@ -15,4 +15,14 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findByCreatorId(Long creatorId);
     
     boolean existsByCreatorId(Long creatorId);
+
+    @Query("""
+        SELECT DISTINCT t
+        FROM Trip t
+        LEFT JOIN t.tripMembers tm
+        WHERE t.creatorId = :userId
+            OR tm.user.id    = :userId
+    """)
+    List<Trip> findAllByCreatorOrMember(@Param("userId") Long userId);
+
 }
