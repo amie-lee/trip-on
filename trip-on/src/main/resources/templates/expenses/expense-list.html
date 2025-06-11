@@ -237,7 +237,7 @@
 
   <div style="display: flex; gap: 40px; justify-content: center; margin-top: 40px; margin-bottom: 40px;">
     <!-- 정산 내역 -->
-    <div class="split-box">
+    <div class="split-box" id="split-box">
       <h3 class="split-title">정산 내역</h3>
       <ul class="split-list">
         <li th:each="r : ${splitResults}">
@@ -304,7 +304,9 @@
     document.querySelector('.add-row').style.display = isEditMode ? 'block' : 'none';
     document.getElementById('toggleEditMode').style.display = isEditMode ? 'none' : 'inline-block';
     const chart = document.getElementById('categoryChart');
+    const splitbox = document.getElementById('split-box');
     if (chart) chart.style.display = isEditMode ? 'none' : 'block';
+    if (splitbox) splitbox.style.display = isEditMode ? 'none' : 'block';
     renderTable();
   });
 
