@@ -101,7 +101,7 @@ public class MainPageController {
 
                 // ── (B) 여행 목록 계산 ──
         LocalDate today = LocalDate.now();
-        List<Trip> allTrips = planService.findByCreatorId(userId);
+        List<Trip> allTrips = planService.getTripsForUser(userId);
 
         // 예정 중인 여행 (endDate >= today) → startDate 오름차순 정렬
         List<Trip> upcomingTrips = allTrips.stream()
