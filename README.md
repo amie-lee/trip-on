@@ -18,12 +18,6 @@
       <td align="center">황준하</td>
   </tr>
   <tr>
-      <td align="center">모바일시스템공학과<br/></td>
-      <td align="center">컴퓨터공학과<br/></td>
-      <td align="center">컴퓨터공학과<br/></td>
-      <td align="center">컴퓨터공학과<br/></td>
-  </tr>
-  <tr>
     <td align="center">여행 등록</td>
     <td align="center">지출 정산</td>
     <td align="center">로그인/회원가입</td>
